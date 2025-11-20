@@ -1,52 +1,54 @@
-import 'dart:io';
-
-import 'package:diet_lenz/constants/app_colors.dart';
-import 'package:diet_lenz/features/camera/camera_view.dart';
-import 'package:diet_lenz/features/home/views/home.dart';
-import 'package:diet_lenz/features/home/views/progress.dart';
-import 'package:diet_lenz/features/settings/views/settings.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Provider to track the current tab index
-final currentTabProvider = StateProvider<int>((ref) => 0);
-
-class BottomNav extends ConsumerStatefulWidget {
-  const BottomNav({super.key, this.index = 0, this.fromDeepLink = false});
-  final int index;
-  final bool fromDeepLink;
-
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _BottomNavState();
+void main() {
+  runApp(const MyApp());
 }
 
-class _BottomNavState extends ConsumerState<BottomNav> {
-  late final List<Widget> _screens;
-  int currentIndex = 0;
-
-  int _selectedIndex = 1;
-
-  @override
-  void initState() {
-    currentIndex = widget.index;
-    _screens = [
-      const ProgressScreen(),
-      const HomeScreen(),
-      const SetttingsScreen(),
-      const CameraView()
-    ];
-    super.initState();
-  }
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final isKeyboardVisible = keyboardHeight > 0;
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF121212), // Dark background
+      ),
+      home: const FoodLogScreen(),
+    );
+  }
+}
 
+class FoodLogScreen extends StatefulWidget {
+  const FoodLogScreen({super.key});
+
+  @override
+  State<FoodLogScreen> createState() => _FoodLogScreenState();
+}
+
+class _FoodLogScreenState extends State<FoodLogScreen> {
+  // Track the active index. 0 = History, 1 = Home, 2 = Settings
+  int _selectedIndex = 1; 
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(child: _screens[_selectedIndex]),
-        resizeToAvoidBottomInset: false, // Set to false for both platforms
-        bottomNavigationBar: _buildCustomBottomBar());
+      backgroundColor: const Color(0xFF0E0E0E), // Deep black/grey background
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text("Food Log"),
+        leading: const Icon(Icons.arrow_back),
+      ),
+      body: const Center(
+        child: Text(
+          "Content goes here",
+          style: TextStyle(color: Colors.grey),
+        ),
+      ),
+      // We use a custom widget for the bottom bar
+      bottomNavigationBar: _buildCustomBottomBar(),
+    );
   }
 
   Widget _buildCustomBottomBar() {
@@ -66,8 +68,7 @@ class _BottomNavState extends ConsumerState<BottomNav> {
           // 1. History Tab
           _buildNavItem(
             index: 0,
-            icon:
-                Icons.bar_chart_outlined, // Using bar chart for 'History' look
+            icon: Icons.bar_chart_outlined, // Using bar chart for 'History' look
             label: "History",
           ),
 
@@ -101,7 +102,7 @@ class _BottomNavState extends ConsumerState<BottomNav> {
     final bool isSelected = _selectedIndex == index;
     final Color color = isSelected ? const Color(0xFFFF5621) : Colors.grey;
 
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         setState(() {
           _selectedIndex = index;
@@ -134,25 +135,19 @@ class _BottomNavState extends ConsumerState<BottomNav> {
   Widget _buildScanButton() {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedIndex = 3;
-        });
+        print("Scan Button Tapped");
       },
       child: Container(
         height: 60,
         width: 60,
-        decoration: BoxDecoration(
-          color: _selectedIndex == 3
-              ? AppColors.primaryColor
-              : Colors.white, // White background
+        decoration: const BoxDecoration(
+          color: Colors.white, // White background
           shape: BoxShape.circle,
         ),
-        child: Center(
+        child: const Center(
           child: Icon(
             Icons.qr_code_scanner_rounded, // Scan icon
-            color: _selectedIndex == 3
-                ? Colors.white
-                : AppColors.primaryColor, // Orange icon color
+            color: Color(0xFFFF5621), // Orange icon color
             size: 30,
           ),
         ),

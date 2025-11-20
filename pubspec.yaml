@@ -41,6 +41,18 @@ dependencies:
   flutter_riverpod: any
   pin_code_fields: any
   fl_chart: any
+  dio: any
+  shared_preferences: any
+  flutter_secure_storage: any
+  intl: any
+  curl_logger_dio_interceptor: any
+  dio_smart_retry: any
+  pretty_dio_logger: any
+  cached_network_image:
+  url_launcher:
+  device_info_plus:
+  jwt_decoder:
+  oktoast:
 dev_dependencies:
   flutter_test:
     sdk: flutter
