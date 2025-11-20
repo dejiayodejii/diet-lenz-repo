@@ -1,12 +1,8 @@
 import 'package:diet_lenz/component/custom_button.dart';
-import 'package:diet_lenz/component/custom_textfield.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
-import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
-import 'package:diet_lenz/features/auth/view/forgot_password.dart';
-import 'package:diet_lenz/features/auth/view/verify_otp.dart';
-import 'package:diet_lenz/features/auth/view/widgets/social_signup.dart';
+import 'package:diet_lenz/features/auth/view/select_goal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -42,7 +38,7 @@ class _LoginScreenState extends ConsumerState<SelectAgeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const SizedBox(height: 50),
+            const SizedBox(height: 25),
             const Text("What is your age?",
                 style: TextStyle(
                     fontSize: 28,
@@ -53,7 +49,7 @@ class _LoginScreenState extends ConsumerState<SelectAgeScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 80),
+                  const SizedBox(height: 50),
                   Image.asset(
                     AppImages.numberSelector,
                     scale: 2,
@@ -62,11 +58,13 @@ class _LoginScreenState extends ConsumerState<SelectAgeScreen> {
               ),
             ),
             CustomYafButton(
+                fontSize: 16,
+                weight: FontWeight.w600,
                 iconPositionLeft: false,
                 text: "Continue",
                 iconWidget: SvgPicture.asset(AppImages.arrowRight),
                 onPressed: () {
-                  // NavigationService.push(child: const VerifyOTPScreen());
+                  NavigationService.push(child: const SelectGoalScreen());
                 }),
             const SizedBox(height: 20),
           ],

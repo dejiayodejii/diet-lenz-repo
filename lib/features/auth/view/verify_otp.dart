@@ -1,12 +1,10 @@
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/component/custom_otp.dart';
-import 'package:diet_lenz/component/custom_textfield.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/view/plan_setup.dart';
-import 'package:diet_lenz/features/auth/view/reset_password.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -86,9 +84,11 @@ class _VerifyOTPScreenState extends State<VerifyOTPScreen> {
               ),
             ),
             CustomYafButton(
+                fontSize: 16,
+                weight: FontWeight.w600,
                 text: "Verify",
                 onPressed: () {
-                  NavigationService.push(child: PlanSetUpScreen());
+                  NavigationService.push(child: const PlanSetUpScreen());
                 }),
             const SizedBox(height: 40),
           ],

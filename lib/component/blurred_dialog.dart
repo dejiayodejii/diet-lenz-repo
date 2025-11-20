@@ -39,7 +39,7 @@ class BlurredDialog extends StatelessWidget {
         Positioned.fill(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-            child: Container(color: Color.fromRGBO(0, 0, 0, 0.5)),
+            child: Container(color: const Color.fromRGBO(0, 0, 0, 0.5)),
           ),
         ),
         // Dialog content

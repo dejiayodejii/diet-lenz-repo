@@ -62,14 +62,8 @@ class _CustomYafButtonState extends State<CustomYafButton> {
   Widget build(BuildContext context) {
     bool isDisabled = widget.onPressed == null;
     // Default color is primary color if not specifie
-    final defaultColor = Theme.of(context).primaryColor;
-    final buttonBackgroundColor = widget.color ?? defaultColor;
     // Define size mappings
-    final Map<ButtonSize, double> heightMap = {
-      ButtonSize.small: 32,
-      ButtonSize.medium: 44,
-      ButtonSize.large: 52,
-    };
+
 
     final Map<ButtonSize, EdgeInsets> paddingMap = {
       ButtonSize.small: const EdgeInsets.symmetric(horizontal: 12),
@@ -77,11 +71,7 @@ class _CustomYafButtonState extends State<CustomYafButton> {
       ButtonSize.large: const EdgeInsets.symmetric(horizontal: 24),
     };
 
-    final Map<ButtonSize, double> fontSizeMap = {
-      ButtonSize.small: 14,
-      ButtonSize.medium: 16,
-      ButtonSize.large: 18,
-    };
+
 
     // Build the button based on variant
     Widget button;
@@ -101,7 +91,7 @@ class _CustomYafButtonState extends State<CustomYafButton> {
             backgroundColor: WidgetStateProperty.resolveWith<Color>(
               (Set<WidgetState> states) {
                 if (states.contains(WidgetState.disabled)) {
-                  return Color.fromRGBO(204, 204, 204, 1);
+                  return const Color.fromRGBO(204, 204, 204, 1);
                 }
                 return widget.color!;
               },
@@ -143,8 +133,8 @@ class _CustomYafButtonState extends State<CustomYafButton> {
             ),
           ).copyWith(
             // Override the theme's button style
-            elevation: MaterialStateProperty.all(0),
-            shadowColor: MaterialStateProperty.all(Colors.transparent),
+            elevation: WidgetStateProperty.all(0),
+            shadowColor: WidgetStateProperty.all(Colors.transparent),
           ),
           child: _buildChild(widget.textColor, isDisabled),
         );

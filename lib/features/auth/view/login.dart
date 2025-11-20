@@ -6,6 +6,8 @@ import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/view/forgot_password.dart';
 import 'package:diet_lenz/features/auth/view/widgets/social_signup.dart';
+import 'package:diet_lenz/features/bottom_nav/bottom.dart';
+import 'package:diet_lenz/features/home/views/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -21,6 +23,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromRGBO(18, 18, 18, 1),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
@@ -70,7 +73,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  CustomYafButton(text: "Login", onPressed: () {}),
+                  CustomYafButton(
+                      text: "Login",
+                      onPressed: () {
+                        NavigationService.push(child: BottomNav());
+                      }),
                 ],
               ),
               const SocialSignUp(isLogin: true),

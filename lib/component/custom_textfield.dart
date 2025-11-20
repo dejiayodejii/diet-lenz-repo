@@ -1,4 +1,5 @@
 import 'package:diet_lenz/constants/app_colors.dart';
+import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/constants/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,6 +54,7 @@ class LabelTextFormField extends StatefulWidget {
   final bool hideBorders;
   final bool isRequired;
   final Color? cursorColor;
+  final bool isProfile;
   final TextCapitalization textCapitalization;
   final bool useSpace;
   final AutovalidateMode? autovalidateMode;
@@ -60,6 +62,7 @@ class LabelTextFormField extends StatefulWidget {
   const LabelTextFormField(
       {super.key,
       this.cursorColor,
+      this.isProfile = false,
       this.readOnly = false,
       this.hideBorders = false,
       this.autovalidateMode = AutovalidateMode.onUserInteraction,
@@ -120,9 +123,12 @@ class _LabelTextFormFieldState extends State<LabelTextFormField> {
   final TextEditingController _textController = TextEditingController(text: '');
 
   OutlineInputBorder get _border => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(widget.radius),
+        borderRadius:
+            BorderRadius.circular(widget.isProfile ? 12 : widget.radius),
         borderSide: BorderSide(
-          color: AppColors.primaryColor,
+          color: widget.isProfile
+              ? Color.fromRGBO(47, 47, 47, 1)
+              : AppColors.primaryColor,
           width: widget.hideBorders ? 0 : 1,
         ),
       );
@@ -132,22 +138,22 @@ class _LabelTextFormFieldState extends State<LabelTextFormField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // widget.labelText == null
-        //     ? const SizedBox.shrink()
-        //     : Text(
-        //         widget.labelText!,
-        //         style: widget.labelstyle ??
-        //             context.textTheme.bodyMedium!.copyWith(
-        //               color: AppColors.textColor,
-        //               fontSize: 14,
-        //               fontWeight: FontWeight.w500,
-        //             ),
-        //       ),
-        // widget.labelText == null
-        //     ? const SizedBox.shrink()
-        //     : const SizedBox(
-        //         height: 10,
-        //       ),
+        widget.labelText == null
+            ? const SizedBox.shrink()
+            : Text(
+                widget.labelText!,
+                style: widget.labelstyle ??
+                    context.textTheme.bodyMedium!.copyWith(
+                      color: AppColors.textColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+              ),
+        widget.labelText == null
+            ? const SizedBox.shrink()
+            : const SizedBox(
+                height: 10,
+              ),
         TextFormField(
           // obscuringCharacter: '●',
           autovalidateMode: widget.autovalidateMode,
@@ -201,6 +207,8 @@ class _LabelTextFormFieldState extends State<LabelTextFormField> {
             hintStyle:
                 //  widget.hintStyle ??
                 context.textTheme.bodyMedium!.copyWith(
+              fontFamily: AppFonts.spaceGrotesk,
+              letterSpacing: 0,
               color: AppColors.textGrey,
               fontSize: 17,
               fontWeight: FontWeight.w400,

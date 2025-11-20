@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Diet Lenz',
       theme: AppTheme.darkTheme,
-       navigatorKey: NavigationService.navigationKey,
+      navigatorKey: NavigationService.navigationKey,
       home: const SplashScreen(),
     );
   }

@@ -4,9 +4,7 @@ import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
-import 'package:diet_lenz/features/auth/view/forgot_password.dart';
 import 'package:diet_lenz/features/auth/view/verify_otp.dart';
-import 'package:diet_lenz/features/auth/view/widgets/social_signup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -35,7 +33,7 @@ class _LoginScreenState extends ConsumerState<ReferralScreen> {
                   children: [
                     SvgPicture.asset(AppImages.dietLenzLogoAlt),
                     const LabelTextFormField(
-                      hintText: "Enter Referral Code",
+                      hintText: "Referral Code",
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -46,7 +44,7 @@ class _LoginScreenState extends ConsumerState<ReferralScreen> {
                   onPressed: () {
                     NavigationService.push(child: const VerifyOTPScreen());
                   }),
-              const SizedBox(height: 5),
+              const SizedBox(height: 10),
               Align(
                 alignment: Alignment.center,
                 child: GestureDetector(

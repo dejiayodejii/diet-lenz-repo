@@ -1,13 +1,9 @@
 import 'package:diet_lenz/component/custom_button.dart';
-import 'package:diet_lenz/component/custom_textfield.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
-import 'package:diet_lenz/features/auth/view/forgot_password.dart';
 import 'package:diet_lenz/features/auth/view/select_weight.dart';
-import 'package:diet_lenz/features/auth/view/verify_otp.dart';
-import 'package:diet_lenz/features/auth/view/widgets/social_signup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -138,32 +134,40 @@ class _LoginScreenState extends ConsumerState<GenderScreen> {
                       ),
                     ),
                     const SizedBox(height: 40),
-                    Container(
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: const Color.fromRGBO(67, 20, 7, 1),
-                        borderRadius: BorderRadius.circular(19),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("Prefer to skip, thanks!",
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: AppFonts.workSans,
-                                  color: AppColors.white,
-                                  fontWeight: FontWeight.w600)),
-                          Icon(
-                            Icons.close,
-                            color: Colors.white,
-                          )
-                        ],
+                    GestureDetector(
+                      onTap: () {
+                        NavigationService.push(
+                            child: const SelectWeightScreen());
+                      },
+                      child: Container(
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: const Color.fromRGBO(67, 20, 7, 1),
+                          borderRadius: BorderRadius.circular(19),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("Prefer to skip, thanks!",
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: AppFonts.workSans,
+                                    color: AppColors.white,
+                                    fontWeight: FontWeight.w600)),
+                            Icon(
+                              Icons.close,
+                              color: Colors.white,
+                            )
+                          ],
+                        ),
                       ),
                     )
                   ],
                 ),
               ),
               CustomYafButton(
+                  fontSize: 16,
+                  weight: FontWeight.w600,
                   iconPositionLeft: false,
                   text: "Continue",
                   iconWidget: SvgPicture.asset(AppImages.arrowRight),

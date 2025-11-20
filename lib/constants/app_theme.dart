@@ -26,11 +26,9 @@ class AppTheme {
     onErrorContainer: Color.fromRGBO(255, 218, 214, 1),
     surface: Color.fromRGBO(18, 18, 18, 1),
     onSurface: Color.fromRGBO(255, 255, 255, 1),
-    surfaceVariant: Color.fromRGBO(30, 30, 30, 1),
+    surfaceContainerHighest: Color.fromRGBO(30, 30, 30, 1),
     onSurfaceVariant: Color.fromRGBO(202, 202, 202, 1),
     outline: Color.fromRGBO(121, 116, 126, 1),
-    background: AppColors.backgroundColor,
-    onBackground: Color.fromRGBO(255, 255, 255, 1),
   );
 
   /// Main dark theme for the app
@@ -200,7 +198,7 @@ class AppTheme {
       // Text field theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: _darkColorScheme.surfaceVariant,
+        fillColor: _darkColorScheme.surfaceContainerHighest,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -237,7 +235,7 @@ class AppTheme {
       // Card theme
       cardTheme: CardTheme(
         color: _darkColorScheme.surface,
-        surfaceTintColor: _darkColorScheme.surfaceVariant,
+        surfaceTintColor: _darkColorScheme.surfaceContainerHighest,
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -246,9 +244,9 @@ class AppTheme {
 
       // Bottom navigation bar theme
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: _darkColorScheme.surface,
-        selectedItemColor: _darkColorScheme.primary,
-        unselectedItemColor: _darkColorScheme.onSurfaceVariant,
+        backgroundColor: AppColors.backgroundColor,
+        selectedItemColor: AppColors.primaryColor,
+        unselectedItemColor: AppColors.white,
         selectedLabelStyle: const TextStyle(
           fontFamily: AppFonts.lato,
           fontWeight: FontWeight.w600,
@@ -282,7 +280,7 @@ class AppTheme {
 
       // Chip theme
       chipTheme: ChipThemeData(
-        backgroundColor: _darkColorScheme.surfaceVariant,
+        backgroundColor: _darkColorScheme.surfaceContainerHighest,
         selectedColor: _darkColorScheme.primary,
         labelStyle: const TextStyle(
           fontFamily: AppFonts.lato,
@@ -296,35 +294,35 @@ class AppTheme {
 
       // Switch theme
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return _darkColorScheme.primary;
           }
           return _darkColorScheme.outline;
         }),
-        trackColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return _darkColorScheme.primary.withOpacity(0.5);
           }
-          return _darkColorScheme.surfaceVariant;
+          return _darkColorScheme.surfaceContainerHighest;
         }),
       ),
 
       // Checkbox theme
       checkboxTheme: CheckboxThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return _darkColorScheme.primary;
           }
           return Colors.transparent;
         }),
-        checkColor: MaterialStateProperty.all(_darkColorScheme.onPrimary),
+        checkColor: WidgetStateProperty.all(_darkColorScheme.onPrimary),
       ),
 
       // Radio theme
       radioTheme: RadioThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return _darkColorScheme.primary;
           }
           return _darkColorScheme.outline;
@@ -340,7 +338,7 @@ class AppTheme {
 
       // SnackBar theme
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: _darkColorScheme.surfaceVariant,
+        backgroundColor: _darkColorScheme.surfaceContainerHighest,
         contentTextStyle: const TextStyle(
           fontFamily: AppFonts.lato,
           fontWeight: FontWeight.w400,

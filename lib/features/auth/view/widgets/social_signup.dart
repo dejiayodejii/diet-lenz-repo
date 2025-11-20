@@ -80,13 +80,13 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
                   widget.isLogin
                       ? "Don’t have an account? "
                       : "Already have an account? ",
-                  style: TextStyle(
+                  style: const TextStyle(
                       letterSpacing: -0.5,
                       fontFamily: AppFonts.workSans,
                       fontSize: 13,
                       fontWeight: FontWeight.w400)),
               Text(widget.isLogin ? "Sign Up" : "Log In",
-                  style: TextStyle(
+                  style: const TextStyle(
                       letterSpacing: -0.5,
                       color: AppColors.primaryColor,
                       fontFamily: AppFonts.workSans,
