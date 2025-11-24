@@ -41,7 +41,7 @@ dependencies:
   flutter_riverpod: any
   pin_code_fields: any
   fl_chart: any
-  dio: any
+  dio: ^5.9.0
   shared_preferences: any
   flutter_secure_storage: any
   intl: any
@@ -53,6 +53,12 @@ dependencies:
   device_info_plus:
   jwt_decoder:
   oktoast:
+  # Provides the logic, country names, and phone codes
+  country_picker: ^2.0.20 
+  # Provides the nice rounded/rectangular flag assets (SVGs)
+  country_flags: ^2.1.0
+  camera:
+  rename_app:
 dev_dependencies:
   flutter_test:
     sdk: flutter

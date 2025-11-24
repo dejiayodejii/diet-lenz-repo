@@ -5,6 +5,8 @@ import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/view/forgot_password.dart';
+import 'package:diet_lenz/features/auth/view/personization/activity_level.dart';
+import 'package:diet_lenz/features/auth/view/personization/select_country.dart';
 import 'package:diet_lenz/features/auth/view/widgets/social_signup.dart';
 import 'package:diet_lenz/features/bottom_nav/bottom.dart';
 import 'package:diet_lenz/features/home/views/home.dart';
