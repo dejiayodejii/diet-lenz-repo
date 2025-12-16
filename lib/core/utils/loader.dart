@@ -35,22 +35,10 @@ class BlurryModalProgressHUD extends StatelessWidget {
     if (inAsyncCall == true) {
       Widget layOutProgressIndicator;
       if (offset == null) {
-        layOutProgressIndicator = Center(
-          child: Center(
-              child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              LogoLoader(),
-            ],
-          )),
-        );
+        layOutProgressIndicator = Center(child: const LogoLoader());
       } else {
         layOutProgressIndicator = Positioned(
-            left: offset!.dx,
-            top: offset!.dy,
-            child:
-                CircularProgressIndicator(backgroundColor: AppColors.primary));
+            left: offset!.dx, top: offset!.dy, child: const LogoLoader());
       }
       final modal = [
         BackdropFilter(
@@ -86,12 +74,15 @@ class LogoLoader extends StatelessWidget {
       padding: EdgeInsets.all(15),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
-        color: AppColors.primary,
+        color: AppColors.white,
         boxShadow: const [
           BoxShadow(color: Colors.black12, spreadRadius: 1, blurRadius: 3)
         ],
       ),
-      child: const AnimatedLogo(size: 52),
+      child: const CircularProgressIndicator(
+        color: AppColors.primary,
+        // backgroundColor: AppColors.white
+        ),
     );
   }
 }

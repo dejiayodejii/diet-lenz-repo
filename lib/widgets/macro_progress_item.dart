@@ -1,4 +1,5 @@
 import 'package:diet_lenz/constants/app_fonts.dart';
+import 'package:diet_lenz/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class MacroProgressItem extends StatelessWidget {
@@ -17,7 +18,7 @@ class MacroProgressItem extends StatelessWidget {
     required this.currentValue,
     required this.targetValue,
     required this.progress,
-    this.progressColor = const Color.fromRGBO(246, 111, 30, 1),
+    this.progressColor = AppColors.primary,
     this.backgroundColor = const Color.fromRGBO(18, 18, 18, 1),
     this.minHeight = 6.0,
     this.borderRadius = 10.0,
@@ -25,6 +26,8 @@ class MacroProgressItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasTarget = targetValue.isNotEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -39,7 +42,7 @@ class MacroProgressItem extends StatelessWidget {
               ),
             ),
             Text(
-              "- $currentValue/$targetValue ",
+              hasTarget ? "- $currentValue/$targetValue " : "- $currentValue",
               style: const TextStyle(
                 fontFamily: AppFonts.lato,
                 fontSize: 14,
@@ -49,12 +52,15 @@ class MacroProgressItem extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 10),
+        // Show progress bar (with relative comparison if no target, or actual progress if target exists)
         LinearProgressIndicator(
           minHeight: minHeight,
           value: progress.clamp(0.0, 1.0),
           borderRadius: BorderRadius.circular(borderRadius),
           backgroundColor: backgroundColor,
-          valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+          valueColor: AlwaysStoppedAnimation<Color>(
+            hasTarget ? progressColor : progressColor.withOpacity(0.7),
+          ),
         ),
       ],
     );

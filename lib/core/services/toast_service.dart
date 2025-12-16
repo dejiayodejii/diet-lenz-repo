@@ -66,6 +66,6 @@ class ToastService implements MessageService {
   }
 }
 
-final messageServiceProvider = Provider<MessageService>((ref) {
+final toastProvider = Provider<MessageService>((ref) {
   return ToastService();
 });

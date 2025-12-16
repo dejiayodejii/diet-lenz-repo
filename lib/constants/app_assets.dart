@@ -21,7 +21,7 @@ class AppImages {
   static const String burn = '$_imagesPath/burn.png';
   static const String heart = '$_imagesPath/heart.png';
 
-    static const String chicken = '$_imagesPath/chickenn.png';
+  static const String chicken = '$_imagesPath/chickenn.png';
 
   static const String unselected = '$_imagesPath/selected.svg';
   static const String selected = '$_imagesPath/unselected.svg';

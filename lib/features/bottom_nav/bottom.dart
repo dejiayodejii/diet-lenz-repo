@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:diet_lenz/constants/app_colors.dart';
-import 'package:diet_lenz/features/camera/camera_view.dart';
 import 'package:diet_lenz/features/home/views/home.dart';
 import 'package:diet_lenz/features/home/views/progress.dart';
 import 'package:diet_lenz/features/settings/views/settings.dart';
+import 'package:diet_lenz/features/camera/camera_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -33,7 +33,7 @@ class _BottomNavState extends ConsumerState<BottomNav> {
       const ProgressScreen(),
       const HomeScreen(),
       const SetttingsScreen(),
-      const CameraView()
+      const AICameraScreen()
     ];
     super.initState();
   }

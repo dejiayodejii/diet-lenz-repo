@@ -1,9 +1,12 @@
+import 'package:diet_lenz/api_client/lib/api.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
 import 'package:diet_lenz/features/home/views/food_log_detail.dart';
 import 'package:diet_lenz/features/home/views/home.dart';
+import 'package:diet_lenz/widgets/food_log_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,6 +19,24 @@ class FoodLogsScreen extends ConsumerStatefulWidget {
 
 class _FoodLogsScreenState extends ConsumerState<FoodLogsScreen> {
   int selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch both user recipes and favorites on screen load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(foodLoggingViewModelProvider.notifier).getUserRecipes();
+      ref.read(foodLoggingViewModelProvider.notifier).getFavorites();
+    });
+  }
+
+  Future<void> _refreshRecipes() async {
+    await ref.read(foodLoggingViewModelProvider.notifier).getUserRecipes();
+  }
+
+  Future<void> _refreshFavorites() async {
+    await ref.read(foodLoggingViewModelProvider.notifier).getFavorites();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,31 +72,114 @@ class _FoodLogsScreenState extends ConsumerState<FoodLogsScreen> {
 
   // Build content based on selected toggle
   Widget _buildContentForSelectedTab() {
+    final foodLoggingState = ref.watch(foodLoggingViewModelProvider);
+
     switch (selectedIndex) {
       case 0: // All
-        return Column(
-          children: [
-            ...List.generate(
-                5,
-                (index) => GestureDetector(
-                    onTap: () {
-                      NavigationService.push(child: const FoodLogDetail());
-                    },
-                    child: FoodLoggedPreview())),
-          ],
+        if (foodLoggingState.isLoading &&
+            foodLoggingState.userRecipes == null) {
+          // Show shimmer loading
+          return Column(
+            children: List.generate(5, (index) => const FoodLogShimmer()),
+          );
+        }
+
+        if (foodLoggingState.recipesError != null &&
+            foodLoggingState.userRecipes == null) {
+          // Show error message
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text(
+                foodLoggingState.recipesError!,
+                style: const TextStyle(color: Colors.red),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        }
+
+        final recipes = foodLoggingState.userRecipes;
+
+        if (recipes == null || recipes.isEmpty) {
+          // Show empty state
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Text(
+                'No food logs yet. Start by scanning your first meal!',
+                style: TextStyle(color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        }
+
+        // Show all recipes
+        return RefreshIndicator(
+          onRefresh: _refreshRecipes,
+          color: AppColors.primaryColor,
+          child: ListView(
+            shrinkWrap: true,
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: recipes
+                .map((recipe) => FoodLoggedPreview(recipe: recipe))
+                .toList(),
+          ),
         );
+
       case 1: // Favourite
-        return Column(
-          children: [
-            ...List.generate(
-                5,
-                (index) => GestureDetector(
-                    onTap: () {
-                      NavigationService.push(child: const FoodLogDetail());
-                    },
-                    child: const FavouriteFood())),
-          ],
+        if (foodLoggingState.isLoading && foodLoggingState.favorites == null) {
+          // Show shimmer loading
+          return Column(
+            children: List.generate(5, (index) => const FoodLogShimmer()),
+          );
+        }
+
+        if (foodLoggingState.favoritesError != null &&
+            foodLoggingState.favorites == null) {
+          // Show error message
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text(
+                foodLoggingState.favoritesError!,
+                style: const TextStyle(color: Colors.red),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        }
+
+        final favorites = foodLoggingState.favorites;
+
+        if (favorites == null || favorites.isEmpty) {
+          // Show empty state
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Text(
+                'No favorites yet. Tap the heart icon on any food to favorite it!',
+                style: TextStyle(color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        }
+
+        // Show favorite recipes
+        return RefreshIndicator(
+          onRefresh: _refreshFavorites,
+          color: AppColors.primaryColor,
+          child: ListView(
+            shrinkWrap: true,
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: favorites
+                .map((favorite) => FavouriteFood(favorite: favorite))
+                .toList(),
+          ),
         );
+
       default:
         return const SizedBox.shrink();
     }
@@ -83,41 +187,87 @@ class _FoodLogsScreenState extends ConsumerState<FoodLogsScreen> {
 }
 
 class FavouriteFood extends StatelessWidget {
+  final FavoriteRecipeResponseDto favorite;
+
   const FavouriteFood({
     super.key,
+    required this.favorite,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Image.asset(
-              AppImages.salad,
-              scale: 2,
-              height: 80,
-              width: 80,
-            ),
-            const SizedBox(width: 15),
-            const Expanded(
-              child: Text("Chicked Salad",
-                  style: TextStyle(
-                      fontSize: 16,
-                      letterSpacing: 0,
-                      color: AppColors.white,
-                      fontWeight: FontWeight.w600)),
-            ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              color: AppColors.primaryColor,
-              size: 20,
-            ),
-            const SizedBox(width: 40),
-          ],
-        ),
-        SizedBox(height: 35)
-      ],
+    return GestureDetector(
+      onTap: () {
+        NavigationService.push(
+          child: FoodLogDetail(favorite: favorite),
+        );
+      },
+      child: Column(
+        children: [
+          Row(
+            children: [
+              // Display image from URL or fallback to default
+              favorite.imageUrl != null && favorite.imageUrl!.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        favorite.imageUrl!,
+                        height: 80,
+                        width: 80,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.asset(
+                            AppImages.salad,
+                            scale: 2,
+                            height: 80,
+                            width: 80,
+                          );
+                        },
+                      ),
+                    )
+                  : Image.asset(
+                      AppImages.salad,
+                      scale: 2,
+                      height: 80,
+                      width: 80,
+                    ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      favorite.foodName ?? "Unknown Food",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        letterSpacing: 0,
+                        color: AppColors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${favorite.macros?.calories?.toStringAsFixed(0) ?? "0"} kcal',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios,
+                color: AppColors.primaryColor,
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+            ],
+          ),
+          const SizedBox(height: 35)
+        ],
+      ),
     );
   }
 }

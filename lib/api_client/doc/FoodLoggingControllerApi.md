@@ -1,8 +1,8 @@
-# diet_lenz_api.api.FoodLoggingControllerApi
+# openapi.api.FoodLoggingControllerApi
 
 ## Load the API package
 ```dart
-import 'package:diet_lenz_api/api.dart';
+import 'package:openapi/api.dart';
 ```
 
 All URIs are relative to *https://diet-lenz-api.onrender.com*
@@ -20,7 +20,7 @@ Method | HTTP request | Description
 [**logMeal**](FoodLoggingControllerApi.md#logmeal) | **POST** /api/v1/food/log-meal | 
 [**searchByIngredient**](FoodLoggingControllerApi.md#searchbyingredient) | **GET** /api/v1/food/recipes/search/by-ingredient | 
 [**searchRecipes**](FoodLoggingControllerApi.md#searchrecipes) | **GET** /api/v1/food/recipes/search | 
-[**toggleFavorite**](FoodLoggingControllerApi.md#togglefavorite) | **POST** /api/v1/food/favorites/{recipeId}/toggle | 
+[**toggleFavorite**](FoodLoggingControllerApi.md#togglefavorite) | **PUT** /api/v1/food/favorites/{recipeId}/toggle | 
 
 
 # **getCurrentStreak**
@@ -30,7 +30,7 @@ Method | HTTP request | Description
 
 ### Example
 ```dart
-import 'package:diet_lenz_api/api.dart';
+import 'package:openapi/api.dart';
 // TODO Configure HTTP Bearer authorization: bearerAuth
 // Case 1. Use String Token
 //defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
@@ -73,7 +73,7 @@ This endpoint does not need any parameter.
 
 ### Example
 ```dart
-import 'package:diet_lenz_api/api.dart';
+import 'package:openapi/api.dart';
 // TODO Configure HTTP Bearer authorization: bearerAuth
 // Case 1. Use String Token
 //defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
@@ -120,7 +120,7 @@ Name | Type | Description  | Notes
 
 ### Example
 ```dart
-import 'package:diet_lenz_api/api.dart';
+import 'package:openapi/api.dart';
 // TODO Configure HTTP Bearer authorization: bearerAuth
 // Case 1. Use String Token
 //defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
@@ -163,7 +163,7 @@ This endpoint does not need any parameter.
 
 ### Example
 ```dart
-import 'package:diet_lenz_api/api.dart';
+import 'package:openapi/api.dart';
 // TODO Configure HTTP Bearer authorization: bearerAuth
 // Case 1. Use String Token
 //defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
@@ -206,7 +206,7 @@ This endpoint does not need any parameter.
 
 ### Example
 ```dart
-import 'package:diet_lenz_api/api.dart';
+import 'package:openapi/api.dart';
 // TODO Configure HTTP Bearer authorization: bearerAuth
 // Case 1. Use String Token
 //defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
@@ -253,7 +253,7 @@ Name | Type | Description  | Notes
 
 ### Example
 ```dart
-import 'package:diet_lenz_api/api.dart';
+import 'package:openapi/api.dart';
 // TODO Configure HTTP Bearer authorization: bearerAuth
 // Case 1. Use String Token
 //defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
@@ -302,7 +302,7 @@ Name | Type | Description  | Notes
 
 ### Example
 ```dart
-import 'package:diet_lenz_api/api.dart';
+import 'package:openapi/api.dart';
 // TODO Configure HTTP Bearer authorization: bearerAuth
 // Case 1. Use String Token
 //defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
@@ -345,7 +345,7 @@ This endpoint does not need any parameter.
 
 ### Example
 ```dart
-import 'package:diet_lenz_api/api.dart';
+import 'package:openapi/api.dart';
 // TODO Configure HTTP Bearer authorization: bearerAuth
 // Case 1. Use String Token
 //defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
@@ -392,7 +392,7 @@ Name | Type | Description  | Notes
 
 ### Example
 ```dart
-import 'package:diet_lenz_api/api.dart';
+import 'package:openapi/api.dart';
 // TODO Configure HTTP Bearer authorization: bearerAuth
 // Case 1. Use String Token
 //defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
@@ -439,7 +439,7 @@ Name | Type | Description  | Notes
 
 ### Example
 ```dart
-import 'package:diet_lenz_api/api.dart';
+import 'package:openapi/api.dart';
 // TODO Configure HTTP Bearer authorization: bearerAuth
 // Case 1. Use String Token
 //defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
@@ -486,7 +486,7 @@ Name | Type | Description  | Notes
 
 ### Example
 ```dart
-import 'package:diet_lenz_api/api.dart';
+import 'package:openapi/api.dart';
 // TODO Configure HTTP Bearer authorization: bearerAuth
 // Case 1. Use String Token
 //defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
@@ -533,7 +533,7 @@ Name | Type | Description  | Notes
 
 ### Example
 ```dart
-import 'package:diet_lenz_api/api.dart';
+import 'package:openapi/api.dart';
 // TODO Configure HTTP Bearer authorization: bearerAuth
 // Case 1. Use String Token
 //defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');

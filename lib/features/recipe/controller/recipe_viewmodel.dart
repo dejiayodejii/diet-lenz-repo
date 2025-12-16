@@ -65,7 +65,8 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
   /// Analyze a recipe from an image
   /// Returns true if successful, false otherwise
   Future<bool> analyzeRecipe(MultipartFile image) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(
+        isLoading: true, errorMessage: null, analyzedRecipe: null);
 
     try {
       final response = await _apiService.recipeApi.analyzeRecipe(image);
@@ -85,6 +86,7 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
         return false;
       }
     } on ApiException catch (e) {
+      print(e);
       state = state.copyWith(
         isLoading: false,
         errorMessage: _parseApiError(e),

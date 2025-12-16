@@ -1,14 +1,21 @@
+import 'package:diet_lenz/api_client/lib/api.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
 import 'package:diet_lenz/features/home/views/food_log_detail.dart';
 import 'package:diet_lenz/features/home/views/food_logs.dart';
+import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
 import 'package:diet_lenz/main4.dart';
 import 'package:diet_lenz/main5.dart';
+import 'package:diet_lenz/widgets/calorie_card_shimmer.dart';
+import 'package:diet_lenz/widgets/food_log_shimmer.dart';
+import 'package:diet_lenz/widgets/macro_row_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -29,6 +36,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    // Fetch dashboard and user recipes on screen load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(foodLoggingViewModelProvider.notifier).getDashboard();
+      ref.read(foodLoggingViewModelProvider.notifier).getUserRecipes();
+    });
+  }
+
+  Future<void> _refreshData() async {
+    // Refresh both dashboard and user recipes
+    await Future.wait([
+      ref.read(foodLoggingViewModelProvider.notifier).getDashboard(),
+      ref.read(foodLoggingViewModelProvider.notifier).getUserRecipes(),
+    ]);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
@@ -40,67 +65,60 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const HomeHeader(),
               const SizedBox(height: 25),
               Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      WeekProgressRow(weekDays: weekDays),
-                      const SizedBox(height: 25),
-                      const Text(
-                        "Count Your Daily Calories",
-                        style: TextStyle(
-                          fontFamily: AppFonts.lato,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
+                child: RefreshIndicator(
+                  onRefresh: _refreshData,
+                  color: AppColors.primaryColor,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        WeekProgressRow(weekDays: weekDays),
+                        const SizedBox(height: 25),
+                        const Text(
+                          "Count Your Daily Calories",
+                          style: TextStyle(
+                            fontFamily: AppFonts.lato,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 25),
-                      const CalorieProgressCard(
-                        date: "Thursday, June 06",
-                        streakDays: 5,
-                        currentCalories: 1250,
-                        targetCalories: 1800,
-                      ),
-                      const SizedBox(height: 25),
-                      const MacroNutrientsRow(
-                        carbCurrent: 54,
-                        carbTarget: 180,
-                        proteinCurrent: 110,
-                        proteinTarget: 135,
-                        fatCurrent: 13,
-                        fatTarget: 60,
-                      ),
-                      const SizedBox(height: 25),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            "Food Log",
-                            style: TextStyle(
-                              fontFamily: AppFonts.lato,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              NavigationService.push(
-                                  child: const FoodLogsScreen());
-                            },
-                            child: const Text(
-                              "See All",
+                        const SizedBox(height: 25),
+                        _buildCalorieCard(),
+                        const SizedBox(height: 25),
+                        _buildMacroRow(),
+                        const SizedBox(height: 25),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "Food Log",
                               style: TextStyle(
-                                  fontFamily: AppFonts.workSans,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.primaryColor),
+                                fontFamily: AppFonts.lato,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 15),
-                      ...List.generate(3, (index) => const FoodLoggedPreview()),
-                    ],
+                            GestureDetector(
+                              onTap: () {
+                                NavigationService.push(
+                                    child: const FoodLogsScreen());
+                              },
+                              child: const Text(
+                                "See All",
+                                style: TextStyle(
+                                    fontFamily: AppFonts.workSans,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.primaryColor),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 15),
+                        _buildFoodLogsList(),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -110,30 +128,204 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
   }
+
+  Widget _buildCalorieCard() {
+    final foodLoggingState = ref.watch(foodLoggingViewModelProvider);
+    final dashboard = foodLoggingState.dashboard;
+
+    // Show shimmer while loading
+    if (foodLoggingState.isLoading && dashboard == null) {
+      return const CalorieCardShimmer();
+    }
+
+    // Show default values if no dashboard data
+    if (dashboard == null) {
+      return const CalorieProgressCard(
+        date: "No data available",
+        streakDays: 0,
+        currentCalories: 0,
+        targetCalories: 2000,
+      );
+    }
+
+    // Display dashboard data
+    final dateStr = dashboard.date != null
+        ? DateFormat('EEEE, MMMM dd').format(dashboard.date!)
+        : "Today";
+    final currentCal = (dashboard.actuals?.calories ?? 0).round();
+    final targetCal = (dashboard.targets?.calories ?? 2000).round();
+    final streakDays = dashboard.streaks?.currentBasicStreak ?? 0;
+
+    return CalorieProgressCard(
+      date: dateStr,
+      streakDays: streakDays,
+      currentCalories: currentCal,
+      targetCalories: targetCal,
+    );
+  }
+
+  Widget _buildMacroRow() {
+    final foodLoggingState = ref.watch(foodLoggingViewModelProvider);
+    final dashboard = foodLoggingState.dashboard;
+
+    // Show shimmer while loading
+    if (foodLoggingState.isLoading && dashboard == null) {
+      return const MacroRowShimmer();
+    }
+
+    // Show default values if no dashboard data
+    if (dashboard == null) {
+      return const MacroNutrientsRow(
+        carbCurrent: 0,
+        carbTarget: 180,
+        proteinCurrent: 0,
+        proteinTarget: 135,
+        fatCurrent: 0,
+        fatTarget: 60,
+      );
+    }
+
+    // Display dashboard data
+    final carbCurrent = (dashboard.actuals?.carbsGrams ?? 0).round();
+    final carbTarget = (dashboard.targets?.carbsGrams ?? 180).round();
+    final proteinCurrent = (dashboard.actuals?.proteinGrams ?? 0).round();
+    final proteinTarget = (dashboard.targets?.proteinGrams ?? 135).round();
+    final fatCurrent = (dashboard.actuals?.fatGrams ?? 0).round();
+    final fatTarget = (dashboard.targets?.fatGrams ?? 60).round();
+
+    return MacroNutrientsRow(
+      carbCurrent: carbCurrent,
+      carbTarget: carbTarget,
+      proteinCurrent: proteinCurrent,
+      proteinTarget: proteinTarget,
+      fatCurrent: fatCurrent,
+      fatTarget: fatTarget,
+    );
+  }
+
+  Widget _buildFoodLogsList() {
+    final foodLoggingState = ref.watch(foodLoggingViewModelProvider);
+
+    if (foodLoggingState.isLoading) {
+      // Show shimmer loading
+      return Column(
+        children: List.generate(3, (index) => const FoodLogShimmer()),
+      );
+    }
+
+    if (foodLoggingState.errorMessage != null) {
+      // Show error message
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text(
+            foodLoggingState.errorMessage!,
+            style: const TextStyle(color: Colors.red),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    final recipes = foodLoggingState.userRecipes;
+
+    if (recipes == null || recipes.isEmpty) {
+      // Show empty state
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Text(
+            'No food logs yet. Start by scanning your first meal!',
+            style: TextStyle(color: Colors.grey),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    // Show actual recipes (limit to 3 for home screen)
+    final displayRecipes = recipes.take(3).toList();
+    return Column(
+      children: displayRecipes
+          .map((recipe) => FoodLoggedPreview(recipe: recipe))
+          .toList(),
+    );
+  }
 }
 
-class FoodLoggedPreview extends StatelessWidget {
+class FoodLoggedPreview extends ConsumerWidget {
+  final RecipeResponseDto recipe;
+
   const FoodLoggedPreview({
     super.key,
+    required this.recipe,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isFavorite = recipe.isFavorite ?? false;
+
     return GestureDetector(
       onTap: () {
-        NavigationService.push(child: const FoodLogDetail());
+        NavigationService.push(
+          child: FoodLogDetail(recipe: recipe),
+        );
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset(
-            AppImages.rice,
-            scale: 2,
+          // Display image from URL or fallback to default with favorite icon
+          Stack(
+            children: [
+              recipe.imageUrl != null && recipe.imageUrl!.isNotEmpty
+                  ? Image.network(
+                      recipe.imageUrl!,
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          AppImages.rice,
+                          scale: 2,
+                        );
+                      },
+                    )
+                  : Image.asset(
+                      AppImages.rice,
+                      scale: 2,
+                    ),
+              // Favorite icon at top right
+              Positioned(
+                top: 10,
+                right: 10,
+                child: GestureDetector(
+                  onTap: () async {
+                    if (recipe.id != null) {
+                      await ref
+                          .read(foodLoggingViewModelProvider.notifier)
+                          .toggleFavoriteLocally(recipe.id!);
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.6),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: isFavorite ? Colors.red : Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 10),
-          const Text(
-            "Suya Rice",
-            style: TextStyle(
+          Text(
+            recipe.foodName ?? "Unknown Food",
+            style: const TextStyle(
               fontFamily: AppFonts.lato,
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -141,18 +333,19 @@ class FoodLoggedPreview extends StatelessWidget {
           ),
           const SizedBox(height: 3),
           RichText(
-            text: const TextSpan(
+            text: TextSpan(
               children: [
                 TextSpan(
-                  text: '2,000 kcal',
-                  style: TextStyle(
+                  text:
+                      '${recipe.macros?.calories?.toStringAsFixed(0) ?? "0"} kcal',
+                  style: const TextStyle(
                     fontFamily: AppFonts.spaceGrotesk,
                     color: Colors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-                TextSpan(
+                const TextSpan(
                   text: ' | ',
                   style: TextStyle(
                     color: Color.fromRGBO(47, 47, 47, 1),
@@ -161,15 +354,16 @@ class FoodLoggedPreview extends StatelessWidget {
                   ),
                 ),
                 TextSpan(
-                  text: 'Protein: 125g',
-                  style: TextStyle(
+                  text:
+                      'Protein: ${recipe.macros?.proteinGrams?.toStringAsFixed(0) ?? "0"}g',
+                  style: const TextStyle(
                     fontFamily: AppFonts.spaceGrotesk,
                     color: Colors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-                TextSpan(
+                const TextSpan(
                   text: ' | ',
                   style: TextStyle(
                     color: Color.fromRGBO(47, 47, 47, 1),
@@ -178,15 +372,16 @@ class FoodLoggedPreview extends StatelessWidget {
                   ),
                 ),
                 TextSpan(
-                  text: 'Carbs: 300g',
-                  style: TextStyle(
+                  text:
+                      'Carbs: ${recipe.macros?.carbsGrams?.toStringAsFixed(0) ?? "0"}g',
+                  style: const TextStyle(
                     fontFamily: AppFonts.spaceGrotesk,
                     color: Colors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-                TextSpan(
+                const TextSpan(
                   text: ' | ',
                   style: TextStyle(
                     color: Color.fromRGBO(47, 47, 47, 1),
@@ -195,8 +390,9 @@ class FoodLoggedPreview extends StatelessWidget {
                   ),
                 ),
                 TextSpan(
-                  text: 'Fat: 55g',
-                  style: TextStyle(
+                  text:
+                      'Fat: ${recipe.macros?.fatGrams?.toStringAsFixed(0) ?? "0"}g',
+                  style: const TextStyle(
                     fontFamily: AppFonts.spaceGrotesk,
                     color: Colors.white,
                     fontSize: 13,
@@ -548,13 +744,18 @@ class DayProgress {
   });
 }
 
-class HomeHeader extends StatelessWidget {
+class HomeHeader extends ConsumerWidget {
   const HomeHeader({
     super.key,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userProfileState = ref.watch(userProfileViewModelProvider);
+    final userName =
+        // userProfileState.userProfile?.userId?.toUpperCase() ??
+         "Ayodeji";
+
     return Row(
       children: [
         Image.asset(
@@ -564,11 +765,11 @@ class HomeHeader extends StatelessWidget {
           width: 60,
         ),
         const SizedBox(width: 10),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 "WELCOME BACK,",
                 style: TextStyle(
                     fontFamily: AppFonts.lato,
@@ -577,8 +778,8 @@ class HomeHeader extends StatelessWidget {
                     color: AppColors.textLightGrey),
               ),
               Text(
-                "AYODEJI EMMANUEL",
-                style: TextStyle(
+                userName,
+                style: const TextStyle(
                   fontFamily: AppFonts.lato,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,

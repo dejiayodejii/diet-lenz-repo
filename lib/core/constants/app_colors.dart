@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color primary = Color.fromRGBO(7, 39, 96, 1);
+  static const Color primary = Color.fromRGBO(255, 90, 22, 1);
    static const Color appBlack = Color.fromRGBO(18, 18, 18, 1);
   static const Color buttonGrey = Color.fromRGBO(231, 234, 240, 1);
   static const Color buttonGreyLight = Color.fromRGBO(243, 244, 247, 1);

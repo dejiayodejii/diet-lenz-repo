@@ -548,7 +548,7 @@ class FoodLoggingControllerApi {
     return null;
   }
 
-  /// Performs an HTTP 'POST /api/v1/food/favorites/{recipeId}/toggle' operation and returns the [Response].
+  /// Performs an HTTP 'PUT /api/v1/food/favorites/{recipeId}/toggle' operation and returns the [Response].
   /// Parameters:
   ///
   /// * [String] recipeId (required):
@@ -569,7 +569,7 @@ class FoodLoggingControllerApi {
 
     return apiClient.invokeAPI(
       path,
-      'POST',
+      'PUT',
       queryParams,
       postBody,
       headerParams,

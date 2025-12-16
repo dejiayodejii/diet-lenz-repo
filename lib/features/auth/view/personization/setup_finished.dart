@@ -5,6 +5,7 @@ import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
 import 'package:diet_lenz/features/auth/view/personization/select_payment.dart';
 import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
@@ -78,7 +79,7 @@ class _PlanSetUpScreenState extends ConsumerState<PlanFinishedScreen> {
       );
 
       log(profileRequest.toString());
-      return;
+      // return;
 
       // Submit the profile
       final success = await profileViewModel.updateUserProfile(profileRequest);
@@ -94,16 +95,10 @@ class _PlanSetUpScreenState extends ConsumerState<PlanFinishedScreen> {
           // Navigate to next screen
           NavigationService.push(child: const SelectPaymentScreen());
         } else {
-          // Show error
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
+          ref.read(toastProvider).showError(
                 ref.read(userProfileViewModelProvider).errorMessage ??
                     'Failed to save profile',
-              ),
-              backgroundColor: Colors.red,
-            ),
-          );
+              );
         }
       }
     } catch (e) {
@@ -111,12 +106,10 @@ class _PlanSetUpScreenState extends ConsumerState<PlanFinishedScreen> {
         setState(() {
           _isSubmitting = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+
+        ref.read(toastProvider).showError(
+              'Error: ${e.toString()}',
+            );
       }
     }
   }
@@ -179,6 +172,7 @@ class _PlanSetUpScreenState extends ConsumerState<PlanFinishedScreen> {
                 ),
               ),
               CustomYafButton(
+                width: double.infinity,
                 isLoading: _isSubmitting,
                 fontSize: 16,
                 weight: FontWeight.w600,

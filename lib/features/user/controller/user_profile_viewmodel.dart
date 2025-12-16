@@ -69,11 +69,24 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
         return false;
       }
     } on ApiException catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: _parseApiError(e),
-        hasProfile: false,
-      );
+      // Check if it's a deserialization error (Swagger spec mismatch)
+      if (e.message != null && e.message!.contains('FormatException')) {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage:
+              'API response format mismatch. The backend may have changed. Please contact support.',
+          hasProfile: false,
+        );
+        print('⚠️ Deserialization error in getUserProfile: ${e.message}');
+        print(
+            'This usually means the Swagger spec is out of sync with the backend.');
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: _parseApiError(e),
+          hasProfile: false,
+        );
+      }
       return false;
     } catch (e) {
       state = state.copyWith(
@@ -109,12 +122,28 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
         return false;
       }
     } on ApiException catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: _parseApiError(e),
-      );
+      print('❌ ApiException in updateUserProfile: ${e.toString()}');
+
+      // Check if it's a deserialization error (Swagger spec mismatch)
+      if (e.message != null && e.message!.contains('FormatException')) {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage:
+              'API response format mismatch. The backend may have changed. Please contact support.',
+        );
+        print('⚠️ Deserialization error: ${e.message}');
+        print(
+            'This usually means the Swagger spec is out of sync with the backend.');
+        print('The API returned data that doesn\'t match the expected format.');
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: _parseApiError(e),
+        );
+      }
       return false;
     } catch (e) {
+      print('❌ Unexpected error in updateUserProfile: ${e.toString()}');
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'An unexpected error occurred: ${e.toString()}',

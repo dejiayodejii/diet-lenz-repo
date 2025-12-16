@@ -2,11 +2,14 @@ import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
+import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/features/auth/view/login.dart';
 import 'package:diet_lenz/features/settings/views/change_password.dart';
 import 'package:diet_lenz/features/settings/views/edit_profile.dart';
 import 'package:diet_lenz/features/settings/views/more.dart';
 import 'package:diet_lenz/features/settings/views/referal.dart';
+import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,8 +22,29 @@ class SetttingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
+  Future<void> _handleLogout() async {
+    final apiService = ref.read(apiServiceProvider);
+    final userProfileNotifier = ref.read(userProfileViewModelProvider.notifier);
+
+    // Clear tokens and profile
+    await apiService.clearAuthToken();
+    userProfileNotifier.clearProfile();
+
+    // Navigate to login
+    if (mounted) {
+      NavigationService.pushAndRemoveUntil(
+        child: const LoginScreen(),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final userProfileState = ref.watch(userProfileViewModelProvider);
+    final userName = 
+    // userProfileState.userProfile?.userId ?? 
+    "Ayodeji";
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -45,10 +69,10 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
                       fit: BoxFit.cover,
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      "Michael bernando",
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                    Text(
+                      userName,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w700),
                     )
                   ],
                 ),
@@ -86,7 +110,7 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
               const SizedBox(height: 20),
               CustomYafButton(
                 text: "Logout",
-                onPressed: () {},
+                onPressed: _handleLogout,
               ),
               const SizedBox(height: 10),
               CustomYafButton(

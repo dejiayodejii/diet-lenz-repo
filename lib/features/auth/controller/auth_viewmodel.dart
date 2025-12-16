@@ -71,14 +71,17 @@ class AuthViewModel extends StateNotifier<AuthState> {
         password: password,
       );
 
+      await _apiService.clearAuthToken();
+
       // Create device request (if you need device info)
       final loginWithDeviceRequest = LoginWithDeviceRequest(
         login: loginRequest,
         device: deviceId != null
             ? RegisterDeviceRequest(
+                pushToken: 'ppooii',
+                platform: RegisterDeviceRequestPlatformEnum.IOS,
                 deviceId: deviceId,
-                appVersion:
-                    deviceName, // Using appVersion field for device info
+                appVersion: deviceName,
               )
             : null,
       );

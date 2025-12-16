@@ -1,0 +1,676 @@
+import 'package:diet_lenz/api_client/lib/api.dart';
+import 'package:diet_lenz/core/providers/api_providers.dart';
+import 'package:diet_lenz/core/services/api_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+/// Food Logging state to track loading, data, and error states
+class FoodLoggingState {
+  final bool isLoading;
+  final DashboardResponseDto? dashboard;
+  final StreakInfoDto? streak;
+  final WeeklyTrendDto? weeklyTrend;
+  final List<RecipeResponseDto>? userRecipes;
+  final List<RecipeResponseDto>? searchResults;
+  final List<RecipeResponseDto>? recommendations;
+  final List<FavoriteRecipeResponseDto>? favorites;
+  final RecipeResponseDto? selectedRecipe;
+  final MealLogResponseDto? loggedMeal;
+  final Map<String, int>? ingredientStats;
+  final String? errorMessage;
+  final String? recipesError;
+  final String? favoritesError;
+
+  FoodLoggingState({
+    this.isLoading = false,
+    this.dashboard,
+    this.streak,
+    this.weeklyTrend,
+    this.userRecipes,
+    this.searchResults,
+    this.recommendations,
+    this.favorites,
+    this.selectedRecipe,
+    this.loggedMeal,
+    this.ingredientStats,
+    this.errorMessage,
+    this.recipesError,
+    this.favoritesError,
+  });
+
+  FoodLoggingState copyWith({
+    bool? isLoading,
+    DashboardResponseDto? dashboard,
+    StreakInfoDto? streak,
+    WeeklyTrendDto? weeklyTrend,
+    List<RecipeResponseDto>? userRecipes,
+    List<RecipeResponseDto>? searchResults,
+    List<RecipeResponseDto>? recommendations,
+    List<FavoriteRecipeResponseDto>? favorites,
+    RecipeResponseDto? selectedRecipe,
+    MealLogResponseDto? loggedMeal,
+    Map<String, int>? ingredientStats,
+    String? errorMessage,
+    String? recipesError,
+    String? favoritesError,
+  }) {
+    return FoodLoggingState(
+      isLoading: isLoading ?? this.isLoading,
+      dashboard: dashboard ?? this.dashboard,
+      streak: streak ?? this.streak,
+      weeklyTrend: weeklyTrend ?? this.weeklyTrend,
+      userRecipes: userRecipes ?? this.userRecipes,
+      searchResults: searchResults ?? this.searchResults,
+      recommendations: recommendations ?? this.recommendations,
+      favorites: favorites ?? this.favorites,
+      selectedRecipe: selectedRecipe ?? this.selectedRecipe,
+      loggedMeal: loggedMeal ?? this.loggedMeal,
+      ingredientStats: ingredientStats ?? this.ingredientStats,
+      errorMessage: errorMessage,
+      recipesError: recipesError,
+      favoritesError: favoritesError,
+    );
+  }
+
+  FoodLoggingState clearError() {
+    return copyWith(errorMessage: '');
+  }
+}
+
+/// Food Logging ViewModel provider
+final foodLoggingViewModelProvider =
+    StateNotifierProvider<FoodLoggingViewModel, FoodLoggingState>((ref) {
+  final apiService = ref.watch(apiServiceProvider);
+  return FoodLoggingViewModel(apiService);
+});
+
+/// Food Logging ViewModel with all food logging methods
+class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
+  FoodLoggingViewModel(this._apiService) : super(FoodLoggingState());
+
+  final ApiService _apiService;
+
+  /// Get dashboard data for a specific date
+  Future<bool> getDashboard({DateTime? date}) async {
+    state = state.copyWith(
+        isLoading: state.dashboard == null ? true : false, errorMessage: null);
+
+    try {
+      final response =
+          await _apiService.foodLoggingApi.getDashboard(date: date);
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          dashboard: response,
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to load dashboard',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Get current streak information
+  Future<bool> getCurrentStreak() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final response = await _apiService.foodLoggingApi.getCurrentStreak();
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          streak: response,
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to load streak',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Get weekly trend data
+  Future<bool> getWeeklyTrend({DateTime? startDate}) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final response =
+          await _apiService.foodLoggingApi.getWeeklyTrend(startDate: startDate);
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          weeklyTrend: response,
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to load weekly trend',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Log a meal
+  Future<bool> logMeal(LogMealRequestDto mealRequest) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final response = await _apiService.foodLoggingApi.logMeal(mealRequest);
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          loggedMeal: response,
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to log meal',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Get all user recipes
+  Future<bool> getUserRecipes() async {
+    state = state.copyWith(
+        isLoading: state.userRecipes != null && state.userRecipes!.isNotEmpty
+            ? false
+            : true,
+        recipesError: null);
+
+    try {
+      final response = await _apiService.foodLoggingApi.getUserRecipes();
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          userRecipes: response,
+          recipesError: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          recipesError: 'Failed to load recipes',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        recipesError: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        recipesError: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Get recipe by ID
+  Future<bool> getRecipeById(String recipeId) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final response = await _apiService.foodLoggingApi.getRecipeById(recipeId);
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          selectedRecipe: response,
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Recipe not found',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Search recipes by query
+  Future<bool> searchRecipes(String query) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final response = await _apiService.foodLoggingApi.searchRecipes(query);
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          searchResults: response,
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'No recipes found',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Search recipes by ingredient
+  Future<bool> searchByIngredient(String ingredient) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final response =
+          await _apiService.foodLoggingApi.searchByIngredient(ingredient);
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          searchResults: response,
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'No recipes found',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Get recipe recommendations
+  Future<bool> getRecommendations({String? macroTarget, int? limit}) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final response = await _apiService.foodLoggingApi.getRecommendations(
+        macroTarget: macroTarget,
+        limit: limit,
+      );
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          recommendations: response,
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to load recommendations',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Get favorite recipes
+  Future<bool> getFavorites() async {
+    state = state.copyWith(
+        isLoading: state.favorites != null && state.favorites!.isNotEmpty
+            ? false
+            : true,
+        favoritesError: null);
+
+    try {
+      final response = await _apiService.foodLoggingApi.getFavorites();
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          favorites: response,
+          favoritesError: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          favoritesError: 'Failed to load favorites',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        favoritesError: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        favoritesError: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Toggle favorite status for a recipe
+  Future<bool> toggleFavorite(String recipeId) async {
+    try {
+      await _apiService.foodLoggingApi.toggleFavorite(recipeId);
+
+      // Refresh favorites list after toggling
+      await getFavorites();
+
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        errorMessage: 'Failed to update favorite',
+      );
+      return false;
+    }
+  }
+
+  /// Toggle favorite status locally for a recipe in userRecipes and favorites
+  Future<bool> toggleFavoriteLocally(String recipeId) async {
+    RecipeResponseDto? targetRecipe;
+
+    // Find the recipe in userRecipes
+    if (state.userRecipes != null) {
+      targetRecipe = state.userRecipes!.firstWhere(
+        (recipe) => recipe.id == recipeId,
+        orElse: () => RecipeResponseDto(),
+      );
+    }
+
+    // Optimistically update userRecipes
+    List<RecipeResponseDto>? updatedRecipes;
+    if (state.userRecipes != null) {
+      updatedRecipes = state.userRecipes!.map((recipe) {
+        if (recipe.id == recipeId) {
+          return RecipeResponseDto(
+            id: recipe.id,
+            foodName: recipe.foodName,
+            description: recipe.description,
+            macros: recipe.macros,
+            imageUrl: recipe.imageUrl,
+            usageCount: recipe.usageCount,
+            isFavorite: !(recipe.isFavorite ?? false),
+            createdAt: recipe.createdAt,
+          );
+        }
+        return recipe;
+      }).toList();
+    }
+
+    // Optimistically update favorites list
+    List<FavoriteRecipeResponseDto>? updatedFavorites = state.favorites;
+    final isFavorite = targetRecipe?.isFavorite ?? false;
+
+    if (!isFavorite && targetRecipe?.id != null) {
+      // Adding to favorites
+      final newFavorite = FavoriteRecipeResponseDto(
+        recipeId: targetRecipe!.id,
+        foodName: targetRecipe.foodName,
+        description: targetRecipe.description,
+        macros: targetRecipe.macros,
+        imageUrl: targetRecipe.imageUrl,
+        usageCount: targetRecipe.usageCount,
+        favoritedAt: DateTime.now(),
+      );
+      updatedFavorites = [...?state.favorites, newFavorite];
+    } else {
+      // Removing from favorites
+      updatedFavorites =
+          state.favorites?.where((fav) => fav.recipeId != recipeId).toList();
+    }
+
+    state = state.copyWith(
+      userRecipes: updatedRecipes,
+      favorites: updatedFavorites,
+    );
+
+    // Call API in background
+    try {
+      await _apiService.foodLoggingApi.toggleFavorite(recipeId);
+      return true;
+    } catch (e) {
+      // Revert both updates on error
+      List<RecipeResponseDto>? revertedRecipes;
+      if (state.userRecipes != null) {
+        revertedRecipes = state.userRecipes!.map((recipe) {
+          if (recipe.id == recipeId) {
+            return RecipeResponseDto(
+              id: recipe.id,
+              foodName: recipe.foodName,
+              description: recipe.description,
+              macros: recipe.macros,
+              imageUrl: recipe.imageUrl,
+              usageCount: recipe.usageCount,
+              isFavorite: !(recipe.isFavorite ?? false),
+              createdAt: recipe.createdAt,
+            );
+          }
+          return recipe;
+        }).toList();
+      }
+
+      // Revert favorites list
+      List<FavoriteRecipeResponseDto>? revertedFavorites = state.favorites;
+      if (isFavorite) {
+        // Was removing, add it back
+        final newFavorite = FavoriteRecipeResponseDto(
+          recipeId: targetRecipe!.id,
+          foodName: targetRecipe.foodName,
+          description: targetRecipe.description,
+          macros: targetRecipe.macros,
+          imageUrl: targetRecipe.imageUrl,
+          usageCount: targetRecipe.usageCount,
+          favoritedAt: DateTime.now(),
+        );
+        revertedFavorites = [...?state.favorites, newFavorite];
+      } else {
+        // Was adding, remove it
+        revertedFavorites =
+            state.favorites?.where((fav) => fav.recipeId != recipeId).toList();
+      }
+
+      state = state.copyWith(
+        userRecipes: revertedRecipes,
+        favorites: revertedFavorites,
+      );
+      return false;
+    }
+  }
+
+  /// Get ingredient statistics
+  Future<bool> getIngredientStats() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final response = await _apiService.foodLoggingApi.getIngredientStats();
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          ingredientStats: response,
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to load ingredient stats',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Clear search results
+  void clearSearchResults() {
+    state = state.copyWith(searchResults: []);
+  }
+
+  /// Clear selected recipe
+  void clearSelectedRecipe() {
+    state = state.copyWith(selectedRecipe: null);
+  }
+
+  /// Clear logged meal
+  void clearLoggedMeal() {
+    state = state.copyWith(loggedMeal: null);
+  }
+
+  /// Clear error message
+  void clearError() {
+    state = state.clearError();
+  }
+
+  /// Parse API error into user-friendly message
+  String _parseApiError(ApiException error) {
+    switch (error.code) {
+      case 400:
+        return 'Invalid request. Please check your input.';
+      case 401:
+        return 'Unauthorized. Please log in again.';
+      case 403:
+        return 'Access denied.';
+      case 404:
+        return 'Resource not found.';
+      case 500:
+        return 'Server error. Please try again later.';
+      case 503:
+        return 'Service unavailable. Please try again later.';
+      default:
+        return error.message ?? 'An error occurred';
+    }
+  }
+}
