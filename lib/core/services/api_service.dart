@@ -152,7 +152,7 @@ class ApiService {
   /// Initialize the API service with base URL, storage repository, and optional logging
   void initialize({
     required StorageRepository storageRepository,
-    String baseUrl = 'https://diet-lenz-api.onrender.com',
+    String baseUrl = 'https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app',
     bool enableLogging = true,
   }) {
     _storageRepository = storageRepository;

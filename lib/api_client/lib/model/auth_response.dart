@@ -17,6 +17,8 @@ class AuthResponse {
     this.refreshToken,
     this.userId,
     this.email,
+    this.firstName,
+    this.lastName,
     this.emailVerified,
   });
 
@@ -58,6 +60,22 @@ class AuthResponse {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
+  String? firstName;
+
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  String? lastName;
+
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
   bool? emailVerified;
 
   @override
@@ -66,6 +84,8 @@ class AuthResponse {
     other.refreshToken == refreshToken &&
     other.userId == userId &&
     other.email == email &&
+    other.firstName == firstName &&
+    other.lastName == lastName &&
     other.emailVerified == emailVerified;
 
   @override
@@ -75,10 +95,12 @@ class AuthResponse {
     (refreshToken == null ? 0 : refreshToken!.hashCode) +
     (userId == null ? 0 : userId!.hashCode) +
     (email == null ? 0 : email!.hashCode) +
+    (firstName == null ? 0 : firstName!.hashCode) +
+    (lastName == null ? 0 : lastName!.hashCode) +
     (emailVerified == null ? 0 : emailVerified!.hashCode);
 
   @override
-  String toString() => 'AuthResponse[accessToken=$accessToken, refreshToken=$refreshToken, userId=$userId, email=$email, emailVerified=$emailVerified]';
+  String toString() => 'AuthResponse[accessToken=$accessToken, refreshToken=$refreshToken, userId=$userId, email=$email, firstName=$firstName, lastName=$lastName, emailVerified=$emailVerified]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -101,6 +123,16 @@ class AuthResponse {
       json[r'email'] = this.email;
     } else {
       json[r'email'] = null;
+    }
+    if (this.firstName != null) {
+      json[r'firstName'] = this.firstName;
+    } else {
+      json[r'firstName'] = null;
+    }
+    if (this.lastName != null) {
+      json[r'lastName'] = this.lastName;
+    } else {
+      json[r'lastName'] = null;
     }
     if (this.emailVerified != null) {
       json[r'emailVerified'] = this.emailVerified;
@@ -133,6 +165,8 @@ class AuthResponse {
         refreshToken: mapValueOfType<String>(json, r'refreshToken'),
         userId: mapValueOfType<String>(json, r'userId'),
         email: mapValueOfType<String>(json, r'email'),
+        firstName: mapValueOfType<String>(json, r'firstName'),
+        lastName: mapValueOfType<String>(json, r'lastName'),
         emailVerified: mapValueOfType<bool>(json, r'emailVerified'),
       );
     }

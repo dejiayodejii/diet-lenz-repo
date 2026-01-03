@@ -11,7 +11,7 @@
 part of openapi.api;
 
 class ApiClient {
-  ApiClient({this.basePath = 'https://diet-lenz-api.onrender.com', this.authentication,});
+  ApiClient({this.basePath = 'https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app', this.authentication,});
 
   final String basePath;
   final Authentication? authentication;

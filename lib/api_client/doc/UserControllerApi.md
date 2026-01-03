@@ -5,7 +5,7 @@
 import 'package:openapi/api.dart';
 ```
 
-All URIs are relative to *https://diet-lenz-api.onrender.com*
+All URIs are relative to *https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------

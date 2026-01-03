@@ -11,8 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Provider to track the current tab index
 final currentTabProvider = StateProvider<int>((ref) => 0);
 
-class BottomNav extends ConsumerStatefulWidget {
-  const BottomNav({super.key, this.index = 0, this.fromDeepLink = false});
+class BottomNavScreen extends ConsumerStatefulWidget {
+  const BottomNavScreen({super.key, this.index = 0, this.fromDeepLink = false});
   final int index;
   final bool fromDeepLink;
 
@@ -20,7 +20,7 @@ class BottomNav extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _BottomNavState();
 }
 
-class _BottomNavState extends ConsumerState<BottomNav> {
+class _BottomNavState extends ConsumerState<BottomNavScreen> {
   late final List<Widget> _screens;
   int currentIndex = 0;
 
@@ -52,42 +52,46 @@ class _BottomNavState extends ConsumerState<BottomNav> {
   Widget _buildCustomBottomBar() {
     return Container(
       // Add padding for safe area (iPhone home indicator)
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
       decoration: const BoxDecoration(
         color: Color(0xFF0E0E0E), // Matches background
         border: Border(
           top: BorderSide(color: Colors.black12), // Subtle top border
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.end, // Align items to bottom
-        children: [
-          // 1. History Tab
-          _buildNavItem(
-            index: 0,
-            icon:
-                Icons.bar_chart_outlined, // Using bar chart for 'History' look
-            label: "History",
-          ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 5, 20, 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end, // Align items to bottom
+            children: [
+              // 1. History Tab
+              _buildNavItem(
+                index: 0,
+                icon: Icons
+                    .bar_chart_outlined, // Using bar chart for 'History' look
+                label: "History",
+              ),
 
-          // 2. Home Tab (Active)
-          _buildNavItem(
-            index: 1,
-            icon: Icons.home_outlined,
-            label: "Home",
-          ),
+              // 2. Home Tab (Active)
+              _buildNavItem(
+                index: 1,
+                icon: Icons.home_outlined,
+                label: "Home",
+              ),
 
-          // 3. Settings Tab
-          _buildNavItem(
-            index: 2,
-            icon: Icons.settings_outlined,
-            label: "Settings",
-          ),
+              // 3. Settings Tab
+              _buildNavItem(
+                index: 2,
+                icon: Icons.settings_outlined,
+                label: "Settings",
+              ),
 
-          // 4. The Custom Scan Button
-          _buildScanButton(),
-        ],
+              // 4. The Custom Scan Button
+              _buildScanButton(),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -34,6 +34,7 @@ class AppTheme {
   /// Main dark theme for the app
   static ThemeData get darkTheme {
     return ThemeData(
+      
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: _darkColorScheme,
@@ -233,7 +234,7 @@ class AppTheme {
       ),
 
       // Card theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: _darkColorScheme.surface,
         surfaceTintColor: _darkColorScheme.surfaceContainerHighest,
         elevation: 4,
@@ -261,7 +262,7 @@ class AppTheme {
       ),
 
       // Dialog theme
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: _darkColorScheme.surface,
         titleTextStyle: const TextStyle(
           fontFamily: AppFonts.lato,
@@ -351,7 +352,7 @@ class AppTheme {
       ),
 
       // Tab bar theme
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: _darkColorScheme.primary,
         unselectedLabelColor: _darkColorScheme.onSurfaceVariant,
         labelStyle: const TextStyle(

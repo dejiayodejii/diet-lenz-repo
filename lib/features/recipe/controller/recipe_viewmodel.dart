@@ -101,6 +101,84 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
     }
   }
 
+  /// Analyze a nutrition label from an image
+  /// Returns true if successful, false otherwise
+  Future<bool> analyzeNutritionLabel(MultipartFile image) async {
+    state = state.copyWith(
+        isLoading: true, errorMessage: null, analyzedRecipe: null);
+
+    try {
+      final response = await _apiService.recipeApi.analyzeNutritionLabel(image);
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          analyzedRecipe: response,
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to analyze nutrition label',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      print(e);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Analyze a product by barcode
+  /// Returns true if successful, false otherwise
+  Future<bool> analyzeByBarcode(String barcode) async {
+    state = state.copyWith(
+        isLoading: true, errorMessage: null, analyzedRecipe: null);
+
+    try {
+      final response = await _apiService.recipeApi.analyzeByBarcode(barcode);
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          analyzedRecipe: response,
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to analyze barcode',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      print(e);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
   /// Suggest and analyze recipes from an image
   /// Returns true if successful, false otherwise
   Future<bool> suggestAndAnalyze(MultipartFile image) async {

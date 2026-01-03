@@ -26,7 +26,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController emailController = TextEditingController(
-      text: kDebugMode ? "dejiayodeji010+1@gmail.com" : "");
+      text: kDebugMode ? "yemi@yopmail.com" : "");
   final TextEditingController passwordController =
       TextEditingController(text: kDebugMode ? "Ayanbunmi3@" : "");
   @override
@@ -99,7 +99,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               password: passwordController.text);
 
                           if (response) {
-                            NavigationService.push(child: const BottomNav());
+                            NavigationService.push(
+                                child: const BottomNavScreen());
                           }
                         }),
                   ],

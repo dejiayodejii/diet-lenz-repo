@@ -10,7 +10,8 @@ import 'package:country_flags/country_flags.dart';
 import 'package:flutter_svg/svg.dart'; // For the Flag visuals
 
 class CountrySelectionScreen extends ConsumerStatefulWidget {
-  const CountrySelectionScreen({super.key});
+  const CountrySelectionScreen({super.key,this.isFromSettings = false});
+  final bool isFromSettings;
 
   @override
   ConsumerState<CountrySelectionScreen> createState() =>

@@ -60,9 +60,7 @@ class _FoodLogsScreenState extends ConsumerState<FoodLogsScreen> {
             ),
             const SizedBox(height: 35),
             Expanded(
-              child: SingleChildScrollView(
-                child: _buildContentForSelectedTab(),
-              ),
+              child: _buildContentForSelectedTab(),
             ),
           ],
         ),
@@ -103,13 +101,21 @@ class _FoodLogsScreenState extends ConsumerState<FoodLogsScreen> {
 
         if (recipes == null || recipes.isEmpty) {
           // Show empty state
-          return const Center(
+          return Center(
             child: Padding(
               padding: EdgeInsets.all(20.0),
-              child: Text(
-                'No food logs yet. Start by scanning your first meal!',
-                style: TextStyle(color: Colors.grey),
-                textAlign: TextAlign.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.25),
+                  Icon(Icons.hourglass_empty, size: 50),
+                  SizedBox(height: 15),
+                  Text(
+                    'No food logs yet. Start by scanning your first meal!',
+                    style: TextStyle(color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
           );
@@ -120,7 +126,6 @@ class _FoodLogsScreenState extends ConsumerState<FoodLogsScreen> {
           onRefresh: _refreshRecipes,
           color: AppColors.primaryColor,
           child: ListView(
-            shrinkWrap: true,
             physics: const AlwaysScrollableScrollPhysics(),
             children: recipes
                 .map((recipe) => FoodLoggedPreview(recipe: recipe))
@@ -155,13 +160,20 @@ class _FoodLogsScreenState extends ConsumerState<FoodLogsScreen> {
 
         if (favorites == null || favorites.isEmpty) {
           // Show empty state
-          return const Center(
+          return Center(
             child: Padding(
               padding: EdgeInsets.all(20.0),
-              child: Text(
-                'No favorites yet. Tap the heart icon on any food to favorite it!',
-                style: TextStyle(color: Colors.grey),
-                textAlign: TextAlign.center,
+              child: Column(
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.25),
+                  Icon(Icons.hourglass_empty, size: 50),
+                  SizedBox(height: 15),
+                  Text(
+                    'No favorites yet. Tap the heart icon on any food to favorite it!',
+                    style: TextStyle(color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
           );
@@ -172,7 +184,6 @@ class _FoodLogsScreenState extends ConsumerState<FoodLogsScreen> {
           onRefresh: _refreshFavorites,
           color: AppColors.primaryColor,
           child: ListView(
-            shrinkWrap: true,
             physics: const AlwaysScrollableScrollPhysics(),
             children: favorites
                 .map((favorite) => FavouriteFood(favorite: favorite))
@@ -196,7 +207,7 @@ class FavouriteFood extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         NavigationService.push(
           child: FoodLogDetail(favorite: favorite),

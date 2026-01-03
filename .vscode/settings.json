@@ -11,5 +11,5 @@
     "**/.plugin_symlinks": true
   },
   "hide-files.files": [],
-  "dart.flutterSdkPath": ".fvm/versions/3.27.1"
+  "dart.flutterSdkPath": ".fvm/versions/3.32.1"
 }

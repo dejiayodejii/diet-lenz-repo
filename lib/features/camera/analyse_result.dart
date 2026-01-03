@@ -5,8 +5,10 @@ import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/component/custom_textfield.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
+import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/core/utils/loader.dart';
+import 'package:diet_lenz/features/bottom_nav/bottom.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
 import 'package:diet_lenz/widgets/calorie_badge.dart';
 import 'package:diet_lenz/widgets/macro_progress_item.dart';
@@ -25,13 +27,24 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
   final TextEditingController mealTypeController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
 
-  /// Calculate total macros (protein + carbs + fat + fiber) in grams
-  String _calculateTotalMacros() {
-    final protein = widget.analysis.totalMacros?.protein?.value ?? 0.0;
-    final carbs = widget.analysis.totalMacros?.carbs?.value ?? 0.0;
-    final fat = widget.analysis.totalMacros?.fat?.value ?? 0.0;
-    final fiber = widget.analysis.totalMacros?.fiber?.value ?? 0.0;
+  double get protein => widget.analysis.totalMacros?.protein?.value ?? 0.0;
+  double get carbs => widget.analysis.totalMacros?.carbs?.value ?? 0.0;
+  double get fat => widget.analysis.totalMacros?.fat?.value ?? 0.0;
+  double get fiber => widget.analysis.totalMacros?.fiber?.value ?? 0.0;
 
+  // Calculate the maximum macro value for relative comparison
+  double get maxMacroValue {
+    final values = [protein, carbs, fat, fiber];
+    return values.reduce((a, b) => a > b ? a : b);
+  }
+
+  // Calculate relative progress for each macro (0.0 to 1.0)
+  double getRelativeProgress(double value) {
+    if (maxMacroValue == 0) return 0.0;
+    return (value / maxMacroValue).clamp(0.0, 1.0);
+  }
+
+  String _calculateTotalMacros() {
     final total = protein + carbs + fat + fiber;
     return total.toStringAsFixed(1);
   }
@@ -101,6 +114,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
         ref.read(toastProvider).showSuccess(
               'Meal logged successfully!',
             );
+        NavigationService.pushAndRemoveUntil(child: BottomNavScreen());
 
         // Navigate back after a short delay
         // Future.delayed(const Duration(milliseconds: 500), () {
@@ -118,6 +132,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
     return BlurryModalProgressHUD(
       inAsyncCall: state.isLoading,
       child: Scaffold(
+        extendBody: false,
         // backgroundColor: Colors.black,
         // appBar: AppBar(
         //   centerTitle: false,
@@ -267,7 +282,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                         text: "Add to Log",
                         onPressed: _handleAddToLog,
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 50),
                     ],
                   ),
                 ),

@@ -5,6 +5,7 @@ import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/view/login.dart';
+import 'package:diet_lenz/features/auth/view/personization/select_country.dart';
 import 'package:diet_lenz/features/settings/views/change_password.dart';
 import 'package:diet_lenz/features/settings/views/edit_profile.dart';
 import 'package:diet_lenz/features/settings/views/more.dart';
@@ -90,7 +91,9 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
                   NavigationService.push(child: ChangePasswordScreen());
                 },
               ),
-              settingTile(title: "Location"),
+              settingTile(title: "Location", onTap: () {
+                NavigationService.push(child: CountrySelectionScreen());
+              }),
               settingTile(
                   title: "Notifications",
                   icon: Switch.adaptive(

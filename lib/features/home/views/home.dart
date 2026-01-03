@@ -3,6 +3,7 @@ import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
 import 'package:diet_lenz/features/home/views/food_log_detail.dart';
 import 'package:diet_lenz/features/home/views/food_logs.dart';
@@ -42,6 +43,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(foodLoggingViewModelProvider.notifier).getDashboard();
       ref.read(foodLoggingViewModelProvider.notifier).getUserRecipes();
+      ref.read(userProfileViewModelProvider.notifier).getUserProfile();
     });
   }
 
@@ -62,6 +64,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 5),
               const HomeHeader(),
               const SizedBox(height: 25),
               Expanded(
@@ -234,10 +237,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(20.0),
-          child: Text(
-            'No food logs yet. Start by scanning your first meal!',
-            style: TextStyle(color: Colors.grey),
-            textAlign: TextAlign.center,
+          child: Column(
+            children: [
+              Icon(Icons.hourglass_empty, size: 50),
+              SizedBox(height: 15),
+              Text(
+                'No food logs yet. Start by scanning your first meal!',
+                style: TextStyle(color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
       );
@@ -751,18 +760,16 @@ class HomeHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userProfileState = ref.watch(userProfileViewModelProvider);
-    final userName =
-        // userProfileState.userProfile?.userId?.toUpperCase() ??
-         "Ayodeji";
+    final authState = ref.watch(authViewModelProvider).authResponse;
+    final userName = authState?.firstName ?? "Ayodeji";
 
     return Row(
       children: [
         Image.asset(
           AppImages.ppic,
           scale: 2,
-          height: 60,
-          width: 60,
+          height: 50,
+          width: 50,
         ),
         const SizedBox(width: 10),
         Expanded(

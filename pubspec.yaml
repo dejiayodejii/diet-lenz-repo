@@ -59,7 +59,9 @@ dependencies:
   # Provides the nice rounded/rectangular flag assets (SVGs)
   country_flags: ^2.1.0
   camera:
+  image_picker: ^1.0.0  # For gallery image picking
   image: ^4.0.0  # For image compression
+  google_mlkit_barcode_scanning: ^0.12.0  # For barcode scanning
   rename_app:
 dev_dependencies:
   flutter_test:

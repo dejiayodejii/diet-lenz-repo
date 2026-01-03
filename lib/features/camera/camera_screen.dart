@@ -16,6 +16,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart' as http_parser;
 import 'package:image/image.dart' as img;
+import 'package:image_picker/image_picker.dart';
+import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 
 class AICameraScreen extends ConsumerStatefulWidget {
   final CameraDescription? camera;
@@ -26,13 +28,13 @@ class AICameraScreen extends ConsumerStatefulWidget {
 }
 
 class _AICameraScreenState extends ConsumerState<AICameraScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   // --- CONFIGURATION ---
   // Set this to TRUE to use the real camera (requires physical device)
-  final bool useCamera = false;
+  final bool useCamera = true;
 
   // Set this to TRUE to use test image from assets instead of camera
-  final bool useTestImage = true; // Change to true for testing with assets
+  final bool useTestImage = false; // Change to true for testing with assets
   final String testImagePath = AppImages.salad; // Path to your test image
 
   CameraController? _controller;
@@ -49,9 +51,13 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
   ];
   int selectedModeIndex = 0;
 
+  // Selected image for preview (used in Upload mode)
+  File? _selectedImageFile;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initializeCamera();
     _initializeScanner();
   }
@@ -79,9 +85,27 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _controller?.dispose();
     _scannerController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // App lifecycle changed (background/foreground)
+    if (_controller == null || !_controller!.value.isInitialized) {
+      return;
+    }
+
+    if (state == AppLifecycleState.inactive) {
+      // Free up memory when camera not active
+      _controller?.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      // Re-initialize the camera with a new controller
+      // onResume
+      _initializeCamera();
+    }
   }
 
   /// Compress image to reduce file size
@@ -112,6 +136,97 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
     return compressedBytes;
   }
 
+  /// Scan image for barcodes and return the first barcode value found
+  Future<String?> _scanBarcodeFromImage(String imagePath) async {
+    final inputImage = InputImage.fromFilePath(imagePath);
+    final barcodeScanner = BarcodeScanner();
+
+    try {
+      final List<Barcode> barcodes =
+          await barcodeScanner.processImage(inputImage);
+
+      if (barcodes.isNotEmpty) {
+        // Return the first barcode's raw value
+        print('Barcode: ${barcodes.first.rawValue}');
+        return barcodes.first.rawValue;
+      }
+      print('No barcode found in image');
+      return null;
+    } finally {
+      barcodeScanner.close();
+    }
+  }
+
+  /// Handle barcode mode capture and analysis
+  Future<void> _captureAndAnalyzeBarcode() async {
+    final controller = ref.read(recipeViewModelProvider.notifier);
+
+    try {
+      String? barcode;
+      String? imagePath;
+
+      if (_controller != null && _controller!.value.isInitialized) {
+        // Capture from camera
+        final XFile image = await _controller!.takePicture();
+        imagePath = image.path;
+
+        // Pause camera preview and scanner animation after capture
+        await _controller!.pausePreview();
+        _scannerController.stop();
+
+        // Scan for barcode
+        print("hello 1");
+        barcode = await _scanBarcodeFromImage(imagePath);
+        print("hello 2");
+        print('Barcode: $barcode');
+      } else {
+        ref.read(toastProvider).showError('Camera not ready');
+        return;
+      }
+
+      if (barcode == null || barcode.isEmpty) {
+        // No barcode found
+        _resumeCameraAndScanner();
+        ref
+            .read(toastProvider)
+            .showError('No barcode found in image. Please try again.');
+        return;
+      }
+      print("hello 3");
+
+      print('📊 Barcode detected: $barcode');
+
+      // Call the API to analyze the barcode
+      final success = await controller.analyzeByBarcode(barcode);
+
+      if (success && mounted) {
+        final state = ref.read(recipeViewModelProvider);
+        if (state.analyzedRecipe != null) {
+          // Navigate to result screen and wait for it to be popped
+          await NavigationService.push(
+            child: AnalyseResultDetail(state.analyzedRecipe!),
+          );
+
+          // Resume camera and scanner when user comes back
+          if (mounted) {
+            _resumeCameraAndScanner();
+          }
+        }
+      } else if (mounted) {
+        // Resume camera and scanner on failure
+        _resumeCameraAndScanner();
+
+        ref.read(toastProvider).showError('Failed to analyze barcode');
+      }
+    } catch (e) {
+      print(e.toString());
+      if (mounted) {
+        _resumeCameraAndScanner();
+        ref.read(toastProvider).showError('Error: ${e.toString()}');
+      }
+    }
+  }
+
   /// Capture image from camera or use test image
   Future<void> _captureAndAnalyze() async {
     final controller = ref.read(recipeViewModelProvider.notifier);
@@ -120,7 +235,42 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
       http.MultipartFile imageFile;
       Uint8List imageBytes;
 
-      if (useTestImage) {
+      // Check if "Upload" mode is selected (index 4)
+      if (selectedModeIndex == 4) {
+        // Open gallery to pick an image
+        final ImagePicker picker = ImagePicker();
+        final XFile? pickedImage = await picker.pickImage(
+          source: ImageSource.gallery,
+          imageQuality: 85,
+        );
+
+        if (pickedImage == null) {
+          // User cancelled the picker
+          return;
+        }
+
+        final File file = File(pickedImage.path);
+
+        // Set the selected image for preview
+        setState(() {
+          _selectedImageFile = file;
+        });
+
+        // Pause scanner animation
+        _scannerController.stop();
+
+        imageBytes = await file.readAsBytes();
+
+        // Compress the image
+        final compressedBytes = await _compressImage(imageBytes);
+
+        imageFile = http.MultipartFile.fromBytes(
+          'image',
+          compressedBytes,
+          filename: 'gallery_image.jpg',
+          contentType: http_parser.MediaType('image', 'jpeg'),
+        );
+      } else if (useTestImage) {
         // Load image from assets for testing
         final ByteData data = await rootBundle.load(testImagePath);
         imageBytes = data.buffer.asUint8List();
@@ -134,9 +284,17 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
           filename: 'test_image.jpg',
           contentType: http_parser.MediaType('image', 'jpeg'),
         );
+
+        // Pause scanner animation for test image mode
+        _scannerController.stop();
       } else if (_controller != null && _controller!.value.isInitialized) {
         // Capture from camera
         final XFile image = await _controller!.takePicture();
+
+        // Pause camera preview and scanner animation after capture
+        await _controller!.pausePreview();
+        _scannerController.stop();
+
         final File file = File(image.path);
         imageBytes = await file.readAsBytes();
 
@@ -154,37 +312,82 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         ref.read(toastProvider).showError(
               'Camera not ready',
             );
-       
+
         return;
       }
 
-      // Call the API to analyze the recipe
-      final success = await controller.analyzeRecipe(imageFile);
+      // Call the appropriate API based on the selected mode
+      bool success = false;
+      if (selectedModeIndex == 3) {
+        // Label Mode
+        success = await controller.analyzeNutritionLabel(imageFile);
+      } else {
+        // Food Scan, Recipe, Upload
+        success = await controller.analyzeRecipe(imageFile);
+      }
 
       if (success && mounted) {
         final state = ref.read(recipeViewModelProvider);
         if (state.analyzedRecipe != null) {
-          // Navigate to result screen
-          NavigationService.push(
+          // Navigate to result screen and wait for it to be popped
+          await NavigationService.push(
             child: AnalyseResultDetail(state.analyzedRecipe!),
           );
+
+          // Resume camera and scanner when user comes back
+          if (mounted) {
+            _resumeCameraAndScanner();
+          }
         }
       } else if (mounted) {
+        // Resume camera and scanner on failure
+        _resumeCameraAndScanner();
+
         // Show error message
         final state = ref.read(recipeViewModelProvider);
         ref.read(toastProvider).showError(
               'Failed to analyze recipe',
             );
-        
       }
     } catch (e) {
       if (mounted) {
+        // Resume camera and scanner on exception
+        _resumeCameraAndScanner();
+
         ref.read(toastProvider).showError(
               'Error: ${e.toString()}',
             );
-
       }
     }
+  }
+
+  /// Resume camera preview and scanner animation
+  Future<void> _resumeCameraAndScanner() async {
+    // Clear the selected image preview
+    if (mounted) {
+      setState(() {
+        _selectedImageFile = null;
+      });
+    }
+
+    // Resume scanner animation
+    _scannerController.repeat(reverse: true);
+
+    // Completely re-initialize camera to ensure preview works fresh
+    // This fixes issues where resumePreview() fails to restart the stream
+    try {
+      // Dispose the old controller if it exists
+      await _controller?.dispose();
+    } catch (e) {
+      // Ignore errors during dispose
+    } finally {
+      // Create a gap where controller is null so UI shows placeholder
+      _controller = null;
+      if (mounted) setState(() {});
+    }
+
+    // Re-initialize
+    await _initializeCamera();
   }
 
   @override
@@ -213,74 +416,77 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
                         child: _buildCameraView(),
                       ),
 
-                      // 2. DARK OVERLAY WITH CUTOUT + CORNERS
-                      Positioned.fill(
-                        child: CustomPaint(
-                          painter: ScannerOverlayPainter(
-                            scanBoxRect: Rect.fromLTWH(
-                              (size.width - scanBoxSize) / 2,
-                              scanBoxTop,
-                              scanBoxSize,
-                              scanBoxSize,
+                      // 2. DARK OVERLAY WITH CUTOUT + CORNERS (hide in upload mode or when image selected)
+                      if (selectedModeIndex != 4 && _selectedImageFile == null)
+                        Positioned.fill(
+                          child: CustomPaint(
+                            painter: ScannerOverlayPainter(
+                              scanBoxRect: Rect.fromLTWH(
+                                (size.width - scanBoxSize) / 2,
+                                scanBoxTop,
+                                scanBoxSize,
+                                scanBoxSize,
+                              ),
                             ),
+                            child: Container(),
                           ),
-                          child: Container(),
                         ),
-                      ),
 
-                      // 3. SCANNING LINE ANIMATION
-                      Positioned(
-                        top: scanBoxTop,
-                        left: (size.width - scanBoxSize) / 2,
-                        width: scanBoxSize,
-                        height: scanBoxSize,
-                        child: AnimatedBuilder(
-                          animation: _scannerAnimation,
-                          builder: (context, child) {
-                            return Stack(
-                              children: [
-                                Positioned(
-                                  top: _scannerAnimation.value *
-                                      (scanBoxSize - 2),
-                                  left: 0,
-                                  right: 0,
-                                  child: Container(
-                                    height: 2,
-                                    decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.white.withOpacity(0),
-                                            Colors.white,
-                                            Colors.white.withOpacity(0),
-                                          ],
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.white.withOpacity(0.5),
-                                            blurRadius: 10,
-                                            spreadRadius: 2,
-                                          )
-                                        ]),
+                      // 3. SCANNING LINE ANIMATION (hide in upload mode or when image selected)
+                      if (selectedModeIndex != 4 && _selectedImageFile == null)
+                        Positioned(
+                          top: scanBoxTop,
+                          left: (size.width - scanBoxSize) / 2,
+                          width: scanBoxSize,
+                          height: scanBoxSize,
+                          child: AnimatedBuilder(
+                            animation: _scannerAnimation,
+                            builder: (context, child) {
+                              return Stack(
+                                children: [
+                                  Positioned(
+                                    top: _scannerAnimation.value *
+                                        (scanBoxSize - 2),
+                                    left: 0,
+                                    right: 0,
+                                    child: Container(
+                                      height: 2,
+                                      decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.white.withOpacity(0),
+                                              Colors.white,
+                                              Colors.white.withOpacity(0),
+                                            ],
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.white.withOpacity(0.5),
+                                              blurRadius: 10,
+                                              spreadRadius: 2,
+                                            )
+                                          ]),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            );
-                          },
+                                ],
+                              );
+                            },
+                          ),
                         ),
-                      ),
 
                       // 4. TOP BAR
-                      SafeArea(
+                      const SafeArea(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
+                          padding: EdgeInsets.symmetric(
                               horizontal: 16.0, vertical: 10),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              _buildCircleButton(
-                                  Icons.arrow_back_ios_new, () {}),
-                              const Text(
+                              // _buildCircleButton(
+                              //     Icons.arrow_back_ios_new, () {}),
+                              SizedBox(width: 40),
+                              Text(
                                 "AI Camera",
                                 style: TextStyle(
                                   color: Colors.white,
@@ -289,7 +495,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
                                 ),
                               ),
                               // Invisible icon to balance the row
-                              const SizedBox(width: 40),
+                              SizedBox(width: 40),
                             ],
                           ),
                         ),
@@ -311,6 +517,20 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
   // --- WIDGET BUILDERS ---
 
   Widget _buildCameraView() {
+    // Show selected image preview (when image is picked from gallery)
+    if (_selectedImageFile != null) {
+      return Image.file(
+        _selectedImageFile!,
+        fit: BoxFit.cover,
+      );
+    }
+
+    // Show upload placeholder when Upload mode is selected
+    if (selectedModeIndex == 4) {
+      return _buildUploadPlaceholder();
+    }
+
+    // Show camera preview
     if (useCamera && _controller != null && _controller!.value.isInitialized) {
       return CameraPreview(_controller!);
     } else {
@@ -322,20 +542,62 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
     }
   }
 
-  Widget _buildCircleButton(IconData icon, VoidCallback onTap) {
+  /// Build the upload placeholder UI
+  Widget _buildUploadPlaceholder() {
     return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.black.withOpacity(0.5),
-      ),
-      child: IconButton(
-        icon: Icon(icon, color: Colors.white, size: 18),
-        onPressed: onTap,
+      color: const Color(0xFF1A1A1A),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.primary.withOpacity(0.5),
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                Icons.photo_library_outlined,
+                size: 50,
+                color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              "Upload from Gallery",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "Tap the button below to select\nan image from your gallery",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey[400],
+                fontSize: 14,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 32),
+            Icon(
+              Icons.arrow_downward_rounded,
+              color: AppColors.primary.withOpacity(0.7),
+              size: 30,
+            ),
+          ],
+        ),
       ),
     );
   }
+
 
   Widget _buildBottomControls() {
     return Container(
@@ -354,7 +616,15 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         children: [
           // SHUTTER BUTTON
           GestureDetector(
-            onTap: _captureAndAnalyze,
+            onTap: () {
+              if (selectedModeIndex == 2) {
+                // Barcode Mode
+                _captureAndAnalyzeBarcode();
+              } else {
+                // Other Modes (Food Scan, Recipe, Label, Upload)
+                _captureAndAnalyze();
+              }
+            },
             child: Container(
               width: 70,
               height: 70,

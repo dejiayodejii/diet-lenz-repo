@@ -61,7 +61,7 @@ try {
 
 ## Documentation for API Endpoints
 
-All URIs are relative to *https://diet-lenz-api.onrender.com*
+All URIs are relative to *https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------

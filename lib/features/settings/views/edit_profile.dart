@@ -3,6 +3,7 @@ import 'package:diet_lenz/component/custom_textfield.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
+import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,6 +18,7 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 class _SetttingsScreenState extends ConsumerState<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
+   final profile = ref.watch(userProfileViewModelProvider);
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,

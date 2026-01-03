@@ -6,7 +6,7 @@
 echo "🔄 Regenerating API Client..."
 
 # Default Swagger URL (update this with your actual endpoint)
-SWAGGER_SOURCE="${1:-https://diet-lenz-api.onrender.com/v3/api-docs}"
+SWAGGER_SOURCE="${1:-https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app/v3/api-docs}"
 
 echo "📥 Source: $SWAGGER_SOURCE"
 
