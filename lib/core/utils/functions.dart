@@ -6,9 +6,6 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
-
-import 'package:flutter/material.dart';
 
 hideKeyboard(BuildContext context) {
   FocusScopeNode currentFocus = FocusScope.of(context);
@@ -38,6 +35,20 @@ String capitalizeFirstLetter(String text) {
   return text[0].toUpperCase() + text.substring(1).toLowerCase();
 }
 
+String removeUnderscores(String text) {
+  if (text.isEmpty) {
+    return text;
+  }
+  return text.replaceAll('_', ' ');
+}
+
+extension StringFormat on String {
+  String get removeUnderscores {
+    if (isEmpty) return this;
+    return replaceAll('_', ' ');
+  }
+}
+
 extension StringToDouble on String {
   double toDouble() {
     try {
@@ -61,8 +72,6 @@ extension StringToDouble on String {
     return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }
-
-
 
 String colorToHex(Color color) {
   return '#${color.value.toRadixString(16).toUpperCase().substring(2)}';
@@ -111,5 +120,3 @@ Future<Map<String, dynamic>> getDeviceInfo() async {
   }
   return deviceData;
 }
-
-

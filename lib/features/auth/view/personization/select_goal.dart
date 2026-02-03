@@ -1,4 +1,5 @@
 import 'package:diet_lenz/component/custom_button.dart';
+import 'package:diet_lenz/core/utils/functions.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
@@ -142,7 +143,8 @@ class _LoginScreenState extends ConsumerState<SelectGoalScreen> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          goals[index],
+                                          capitalizeFirstLetter(
+                                              removeUnderscores(goals[index])),
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w600,
                                             fontSize: 16,

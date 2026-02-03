@@ -64,14 +64,11 @@ class _CustomYafButtonState extends State<CustomYafButton> {
     // Default color is primary color if not specifie
     // Define size mappings
 
-
     final Map<ButtonSize, EdgeInsets> paddingMap = {
       ButtonSize.small: const EdgeInsets.symmetric(horizontal: 12),
       ButtonSize.medium: const EdgeInsets.symmetric(horizontal: 16),
       ButtonSize.large: const EdgeInsets.symmetric(horizontal: 24),
     };
-
-
 
     // Build the button based on variant
     Widget button;

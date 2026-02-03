@@ -17,13 +17,33 @@ void main() {
   // final instance = UserControllerApi();
 
   group('tests for UserControllerApi', () {
+    //Future<PasswordChangedResponse> changePassword(ChangePasswordRequest changePasswordRequest) async
+    test('test changePassword', () async {
+      // TODO
+    });
+
+    //Future<PageUserNotification> getUserNotifications(int pageNumber) async
+    test('test getUserNotifications', () async {
+      // TODO
+    });
+
     //Future<UserProfile> getUserProfile() async
     test('test getUserProfile', () async {
       // TODO
     });
 
+    //Future markNotificationAsRead(String notificationId) async
+    test('test markNotificationAsRead', () async {
+      // TODO
+    });
+
     //Future<UserProfile> updateUserProfile(ProfileRequestDto profileRequestDto) async
     test('test updateUserProfile', () async {
+      // TODO
+    });
+
+    //Future<ImageUploadResponse> updateUserProfilePhoto(MultipartFile image) async
+    test('test updateUserProfilePhoto', () async {
       // TODO
     });
 

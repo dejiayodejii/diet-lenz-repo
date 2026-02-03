@@ -60,8 +60,11 @@ class _LoginScreenState extends ConsumerState<SelectPaymentScreen> {
                   const SizedBox(height: 80),
                   GestureDetector(
                     onTap: () {
-                       NavigationService.push(child: const PaymentDetailScreen( type: "Monthly",
-                        price: "\$4.99",));
+                      NavigationService.push(
+                          child: const PaymentDetailScreen(
+                        type: "Monthly",
+                        price: "\$4.99",
+                      ));
                     },
                     child: Container(
                       padding: const EdgeInsets.all(15),
@@ -123,7 +126,8 @@ class _LoginScreenState extends ConsumerState<SelectPaymentScreen> {
                   const SizedBox(height: 20),
                   GestureDetector(
                     onTap: () {
-                      NavigationService.push(child: const PaymentDetailScreen(
+                      NavigationService.push(
+                          child: const PaymentDetailScreen(
                         type: "Yearly",
                         price: "\$29.99",
                       ));

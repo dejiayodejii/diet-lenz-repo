@@ -34,7 +34,6 @@ class AppTheme {
   /// Main dark theme for the app
   static ThemeData get darkTheme {
     return ThemeData(
-      
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: _darkColorScheme,

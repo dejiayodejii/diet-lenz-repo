@@ -257,10 +257,10 @@ class ApiService {
     } on ApiException catch (e) {
       print('❌ Token refresh failed with API error: ${e.code} - ${e.message}');
 
-      if (e.code == 401 || e.code == 403) {
-        // Refresh token is also expired or invalid
-        await _handleTokenExpired();
-      }
+      // if (e.code == 401 || e.code == 403) {
+      //   // Refresh token is also expired or invalid
+      //   await _handleTokenExpired();
+      // }
 
       _isRefreshing = false;
       return false;
@@ -291,17 +291,17 @@ class ApiService {
     try {
       return await apiCall();
     } on ApiException catch (e) {
-      if (e.code == 401 && !_isRefreshing) {
-        print('🔐 Got 401 - attempting token refresh...');
+      // if (e.code == 401 && !_isRefreshing) {
+      //   print('🔐 Got 401 - attempting token refresh...');
 
-        final refreshed = await refreshAccessToken();
+      //   final refreshed = await refreshAccessToken();
 
-        if (refreshed) {
-          // Retry the original request with new token
-          print('🔄 Retrying original request with new token...');
-          return await apiCall();
-        }
-      }
+      //   if (refreshed) {
+      //     // Retry the original request with new token
+      //     print('🔄 Retrying original request with new token...');
+      //     return await apiCall();
+      //   }
+      // }
 
       // Re-throw the exception if refresh failed or not a 401
       rethrow;

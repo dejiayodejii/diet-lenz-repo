@@ -140,6 +140,48 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
     }
   }
 
+  /// Suggest and analyze a recipe from an image
+  /// Returns true if successful, false otherwise
+  Future<bool> suggestAndAnalyze(MultipartFile image) async {
+    state = state.copyWith(
+        isLoading: true,
+        errorMessage: null,
+        analyzedRecipe: null,
+        suggestedRecipes: null);
+
+    try {
+      final response = await _apiService.recipeApi.suggestAndAnalyze(image);
+
+      if (response != null && response.isNotEmpty) {
+        state = state.copyWith(
+          isLoading: false,
+          suggestedRecipes: response,
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'No recipes suggested',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      print(e);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
   /// Analyze a product by barcode
   /// Returns true if successful, false otherwise
   Future<bool> analyzeByBarcode(String barcode) async {
@@ -165,43 +207,6 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
       }
     } on ApiException catch (e) {
       print(e);
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: _parseApiError(e),
-      );
-      return false;
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'An unexpected error occurred',
-      );
-      return false;
-    }
-  }
-
-  /// Suggest and analyze recipes from an image
-  /// Returns true if successful, false otherwise
-  Future<bool> suggestAndAnalyze(MultipartFile image) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
-
-    try {
-      final response = await _apiService.recipeApi.suggestAndAnalyze(image);
-
-      if (response != null) {
-        state = state.copyWith(
-          isLoading: false,
-          suggestedRecipes: response,
-          errorMessage: null,
-        );
-        return true;
-      } else {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: 'Failed to get recipe suggestions',
-        );
-        return false;
-      }
-    } on ApiException catch (e) {
       state = state.copyWith(
         isLoading: false,
         errorMessage: _parseApiError(e),

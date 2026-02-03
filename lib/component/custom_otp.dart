@@ -26,7 +26,7 @@ class CustomPinBoxes extends StatelessWidget {
       autoFocus: true,
       controller: controller,
       keyboardType: TextInputType.number,
-      length: 4,
+      length: 6,
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
       ],
@@ -40,8 +40,8 @@ class CustomPinBoxes extends StatelessWidget {
         shape: PinCodeFieldShape.box,
         borderWidth: 0.64,
         borderRadius: BorderRadius.circular(8),
-        fieldHeight: 69,
-        fieldWidth: 69,
+        // fieldHeight: 40,
+        // fieldWidth: 40,
         inactiveFillColor: Colors.black12,
         activeFillColor: Colors.black12,
         selectedFillColor: Colors.black12,
@@ -53,7 +53,10 @@ class CustomPinBoxes extends StatelessWidget {
             isOtpCorrect == false ? Colors.red : AppColors.primaryColor,
       ),
       textStyle: const TextStyle(
-          fontSize: 17, fontWeight: FontWeight.w400, color: AppColors.white,fontFamily: AppFonts.spaceGrotesk),
+          fontSize: 17,
+          fontWeight: FontWeight.w400,
+          color: AppColors.white,
+          fontFamily: AppFonts.spaceGrotesk),
     );
   }
 }

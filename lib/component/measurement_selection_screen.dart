@@ -19,6 +19,16 @@ class MeasurementSelectionScreen extends StatefulWidget {
   final bool initialLeftUnitSelected;
   final Function(double value, String unit, bool isLeftUnit)? onContinue;
 
+  // Optional overrides for specific units
+  final double? minLeftValue;
+  final double? maxLeftValue;
+  final double? minRightValue;
+  final double? maxRightValue;
+  final double Function(double)? leftToRightConverter;
+  final double Function(double)? rightToLeftConverter;
+  final double? leftStep;
+  final double? rightStep;
+
   const MeasurementSelectionScreen({
     super.key,
     required this.title,
@@ -30,6 +40,14 @@ class MeasurementSelectionScreen extends StatefulWidget {
     required this.nextScreen,
     this.initialLeftUnitSelected = true,
     this.onContinue,
+    this.minLeftValue,
+    this.maxLeftValue,
+    this.minRightValue,
+    this.maxRightValue,
+    this.leftToRightConverter,
+    this.rightToLeftConverter,
+    this.leftStep,
+    this.rightStep,
   });
 
   @override
@@ -51,6 +69,39 @@ class _MeasurementSelectionScreenState
 
   String get currentUnit =>
       isLeftUnitSelected ? widget.leftUnit : widget.rightUnit;
+
+  double get currentMin => isLeftUnitSelected
+      ? (widget.minLeftValue ?? widget.minValue)
+      : (widget.minRightValue ?? widget.minValue);
+
+  double get currentMax => isLeftUnitSelected
+      ? (widget.maxLeftValue ?? widget.maxValue)
+      : (widget.maxRightValue ?? widget.maxValue);
+
+  double get currentStep =>
+      isLeftUnitSelected ? (widget.leftStep ?? 1.0) : (widget.rightStep ?? 1.0);
+
+  void _switchUnit(bool toLeft) {
+    if (isLeftUnitSelected == toLeft) return;
+
+    setState(() {
+      isLeftUnitSelected = toLeft;
+      if (toLeft) {
+        // Switched to Left
+        if (widget.rightToLeftConverter != null) {
+          selectedValue = widget.rightToLeftConverter!(selectedValue);
+        }
+      } else {
+        // Switched to Right
+        if (widget.leftToRightConverter != null) {
+          selectedValue = widget.leftToRightConverter!(selectedValue);
+        }
+      }
+
+      // Ensure value is within new bounds
+      selectedValue = selectedValue.clamp(currentMin, currentMax);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,16 +145,8 @@ class _MeasurementSelectionScreenState
                     leftUnit: widget.leftUnit,
                     rightUnit: widget.rightUnit,
                     isLeftSelected: isLeftUnitSelected,
-                    onLeftTap: () {
-                      setState(() {
-                        isLeftUnitSelected = true;
-                      });
-                    },
-                    onRightTap: () {
-                      setState(() {
-                        isLeftUnitSelected = false;
-                      });
-                    },
+                    onLeftTap: () => _switchUnit(true),
+                    onRightTap: () => _switchUnit(false),
                   ),
                   const SizedBox(height: 80),
                   MeasurementValueDisplay(
@@ -111,8 +154,9 @@ class _MeasurementSelectionScreenState
                     unit: currentUnit,
                   ),
                   RulerPicker(
-                    minValue: widget.minValue,
-                    maxValue: widget.maxValue,
+                    minValue: currentMin,
+                    maxValue: currentMax,
+                    step: currentStep,
                     initialValue: selectedValue,
                     onValueChanged: (value) {
                       setState(() {

@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/api_client/lib/api.dart';
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/component/custom_textfield.dart';
@@ -44,44 +44,20 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
     return (value / maxMacroValue).clamp(0.0, 1.0);
   }
 
+  LogMealRequestDtoMealTypeEnum? _selectedMealType;
+
   String _calculateTotalMacros() {
     final total = protein + carbs + fat + fiber;
     return total.toStringAsFixed(1);
-  }
-
-  LogMealRequestDtoMealTypeEnum? _parseMealType(String input) {
-    final normalizedInput = input.trim().toUpperCase();
-    switch (normalizedInput) {
-      case 'BREAKFAST':
-        return LogMealRequestDtoMealTypeEnum.BREAKFAST;
-      case 'LUNCH':
-        return LogMealRequestDtoMealTypeEnum.LUNCH;
-      case 'DINNER':
-        return LogMealRequestDtoMealTypeEnum.DINNER;
-      case 'SNACK':
-        return LogMealRequestDtoMealTypeEnum.SNACK;
-      default:
-        return null;
-    }
   }
 
   Future<void> _handleAddToLog() async {
     final foodLoggingVM = ref.read(foodLoggingViewModelProvider.notifier);
 
     // Validate meal type
-    final mealTypeInput = mealTypeController.text.trim();
-    if (mealTypeInput.isEmpty) {
+    if (_selectedMealType == null) {
       ref.read(toastProvider).showError(
-            'Please enter a meal type (Breakfast, Lunch, Dinner, or Snack)',
-          );
-
-      return;
-    }
-
-    final mealType = _parseMealType(mealTypeInput);
-    if (mealType == null) {
-      ref.read(toastProvider).showError(
-            'Invalid meal type. Please use: Breakfast, Lunch, Dinner, or Snack',
+            'Please select a meal type (Breakfast, Lunch, Dinner, or Snack)',
           );
 
       return;
@@ -90,7 +66,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
     // Create log meal request
     final request = LogMealRequestDto(
       foodAnalysis: widget.analysis,
-      mealType: mealType,
+      mealType: _selectedMealType!,
       notes: noteController.text.trim().isEmpty
           ? null
           : noteController.text.trim(),
@@ -115,15 +91,66 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
               'Meal logged successfully!',
             );
         NavigationService.pushAndRemoveUntil(child: BottomNavScreen());
-
-        // Navigate back after a short delay
-        // Future.delayed(const Duration(milliseconds: 500), () {
-        //   if (mounted) {
-        //     Navigator.of(context).pop();
-        //   }
-        // });
       }
     }
+  }
+
+  Widget _buildMealTypeSelector() {
+    final mealTypes = LogMealRequestDtoMealTypeEnum.values;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Meal Type",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 12.0,
+          runSpacing: 12.0,
+          children: mealTypes.map((type) {
+            final isSelected = _selectedMealType == type;
+            // Format name: BREAKFAST -> Breakfast
+            final typeValue = type.value;
+            final name = typeValue[0] + typeValue.substring(1).toLowerCase();
+
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedMealType = type;
+                });
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppColors.primaryColor
+                      : Colors.grey.shade900,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColors.primaryColor
+                        : Colors.grey.shade700,
+                  ),
+                ),
+                child: Text(
+                  name,
+                  style: TextStyle(
+                    color: isSelected ? Colors.black : Colors.white,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w400,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
   }
 
   @override
@@ -133,11 +160,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
       inAsyncCall: state.isLoading,
       child: Scaffold(
         extendBody: false,
-        // backgroundColor: Colors.black,
-        // appBar: AppBar(
-        //   centerTitle: false,
-        //   title: const Text(''),
-        // ),
+        backgroundColor: Colors.black,
         body: Column(
           children: [
             Stack(
@@ -190,8 +213,6 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      //
-
                       const SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -206,8 +227,6 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                               ),
                             ),
                           ),
-
-                          //total calori
                           CalorieBadge(
                             text: '${_calculateTotalMacros()}g',
                           ),
@@ -217,13 +236,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                         text:
                             '${widget.analysis.totalMacros?.calories?.toStringAsFixed(0) ?? "0"} cal',
                       ),
-
                       const SizedBox(height: 15),
-
-                      // Total macros in grams
-
-                      const SizedBox(height: 10),
-
                       const SizedBox(height: 20),
                       Text(
                         widget.analysis.description ??
@@ -238,46 +251,42 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                       MacroProgressItem(
                         label: 'Protein',
                         currentValue:
-                            '${widget.analysis.totalMacros?.protein?.value?.toStringAsFixed(1) ?? "0"}${widget.analysis.totalMacros?.protein?.unit ?? "g"}',
-                        targetValue:
-                            '', // Target values would come from user profile
-                        progress: 0.0, // Calculate based on user's daily target
+                            '${protein.toStringAsFixed(1)}${widget.analysis.totalMacros?.protein?.unit ?? "g"}',
+                        targetValue: '',
+                        progress: getRelativeProgress(protein),
                       ),
-
                       const SizedBox(height: 20),
                       MacroProgressItem(
                         label: 'Carbs',
                         currentValue:
-                            '${widget.analysis.totalMacros?.carbs?.value?.toStringAsFixed(1) ?? "0"}${widget.analysis.totalMacros?.carbs?.unit ?? "g"}',
+                            '${carbs.toStringAsFixed(1)}${widget.analysis.totalMacros?.carbs?.unit ?? "g"}',
                         targetValue: '',
-                        progress: 0.0,
+                        progress: getRelativeProgress(carbs),
                       ),
-
                       const SizedBox(height: 20),
                       MacroProgressItem(
                         label: 'Fat',
                         currentValue:
-                            '${widget.analysis.totalMacros?.fat?.value?.toStringAsFixed(1) ?? "0"}${widget.analysis.totalMacros?.fat?.unit ?? "g"}',
+                            '${fat.toStringAsFixed(1)}${widget.analysis.totalMacros?.fat?.unit ?? "g"}',
                         targetValue: '',
-                        progress: 0.0,
+                        progress: getRelativeProgress(fat),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 20),
                       MacroProgressItem(
                         label: 'Fiber',
                         currentValue:
-                            '${widget.analysis.totalMacros?.fiber?.value?.toStringAsFixed(1) ?? "0"}${widget.analysis.totalMacros?.fiber?.unit ?? "g"}',
+                            '${fiber.toStringAsFixed(1)}${widget.analysis.totalMacros?.fiber?.unit ?? "g"}',
                         targetValue: '',
-                        progress: 0.0,
+                        progress: getRelativeProgress(fiber),
                       ),
                       const SizedBox(height: 20),
-                      LabelTextFormField(
-                        hintText: "Enter meal type (e.g Breakfast, Lunch etc)",
-                        controller: mealTypeController,
-                      ),
+                      _buildMealTypeSelector(),
+                      const SizedBox(height: 20),
                       LabelTextFormField(
                         hintText: "Note about meal",
                         controller: noteController,
                       ),
+                      const SizedBox(height: 20),
                       CustomYafButton(
                         text: "Add to Log",
                         onPressed: _handleAddToLog,

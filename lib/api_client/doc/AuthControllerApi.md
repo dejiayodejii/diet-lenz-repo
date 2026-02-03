@@ -14,6 +14,9 @@ Method | HTTP request | Description
 [**login**](AuthControllerApi.md#login) | **POST** /api/v1/auth/authenticate | 
 [**refresh**](AuthControllerApi.md#refresh) | **POST** /api/v1/auth/refresh | 
 [**register**](AuthControllerApi.md#register) | **POST** /api/v1/auth/register | 
+[**requestOtpResend**](AuthControllerApi.md#requestotpresend) | **POST** /api/v1/auth/resend-otp | 
+[**requestPasswordReset**](AuthControllerApi.md#requestpasswordreset) | **POST** /api/v1/auth/password/forgot | 
+[**resetPassword**](AuthControllerApi.md#resetpassword) | **POST** /api/v1/auth/password/reset | 
 [**verifyEmail**](AuthControllerApi.md#verifyemail) | **GET** /api/v1/auth/verify-email | 
 
 
@@ -252,8 +255,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **verifyEmail**
-> verifyEmail(token)
+# **requestOtpResend**
+> String requestOtpResend(forgotPasswordRequest)
 
 
 
@@ -268,12 +271,13 @@ import 'package:openapi/api.dart';
 //defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken(yourTokenGeneratorFunction);
 
 final api_instance = AuthControllerApi();
-final token = token_example; // String | 
+final forgotPasswordRequest = ForgotPasswordRequest(); // ForgotPasswordRequest | 
 
 try {
-    api_instance.verifyEmail(token);
+    final result = api_instance.requestOtpResend(forgotPasswordRequest);
+    print(result);
 } catch (e) {
-    print('Exception when calling AuthControllerApi->verifyEmail: $e\n');
+    print('Exception when calling AuthControllerApi->requestOtpResend: $e\n');
 }
 ```
 
@@ -281,7 +285,100 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **token** | **String**|  | 
+ **forgotPasswordRequest** | [**ForgotPasswordRequest**](ForgotPasswordRequest.md)|  | 
+
+### Return type
+
+**String**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **requestPasswordReset**
+> String requestPasswordReset(forgotPasswordRequest)
+
+
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+// TODO Configure HTTP Bearer authorization: bearerAuth
+// Case 1. Use String Token
+//defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
+// Case 2. Use Function which generate token.
+// String yourTokenGeneratorFunction() { ... }
+//defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken(yourTokenGeneratorFunction);
+
+final api_instance = AuthControllerApi();
+final forgotPasswordRequest = ForgotPasswordRequest(); // ForgotPasswordRequest | 
+
+try {
+    final result = api_instance.requestPasswordReset(forgotPasswordRequest);
+    print(result);
+} catch (e) {
+    print('Exception when calling AuthControllerApi->requestPasswordReset: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **forgotPasswordRequest** | [**ForgotPasswordRequest**](ForgotPasswordRequest.md)|  | 
+
+### Return type
+
+**String**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **resetPassword**
+> resetPassword(resetPasswordRequest)
+
+
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+// TODO Configure HTTP Bearer authorization: bearerAuth
+// Case 1. Use String Token
+//defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
+// Case 2. Use Function which generate token.
+// String yourTokenGeneratorFunction() { ... }
+//defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken(yourTokenGeneratorFunction);
+
+final api_instance = AuthControllerApi();
+final resetPasswordRequest = ResetPasswordRequest(); // ResetPasswordRequest | 
+
+try {
+    api_instance.resetPassword(resetPasswordRequest);
+} catch (e) {
+    print('Exception when calling AuthControllerApi->resetPassword: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **resetPasswordRequest** | [**ResetPasswordRequest**](ResetPasswordRequest.md)|  | 
 
 ### Return type
 
@@ -293,8 +390,57 @@ void (empty response body)
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
+ - **Content-Type**: application/json
  - **Accept**: Not defined
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **verifyEmail**
+> String verifyEmail(email, otp)
+
+
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+// TODO Configure HTTP Bearer authorization: bearerAuth
+// Case 1. Use String Token
+//defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
+// Case 2. Use Function which generate token.
+// String yourTokenGeneratorFunction() { ... }
+//defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken(yourTokenGeneratorFunction);
+
+final api_instance = AuthControllerApi();
+final email = email_example; // String | 
+final otp = otp_example; // String | 
+
+try {
+    final result = api_instance.verifyEmail(email, otp);
+    print(result);
+} catch (e) {
+    print('Exception when calling AuthControllerApi->verifyEmail: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **email** | **String**|  | 
+ **otp** | **String**|  | 
+
+### Return type
+
+**String**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: */*
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

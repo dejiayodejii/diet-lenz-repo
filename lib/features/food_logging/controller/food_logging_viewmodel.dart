@@ -129,7 +129,7 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
 
   /// Get current streak information
   Future<bool> getCurrentStreak() async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: state.streak != null ? false : true, errorMessage: null);
 
     try {
       final response = await _apiService.foodLoggingApi.getCurrentStreak();

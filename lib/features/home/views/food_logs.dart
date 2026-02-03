@@ -105,7 +105,7 @@ class _FoodLogsScreenState extends ConsumerState<FoodLogsScreen> {
             child: Padding(
               padding: EdgeInsets.all(20.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                // mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(height: MediaQuery.of(context).size.height * 0.25),
                   Icon(Icons.hourglass_empty, size: 50),

@@ -13,6 +13,4 @@ class AppColors {
   static const Color borderColor = Color.fromRGBO(47, 47, 47, 1);
   static const Color textLightGrey = Color.fromRGBO(162, 166, 171, 1);
   static const Color borderGrey = Color.fromRGBO(31, 36, 39, 1);
-
-  
 }

@@ -42,7 +42,22 @@ void main() {
       // TODO
     });
 
-    //Future verifyEmail(String token) async
+    //Future<String> requestOtpResend(ForgotPasswordRequest forgotPasswordRequest) async
+    test('test requestOtpResend', () async {
+      // TODO
+    });
+
+    //Future<String> requestPasswordReset(ForgotPasswordRequest forgotPasswordRequest) async
+    test('test requestPasswordReset', () async {
+      // TODO
+    });
+
+    //Future resetPassword(ResetPasswordRequest resetPasswordRequest) async
+    test('test resetPassword', () async {
+      // TODO
+    });
+
+    //Future<String> verifyEmail(String email, String otp) async
     test('test verifyEmail', () async {
       // TODO
     });

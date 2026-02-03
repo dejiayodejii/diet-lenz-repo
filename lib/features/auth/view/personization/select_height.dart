@@ -14,8 +14,14 @@ class SelectHeightScreen extends ConsumerWidget {
       leftUnit: "ft",
       rightUnit: "cm",
       minValue: 0,
-      maxValue: 250,
-      initialValue: 140.0,
+      maxValue: 300,
+      minLeftValue: 2,
+      maxLeftValue: 9,
+      initialValue: 170.0,
+      initialLeftUnitSelected: false, // Start with CM
+      leftToRightConverter: (val) => val * 30.48,
+      rightToLeftConverter: (val) => val / 30.48,
+      leftStep: 0.1,
       nextScreen: const SelectAgeScreen(),
       onContinue: (value, unit, isLeftUnit) {
         // Save height data

@@ -1,3 +1,4 @@
+import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class MeasurementValueDisplay extends StatelessWidget {
@@ -12,30 +13,32 @@ class MeasurementValueDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Format value based on unit.
+    // If unit is 'ft', show 1 decimal place. Otherwise show as integer.
+    final displayValue =
+        (unit == 'ft') ? value.toStringAsFixed(1) : value.round().toString();
+
     return Row(
-      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
       children: [
-        RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: "${value.toInt()}",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 96,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              TextSpan(
-                text: unit,
-                style: const TextStyle(
-                  color: Color.fromRGBO(158, 160, 165, 1),
-                  fontSize: 36,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+        Text(
+          displayValue,
+          style: const TextStyle(
+            fontSize: 64,
+            fontWeight: FontWeight.bold,
+            color: AppColors.white,
+            letterSpacing: -2,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          unit,
+          style: const TextStyle(
+            color: Color.fromRGBO(158, 160, 165, 1),
+            fontSize: 24,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],

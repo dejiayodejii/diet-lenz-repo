@@ -70,6 +70,9 @@ Class | Method | HTTP request | Description
 *AuthControllerApi* | [**login**](doc//AuthControllerApi.md#login) | **POST** /api/v1/auth/authenticate | 
 *AuthControllerApi* | [**refresh**](doc//AuthControllerApi.md#refresh) | **POST** /api/v1/auth/refresh | 
 *AuthControllerApi* | [**register**](doc//AuthControllerApi.md#register) | **POST** /api/v1/auth/register | 
+*AuthControllerApi* | [**requestOtpResend**](doc//AuthControllerApi.md#requestotpresend) | **POST** /api/v1/auth/resend-otp | 
+*AuthControllerApi* | [**requestPasswordReset**](doc//AuthControllerApi.md#requestpasswordreset) | **POST** /api/v1/auth/password/forgot | 
+*AuthControllerApi* | [**resetPassword**](doc//AuthControllerApi.md#resetpassword) | **POST** /api/v1/auth/password/reset | 
 *AuthControllerApi* | [**verifyEmail**](doc//AuthControllerApi.md#verifyemail) | **GET** /api/v1/auth/verify-email | 
 *FoodLoggingControllerApi* | [**getCurrentStreak**](doc//FoodLoggingControllerApi.md#getcurrentstreak) | **GET** /api/v1/food/streaks | 
 *FoodLoggingControllerApi* | [**getDashboard**](doc//FoodLoggingControllerApi.md#getdashboard) | **GET** /api/v1/food/dashboard | 
@@ -93,19 +96,26 @@ Class | Method | HTTP request | Description
 *RecipeControllersApi* | [**health**](doc//RecipeControllersApi.md#health) | **GET** /api/v1/recipe/health | 
 *RecipeControllersApi* | [**hello**](doc//RecipeControllersApi.md#hello) | **GET** /api/v1/recipe/hello | 
 *RecipeControllersApi* | [**suggestAndAnalyze**](doc//RecipeControllersApi.md#suggestandanalyze) | **POST** /api/v1/recipe/suggest | 
+*UserControllerApi* | [**changePassword**](doc//UserControllerApi.md#changepassword) | **POST** /api/v1/users/password/change | 
+*UserControllerApi* | [**getUserNotifications**](doc//UserControllerApi.md#getusernotifications) | **GET** /api/v1/users/notifications/all | 
 *UserControllerApi* | [**getUserProfile**](doc//UserControllerApi.md#getuserprofile) | **GET** /api/v1/users/profile | 
+*UserControllerApi* | [**markNotificationAsRead**](doc//UserControllerApi.md#marknotificationasread) | **PUT** /api/v1/users/notifications/all | 
 *UserControllerApi* | [**updateUserProfile**](doc//UserControllerApi.md#updateuserprofile) | **PUT** /api/v1/users/profile | 
+*UserControllerApi* | [**updateUserProfilePhoto**](doc//UserControllerApi.md#updateuserprofilephoto) | **PUT** /api/v1/users/profile-photo | 
 
 
 ## Documentation For Models
 
  - [AuthResponse](doc//AuthResponse.md)
  - [AverageMacrosDto](doc//AverageMacrosDto.md)
+ - [ChangePasswordRequest](doc//ChangePasswordRequest.md)
  - [ConsumedMacrosDto](doc//ConsumedMacrosDto.md)
  - [DailyTrendDto](doc//DailyTrendDto.md)
  - [DashboardResponseDto](doc//DashboardResponseDto.md)
  - [FavoriteRecipeResponseDto](doc//FavoriteRecipeResponseDto.md)
  - [FoodAnalysisDto](doc//FoodAnalysisDto.md)
+ - [ForgotPasswordRequest](doc//ForgotPasswordRequest.md)
+ - [ImageUploadResponse](doc//ImageUploadResponse.md)
  - [IngredientDto](doc//IngredientDto.md)
  - [LogMealRequestDto](doc//LogMealRequestDto.md)
  - [LoginRequest](doc//LoginRequest.md)
@@ -117,15 +127,22 @@ Class | Method | HTTP request | Description
  - [MacroResult](doc//MacroResult.md)
  - [MacroTargetDto](doc//MacroTargetDto.md)
  - [MealLogResponseDto](doc//MealLogResponseDto.md)
+ - [PageUserNotification](doc//PageUserNotification.md)
+ - [PageableObject](doc//PageableObject.md)
+ - [PasswordChangedResponse](doc//PasswordChangedResponse.md)
  - [ProfileRequestDto](doc//ProfileRequestDto.md)
  - [QuantityDto](doc//QuantityDto.md)
  - [RecipeResponseDto](doc//RecipeResponseDto.md)
  - [RefreshTokenRequest](doc//RefreshTokenRequest.md)
  - [RegisterDeviceRequest](doc//RegisterDeviceRequest.md)
  - [RegisterRequest](doc//RegisterRequest.md)
+ - [ResetPasswordRequest](doc//ResetPasswordRequest.md)
  - [SocialLoginRequest](doc//SocialLoginRequest.md)
+ - [SortObject](doc//SortObject.md)
  - [StreakInfoDto](doc//StreakInfoDto.md)
  - [SuggestedFoodAnalysis](doc//SuggestedFoodAnalysis.md)
+ - [User](doc//User.md)
+ - [UserNotification](doc//UserNotification.md)
  - [UserProfile](doc//UserProfile.md)
  - [WeeklyTrendDto](doc//WeeklyTrendDto.md)
 

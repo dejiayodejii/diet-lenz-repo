@@ -26,37 +26,85 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  // Days of the week (excluding Sunday)
-  final List<DayProgress> weekDays = [
-    DayProgress(day: 'MON', date: 4, progress: 0.8, isToday: false),
-    DayProgress(day: 'TUE', date: 5, progress: 0.7, isToday: false),
-    DayProgress(day: 'WED', date: 6, progress: 1, isToday: true), // Current day
-    DayProgress(day: 'THU', date: 7, progress: 0.0, isToday: false),
-    DayProgress(day: 'FRI', date: 8, progress: 0.0, isToday: false),
-    DayProgress(day: 'SAT', date: 9, progress: 0.0, isToday: false),
-  ];
+  /// Generate week days (Mon-Sat) based on the current date
+  List<DayProgress> _generateWeekDays() {
+    final foodLoggingState = ref.watch(foodLoggingViewModelProvider);
+    final weeklyTrend = foodLoggingState.weeklyTrend;
+    final dashboard = foodLoggingState.dashboard;
+    final targetCal = (dashboard?.targets?.calories ?? 2000).toDouble();
+
+    // Create a map for easy lookup of trend data
+    final Map<String, DailyTrendDto> trendMap = {};
+    if (weeklyTrend != null && weeklyTrend.dailyTrends.isNotEmpty) {
+      for (var day in weeklyTrend.dailyTrends) {
+        if (day.date != null) {
+          final dateKey = DateFormat('yyyy-MM-dd').format(day.date!);
+          trendMap[dateKey] = day;
+        }
+      }
+    }
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    // Always align to Monday of the CURRENT week (Local time)
+    // This ensures consistency of the UI (Mon-Sat) regardless of data availability
+    final daysFromMonday = (now.weekday - 1) % 7;
+    final monday = today.subtract(Duration(days: daysFromMonday));
+
+    const dayNames = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+    // Generate fixed 6 days (Monday to Saturday)
+    return List.generate(6, (index) {
+      final date = monday.add(Duration(days: index));
+      final dateKey = DateFormat('yyyy-MM-dd').format(date);
+
+      // Lookup data for this day
+      final trend = trendMap[dateKey];
+
+      final isToday = date.year == today.year &&
+          date.month == today.month &&
+          date.day == today.day;
+
+      double progress = 0.0;
+      if (trend != null && trend.actuals?.calories != null) {
+        progress = (trend.actuals!.calories! / targetCal).clamp(0.0, 1.0);
+      }
+
+      return DayProgress(
+        day: dayNames[index],
+        date: date.day,
+        progress: progress,
+        isToday: isToday,
+      );
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    // Fetch dashboard and user recipes on screen load
+    // Fetch dashboard, weekly trend, and user recipes on screen load
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(foodLoggingViewModelProvider.notifier).getDashboard();
+      ref.read(foodLoggingViewModelProvider.notifier).getWeeklyTrend();
       ref.read(foodLoggingViewModelProvider.notifier).getUserRecipes();
       ref.read(userProfileViewModelProvider.notifier).getUserProfile();
     });
   }
 
   Future<void> _refreshData() async {
-    // Refresh both dashboard and user recipes
+    // Refresh all data
     await Future.wait([
       ref.read(foodLoggingViewModelProvider.notifier).getDashboard(),
+      ref.read(foodLoggingViewModelProvider.notifier).getWeeklyTrend(),
       ref.read(foodLoggingViewModelProvider.notifier).getUserRecipes(),
     ]);
   }
 
   @override
   Widget build(BuildContext context) {
+    final weekDays = _generateWeekDays(); // Regenerate based on current state
+
     return Scaffold(
       body: SafeArea(
         child: Padding(

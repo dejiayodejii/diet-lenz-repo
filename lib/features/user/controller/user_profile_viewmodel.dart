@@ -2,6 +2,7 @@ import 'package:diet_lenz/api_client/lib/api.dart';
 import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/services/api_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' show MultipartFile;
 
 /// User Profile state to track loading, success, error states
 class UserProfileState {
@@ -9,12 +10,16 @@ class UserProfileState {
   final UserProfile? userProfile;
   final String? errorMessage;
   final bool hasProfile;
+  final PageUserNotification? notifications;
+  final String? successMessage;
 
   UserProfileState({
     this.isLoading = false,
     this.userProfile,
     this.errorMessage,
     this.hasProfile = false,
+    this.notifications,
+    this.successMessage,
   });
 
   UserProfileState copyWith({
@@ -22,12 +27,16 @@ class UserProfileState {
     UserProfile? userProfile,
     String? errorMessage,
     bool? hasProfile,
+    PageUserNotification? notifications,
+    String? successMessage,
   }) {
     return UserProfileState(
       isLoading: isLoading ?? this.isLoading,
       userProfile: userProfile ?? this.userProfile,
       errorMessage: errorMessage,
       hasProfile: hasProfile ?? this.hasProfile,
+      notifications: notifications ?? this.notifications,
+      successMessage: successMessage,
     );
   }
 }
@@ -319,5 +328,218 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
   /// Clear error message
   void clearError() {
     state = state.copyWith(errorMessage: null);
+  }
+
+  /// Clear success message
+  void clearSuccess() {
+    state = state.copyWith(successMessage: null);
+  }
+
+  /// Change password
+  Future<bool> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final request = ChangePasswordRequest(
+        currentPassword: oldPassword,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword,
+      );
+
+      final response = await _apiService.userApi.changePassword(request);
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          successMessage: response.message ?? 'Password changed successfully',
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to change password',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
+  /// Request password reset
+  Future<bool> requestPasswordReset(String email) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final request = ForgotPasswordRequest(email: email);
+      await _apiService.clearAuthToken();
+      final message = await _apiService.authApi.requestPasswordReset(request);
+
+      state = state.copyWith(
+        isLoading: false,
+        successMessage: message ?? 'Password reset email sent',
+        errorMessage: null,
+      );
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
+  /// Reset password with OTP
+  Future<bool> resetPassword({
+    required String email,
+    required String otp,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final request = ResetPasswordRequest(
+        email: email,
+        otp: otp,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword,
+      );
+
+      await _apiService.authApi.resetPassword(request);
+
+      state = state.copyWith(
+        isLoading: false,
+        successMessage: 'Password reset successfully',
+        errorMessage: null,
+      );
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
+  /// Get user notifications
+  Future<bool> getUserNotifications(int pageNumber) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final response =
+          await _apiService.userApi.getUserNotifications(pageNumber);
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          notifications: response,
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to load notifications',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
+  /// Mark notification as read
+  Future<bool> markNotificationAsRead(String notificationId) async {
+    try {
+      await _apiService.userApi.markNotificationAsRead(notificationId);
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(errorMessage: _parseApiError(e));
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
+  /// Update user profile photo
+  Future<String?> updateUserProfilePhoto(MultipartFile image) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final response = await _apiService.userApi.updateUserProfilePhoto(image);
+
+      if (response != null && response.imageUrl != null) {
+        state = state.copyWith(
+          isLoading: false,
+          successMessage: 'Profile photo updated successfully',
+          errorMessage: null,
+        );
+        // Refresh profile to get updated photo URL
+        await getUserProfile();
+
+        return response.imageUrl;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to update profile photo',
+        );
+        return null;
+      }
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return null;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+      );
+      return null;
+    }
   }
 }

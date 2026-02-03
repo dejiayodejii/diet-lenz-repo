@@ -10,7 +10,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ReferralScreen extends ConsumerStatefulWidget {
-  const ReferralScreen({super.key});
+  final String email;
+  const ReferralScreen({super.key, required this.email});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _LoginScreenState();
@@ -42,14 +43,16 @@ class _LoginScreenState extends ConsumerState<ReferralScreen> {
               CustomYafButton(
                   text: "Continue",
                   onPressed: () {
-                    NavigationService.push(child: const VerifyOTPScreen());
+                    NavigationService.push(
+                        child: VerifyOTPScreen(email: widget.email));
                   }),
               const SizedBox(height: 10),
               Align(
                 alignment: Alignment.center,
                 child: GestureDetector(
                   onTap: () {
-                    NavigationService.push(child: const VerifyOTPScreen());
+                    NavigationService.push(
+                        child: VerifyOTPScreen(email: widget.email));
                   },
                   child: const Text("Skip",
                       style: TextStyle(

@@ -1,21 +1,35 @@
 import 'package:diet_lenz/constants/app_assets.dart';
+import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
 import 'package:diet_lenz/features/home/views/food_logs.dart';
 import 'package:diet_lenz/main6.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:diet_lenz/widgets/stat_card.dart';
+import 'package:shimmer/shimmer.dart';
 
-class ProgressScreen extends StatefulWidget {
+class ProgressScreen extends ConsumerStatefulWidget {
   const ProgressScreen({super.key});
 
   @override
-  State<ProgressScreen> createState() => _ProgressScreenState();
+  ConsumerState<ProgressScreen> createState() => _ProgressScreenState();
 }
 
-class _ProgressScreenState extends State<ProgressScreen> {
+class _ProgressScreenState extends ConsumerState<ProgressScreen> {
   int selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch streak data when the screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(foodLoggingViewModelProvider.notifier).getCurrentStreak();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final foodLoggingState = ref.watch(foodLoggingViewModelProvider);
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -27,7 +41,11 @@ class _ProgressScreenState extends State<ProgressScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const StreakWidget(),
+              StreakWidget(
+                streak: foodLoggingState.streak,
+                isLoading: foodLoggingState.isLoading &&
+                    foodLoggingState.streak == null,
+              ),
               const SizedBox(height: 40),
               const Text(
                 " Trends and Insights",
@@ -103,7 +121,41 @@ class _ProgressScreenState extends State<ProgressScreen> {
 class StreakWidget extends StatelessWidget {
   const StreakWidget({
     super.key,
+    this.streak,
+    this.isLoading = false,
   });
+
+  final dynamic streak;
+  final bool isLoading;
+
+  Widget _buildShimmerValue() {
+    return Shimmer.fromColors(
+      baseColor: const Color.fromRGBO(30, 30, 30, 1),
+      highlightColor: const Color.fromRGBO(50, 50, 50, 1),
+      child: Container(
+        width: 60,
+        height: 40,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStreakValue(int? value) {
+    if (isLoading) {
+      return _buildShimmerValue();
+    }
+    return Text(
+      '${value ?? 0}',
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 40,
+        fontWeight: FontWeight.w500,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,27 +167,21 @@ class StreakWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  RichText(
-                    text: const TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "30",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 40,
-                            fontWeight: FontWeight.w500,
-                          ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      _buildStreakValue(streak?.longestBasicStreak),
+                      const SizedBox(width: 4),
+                      const Text(
+                        'Days',
+                        style: TextStyle(
+                          color: Color.fromRGBO(158, 160, 165, 1),
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
                         ),
-                        TextSpan(
-                          text: ' Days',
-                          style: TextStyle(
-                            color: Color.fromRGBO(158, 160, 165, 1),
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
                   Row(
@@ -161,27 +207,21 @@ class StreakWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  RichText(
-                    text: const TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "7",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 40,
-                            fontWeight: FontWeight.w500,
-                          ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      _buildStreakValue(streak?.currentBasicStreak),
+                      const SizedBox(width: 4),
+                      const Text(
+                        'Days',
+                        style: TextStyle(
+                          color: Color.fromRGBO(158, 160, 165, 1),
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
                         ),
-                        TextSpan(
-                          text: ' Days',
-                          style: TextStyle(
-                            color: Color.fromRGBO(158, 160, 165, 1),
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
                   Row(
@@ -208,20 +248,7 @@ class StreakWidget extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            RichText(
-              text: const TextSpan(
-                children: [
-                  TextSpan(
-                    text: "75",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 40,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _buildStreakValue(streak?.totalDaysLogged),
             const SizedBox(height: 10),
             Row(
               children: [

@@ -159,7 +159,6 @@ class _LoginScreenState extends ConsumerState<AllegiesScreen> {
                       .read(onboardingProfileProvider.notifier)
                       .updateAllergies(selectedAllergies);
                   NavigationService.push(child: const CountrySelectionScreen());
-                  
                 }),
             // const SizedBox(height: 5),
           ],

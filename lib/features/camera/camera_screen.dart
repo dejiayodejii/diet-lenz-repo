@@ -7,6 +7,7 @@ import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/core/utils/loader.dart';
 import 'package:diet_lenz/features/camera/analyse_result.dart';
+import 'package:diet_lenz/features/camera/result_sug.dart'; // Import SuggestResultScreen
 import 'package:diet_lenz/features/recipe/controller/recipe_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
@@ -18,6 +19,7 @@ import 'package:http_parser/http_parser.dart' as http_parser;
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
+import 'package:path_provider/path_provider.dart'; // Add path_provider
 
 class AICameraScreen extends ConsumerStatefulWidget {
   final CameraDescription? camera;
@@ -44,10 +46,11 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
   // Menu Items
   final List<String> modes = [
     "Food Scan",
-    "Recipe",
+    "Suggest",
     "Barcode",
     "Label",
-    "Upload"
+    "Upload",
+    // Added Suggest mode
   ];
   int selectedModeIndex = 0;
 
@@ -109,32 +112,32 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
   }
 
   /// Compress image to reduce file size
-  Future<Uint8List> _compressImage(Uint8List imageBytes) async {
-    // Decode the image
-    img.Image? image = img.decodeImage(imageBytes);
+  // Future<Uint8List> _compressImage(Uint8List imageBytes) async {
+  //   // Decode the image
+  //   img.Image? image = img.decodeImage(imageBytes);
 
-    if (image == null) {
-      return imageBytes; // Return original if decoding fails
-    }
+  //   if (image == null) {
+  //     return imageBytes; // Return original if decoding fails
+  //   }
 
-    // Resize if image is too large (max 1024px on longest side)
-    if (image.width > 1024 || image.height > 1024) {
-      image = img.copyResize(
-        image,
-        width: image.width > image.height ? 1024 : null,
-        height: image.height > image.width ? 1024 : null,
-      );
-    }
+  //   // Resize if image is too large (max 1024px on longest side)
+  //   if (image.width > 1024 || image.height > 1024) {
+  //     image = img.copyResize(
+  //       image,
+  //       width: image.width > image.height ? 1024 : null,
+  //       height: image.height > image.width ? 1024 : null,
+  //     );
+  //   }
 
-    // Compress as JPEG with quality 85
-    final compressedBytes =
-        Uint8List.fromList(img.encodeJpg(image, quality: 85));
+  //   // Compress as JPEG with quality 85
+  //   final compressedBytes =
+  //       Uint8List.fromList(img.encodeJpg(image, quality: 85));
 
-    print(
-        '📊 Image compression: ${imageBytes.length} bytes → ${compressedBytes.length} bytes');
+  //   print(
+  //       '📊 Image compression: ${imageBytes.length} bytes → ${compressedBytes.length} bytes');
 
-    return compressedBytes;
-  }
+  //   return compressedBytes;
+  // }
 
   /// Scan image for barcodes and return the first barcode value found
   Future<String?> _scanBarcodeFromImage(String imagePath) async {
@@ -262,7 +265,8 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         imageBytes = await file.readAsBytes();
 
         // Compress the image
-        final compressedBytes = await _compressImage(imageBytes);
+        // final compressedBytes = await _compressImage(imageBytes);
+         final compressedBytes = imageBytes;
 
         imageFile = http.MultipartFile.fromBytes(
           'image',
@@ -276,7 +280,8 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         imageBytes = data.buffer.asUint8List();
 
         // Compress the image
-        final compressedBytes = await _compressImage(imageBytes);
+        // final compressedBytes = await _compressImage(imageBytes);
+         final compressedBytes = imageBytes;
 
         imageFile = http.MultipartFile.fromBytes(
           'image',
@@ -299,7 +304,8 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         imageBytes = await file.readAsBytes();
 
         // Compress the image
-        final compressedBytes = await _compressImage(imageBytes);
+        // final compressedBytes = await _compressImage(imageBytes);
+         final compressedBytes = imageBytes;
 
         imageFile = http.MultipartFile.fromBytes(
           'image',
@@ -318,36 +324,83 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
 
       // Call the appropriate API based on the selected mode
       bool success = false;
-      if (selectedModeIndex == 3) {
+      File? capturedImageFile;
+
+      // Store the File object for navigation
+      if (selectedModeIndex == 4) {
+        capturedImageFile = _selectedImageFile;
+      } else if (!useTestImage && _controller != null) {
+        // For camera capture, we already have the file
+        capturedImageFile = File((await _controller!.takePicture()).path);
+      } else if (useTestImage) {
+        // For test image, write bytes to temp file
+        final tempDir = await getTemporaryDirectory();
+        final tempFile = File('${tempDir.path}/test_image.jpg');
+        await tempFile.writeAsBytes(imageBytes);
+        capturedImageFile = tempFile;
+      }
+
+      if (selectedModeIndex == 1) {
+        // Suggest Mode
+        success = await controller.suggestAndAnalyze(imageFile);
+
+        if (success && mounted) {
+          final state = ref.read(recipeViewModelProvider);
+          if (state.suggestedRecipes != null &&
+              state.suggestedRecipes!.isNotEmpty) {
+            // Navigate to SuggestResultScreen
+            await NavigationService.push(
+              child: SuggestResultScreen(
+                imageFile: capturedImageFile,
+                suggestions: state.suggestedRecipes!,
+              ),
+            );
+
+            // Resume camera and scanner when user comes back
+            if (mounted) {
+              _resumeCameraAndScanner();
+            }
+          }
+        } else if (mounted) {
+          _resumeCameraAndScanner();
+          ref.read(toastProvider).showError('Failed to get suggestions');
+        }
+      } else if (selectedModeIndex == 3) {
         // Label Mode
         success = await controller.analyzeNutritionLabel(imageFile);
+
+        if (success && mounted) {
+          final state = ref.read(recipeViewModelProvider);
+          if (state.analyzedRecipe != null) {
+            await NavigationService.push(
+              child: AnalyseResultDetail(state.analyzedRecipe!),
+            );
+            if (mounted) {
+              _resumeCameraAndScanner();
+            }
+          }
+        } else if (mounted) {
+          _resumeCameraAndScanner();
+          ref.read(toastProvider).showError('Failed to analyze label');
+        }
       } else {
         // Food Scan, Recipe, Upload
         success = await controller.analyzeRecipe(imageFile);
-      }
 
-      if (success && mounted) {
-        final state = ref.read(recipeViewModelProvider);
-        if (state.analyzedRecipe != null) {
-          // Navigate to result screen and wait for it to be popped
-          await NavigationService.push(
-            child: AnalyseResultDetail(state.analyzedRecipe!),
-          );
-
-          // Resume camera and scanner when user comes back
-          if (mounted) {
-            _resumeCameraAndScanner();
-          }
-        }
-      } else if (mounted) {
-        // Resume camera and scanner on failure
-        _resumeCameraAndScanner();
-
-        // Show error message
-        final state = ref.read(recipeViewModelProvider);
-        ref.read(toastProvider).showError(
-              'Failed to analyze recipe',
+        if (success && mounted) {
+          final state = ref.read(recipeViewModelProvider);
+          if (state.analyzedRecipe != null) {
+            await NavigationService.push(
+              child: AnalyseResultDetail(state.analyzedRecipe!),
             );
+            if (mounted) {
+              _resumeCameraAndScanner();
+            }
+          }
+        } else if (mounted) {
+          _resumeCameraAndScanner();
+          ref.read(toastProvider).showError('Failed to analyze recipe');
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -598,7 +651,6 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
     );
   }
 
-
   Widget _buildBottomControls() {
     return Container(
       padding: const EdgeInsets.only(bottom: 40, top: 20),
@@ -645,38 +697,42 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(70),
               border: Border.all(color: Colors.grey.shade800, width: 0.5),
-              color: Color.fromRGBO(4, 4, 15, 0.6),
+              color: const Color.fromRGBO(4, 4, 15, 0.6),
             ),
             child: Center(
-              child: ListView.builder(
+              child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                itemCount: modes.length,
-                itemBuilder: (context, index) {
-                  final isSelected = index == selectedModeIndex;
-                  return GestureDetector(
-                    onTap: () => setState(() => selectedModeIndex = index),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            modes[index],
-                            style: TextStyle(
-                              color:
-                                  isSelected ? AppColors.primary : Colors.white,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              fontSize: 14,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: modes.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    String mode = entry.value;
+                    final isSelected = index == selectedModeIndex;
+                    return GestureDetector(
+                      onTap: () => setState(() => selectedModeIndex = index),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              mode,
+                              style: TextStyle(
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : Colors.white,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                fontSize: 14,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  }).toList(),
+                ),
               ),
             ),
           ),

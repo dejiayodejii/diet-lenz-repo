@@ -137,6 +137,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
+      await _apiService.clearAuthToken();
       final registerRequest = RegisterRequest(
         email: email,
         password: password,
@@ -313,6 +314,66 @@ class AuthViewModel extends StateNotifier<AuthState> {
     }
   }
 
+  /// Verify Email
+  Future<bool> verifyEmail({
+    required String email,
+    required String otp,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      await _apiService.authApi.verifyEmail(email, otp);
+
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: null,
+      );
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Verification failed: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
+  /// Resend OTP
+  Future<bool> resendOtp({
+    required String email,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final request = ForgotPasswordRequest(email: email);
+      await _apiService.authApi.requestOtpResend(request);
+
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: null,
+      );
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Resend failed: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
   /// Logout user
   Future<void> logout() async {
     await _apiService.clearAuthToken();
@@ -339,6 +400,25 @@ class AuthViewModel extends StateNotifier<AuthState> {
         return 'Server error. Please try again later';
       default:
         return message ?? 'An error occurred. Please try again';
+    }
+  }
+
+  /// Update profile photo in state
+  void updateProfilePhoto(String photoUrl) {
+    if (state.authResponse != null) {
+      final current = state.authResponse!;
+      final updatedResponse = AuthResponse(
+        message: current.message,
+        accessToken: current.accessToken,
+        refreshToken: current.refreshToken,
+        userId: current.userId,
+        email: current.email,
+        firstName: current.firstName,
+        lastName: current.lastName,
+        emailVerified: current.emailVerified,
+        profilePhoto: photoUrl,
+      );
+      state = state.copyWith(authResponse: updatedResponse);
     }
   }
 
