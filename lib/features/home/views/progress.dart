@@ -1,12 +1,16 @@
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
+import 'package:diet_lenz/features/home/controller/health_provider.dart';
 import 'package:diet_lenz/features/home/views/food_logs.dart';
+import 'package:diet_lenz/features/home/views/health_data_chart.dart';
 import 'package:diet_lenz/main6.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:diet_lenz/widgets/stat_card.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:diet_lenz/data/models/health_ui_state.dart';
+import 'package:diet_lenz/data/repositories/health_repository.dart';
 
 class ProgressScreen extends ConsumerStatefulWidget {
   const ProgressScreen({super.key});
@@ -21,20 +25,56 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
   @override
   void initState() {
     super.initState();
-    // Fetch streak data when the screen loads
+    // Fetch streak data and health data when the screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(foodLoggingViewModelProvider.notifier).getCurrentStreak();
+      ref.read(healthProvider.notifier).checkPermissions();
     });
+  }
+
+  TimeRange _getTimeRangeFromIndex(int index) {
+    switch (index) {
+      case 0:
+        return TimeRange.daily;
+      case 1:
+        return TimeRange.weekly;
+      case 2:
+        return TimeRange.monthly;
+      default:
+        return TimeRange.daily;
+    }
+  }
+
+  void _onTimeRangeChanged(int index) {
+    setState(() {
+      selectedIndex = index;
+    });
+
+    // Fetch health data for the selected time range
+    final timeRange = _getTimeRangeFromIndex(index);
+    ref.read(healthProvider.notifier).loadHealthData(timeRange);
   }
 
   @override
   Widget build(BuildContext context) {
     final foodLoggingState = ref.watch(foodLoggingViewModelProvider);
+    final healthState = ref.watch(healthProvider);
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: false,
         title: const Text('Progress'),
+        actions: [
+          if (healthState.hasData)
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                final timeRange = _getTimeRangeFromIndex(selectedIndex);
+                ref.read(healthProvider.notifier).refresh(timeRange);
+              },
+            ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -59,57 +99,42 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               SegmentedToggle(
                 options: const ['Daily', 'Weekly', 'Monthly'],
                 selectedIndex: selectedIndex,
-                onChanged: (index) {
-                  setState(() {
-                    selectedIndex = index;
-                  });
-                },
+                onChanged: _onTimeRangeChanged,
               ),
               const SizedBox(height: 50),
-              const CalorieChart(),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: StatCard(
-                      leading: Image.asset(
-                        AppImages.step,
-                        scale: 2,
-                        height: 34,
-                        width: 34,
-                      ),
-                      value: '6,356',
-                      label: 'STEPS',
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: StatCard(
-                      leading: Image.asset(
-                        AppImages.burn,
-                        height: 34,
-                        width: 34,
-                        scale: 2,
-                      ),
-                      value: '3.2 KCAL',
-                      label: 'CAL BURN',
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: StatCard(
-                      leading: Image.asset(
-                        AppImages.heart,
-                        height: 34,
-                        width: 34,
-                        scale: 2,
-                      ),
-                      value: '6,356',
-                      label: 'STEPS',
-                    ),
-                  ),
-                ],
+              HealthChart(
+                timeRange: _getTimeRangeFromIndex(selectedIndex),
               ),
+              const SizedBox(height: 20),
+
+              // Health Permission Request
+              if (healthState.needsPermissions)
+                _HealthPermissionCard(
+                  onRequest: () async {
+                    final granted = await ref
+                        .read(healthProvider.notifier)
+                        .requestPermissions();
+                    if (!granted && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Please install Health Connect from the Play Store to enable health tracking.',
+                          ),
+                          duration: Duration(seconds: 4),
+                        ),
+                      );
+                    }
+                  },
+                )
+              // Health Data Stats
+              else if (healthState.hasData)
+                _HealthStatsRow(healthData: healthState.healthData)
+              // Loading State
+              else if (healthState.isLoading)
+                _HealthStatsLoading()
+              // Default/Placeholder
+              else
+                _HealthStatsRow(healthData: healthState.healthData),
             ],
           ),
         ),
@@ -268,6 +293,178 @@ class StreakWidget extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+// Health Stats Row Widget
+class _HealthStatsRow extends StatelessWidget {
+  final dynamic healthData;
+
+  const _HealthStatsRow({required this.healthData});
+
+  String _formatNumber(num value) {
+    if (value >= 1000) {
+      return '${(value / 1000).toStringAsFixed(1)}K';
+    }
+    return value.round().toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: StatCard(
+            leading: Image.asset(
+              AppImages.step,
+              scale: 2,
+              height: 34,
+              width: 34,
+            ),
+            value: _formatNumber(healthData.steps),
+            label: 'STEPS',
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: StatCard(
+            leading: Image.asset(
+              AppImages.burn,
+              height: 34,
+              width: 34,
+              scale: 2,
+            ),
+            value: '${healthData.totalCalories.round()}',
+            label: 'CAL BURN',
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: StatCard(
+            leading: Image.asset(
+              AppImages.heart,
+              height: 34,
+              width: 34,
+              scale: 2,
+            ),
+            value: healthData.heartRateAvg != null
+                ? '${healthData.heartRateAvg!.round()}'
+                : '--',
+            label: 'HEART RATE',
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// Health Stats Loading Shimmer
+class _HealthStatsLoading extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: List.generate(
+        3,
+        (index) => Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: index == 0 ? 0 : 5,
+              right: index == 2 ? 0 : 5,
+            ),
+            child: Shimmer.fromColors(
+              baseColor: const Color.fromRGBO(30, 30, 30, 1),
+              highlightColor: const Color.fromRGBO(50, 50, 50, 1),
+              child: Container(
+                height: 100,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Health Permission Card
+class _HealthPermissionCard extends StatelessWidget {
+  final VoidCallback onRequest;
+
+  const _HealthPermissionCard({required this.onRequest});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color.fromRGBO(36, 38, 43, 1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color.fromRGBO(57, 60, 67, 1),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color.fromRGBO(57, 60, 67, 1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.health_and_safety, color: Colors.white),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Enable Health Data',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Connect your health app to track steps, calories, and heart rate automatically.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Color.fromRGBO(158, 160, 165, 1),
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: onRequest,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6C5CE7),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Grant Permission',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

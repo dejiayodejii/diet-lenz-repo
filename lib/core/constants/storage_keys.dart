@@ -7,4 +7,5 @@ class StorageKeys {
   static const String walletBalance = 'walletBalance';
   static const String seenOnboarding = 'seenOnboarding_3';
   static const String defaultWallet = 'default_wallet';
+  static const String authResponseData = 'auth_response_data';
 }

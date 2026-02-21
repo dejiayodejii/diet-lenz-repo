@@ -45,7 +45,15 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to scan food items and barcodes for nutritional information.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to select a profile picture.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>This app needs access to your health data to display your daily activity and track your progress.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>This app needs access to update your health data.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs access to the microphone for video recording and voice input features.</string>
 </dict>
 </plist>

@@ -1,7 +1,28 @@
+import 'dart:convert';
+
 import 'package:diet_lenz/api_client/lib/api.dart';
 import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/services/api_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+/// Extension to extract error message from ApiException
+extension ApiExceptionExtension on ApiException {
+  String? get extractMessage {
+    final message = this.message;
+
+    // Try to parse JSON if the message is in JSON format
+    if (message != null && message.contains('{')) {
+      try {
+        final jsonData = json.decode(message);
+        return jsonData['message'] as String?;
+      } catch (e) {
+        // If parsing fails, return the raw message
+        return message;
+      }
+    }
+    return message;
+  }
+}
 
 /// Auth state to track loading, success, error states
 class AuthState {
@@ -51,8 +72,25 @@ class AuthViewModel extends StateNotifier<AuthState> {
   void _checkAuthStatus() {
     final token = _apiService.getAuthToken();
     if (token != null && token.isNotEmpty) {
-      state = state.copyWith(isAuthenticated: true);
+      // Restore saved auth response from local storage
+      final savedAuthJson = _apiService.getSavedAuthResponse();
+      AuthResponse? savedAuthResponse;
+      if (savedAuthJson != null && savedAuthJson.isNotEmpty) {
+        try {
+          savedAuthResponse = AuthResponse.fromJson(json.decode(savedAuthJson));
+        } catch (_) {}
+      }
+      state = state.copyWith(
+        isAuthenticated: true,
+        authResponse: savedAuthResponse,
+      );
     }
+  }
+
+  /// Save auth response to local storage
+  Future<void> _saveAuthResponseToStorage(AuthResponse response) async {
+    final jsonStr = json.encode(response.toJson());
+    await _apiService.saveAuthResponse(jsonStr);
   }
 
   /// Login with email and password
@@ -95,6 +133,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
         if (response.refreshToken != null) {
           await _apiService.setRefreshToken(response.refreshToken!);
         }
+
+        // Save auth response to local storage
+        await _saveAuthResponseToStorage(response);
 
         state = state.copyWith(
           isLoading: false,
@@ -152,6 +193,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
         if (response.refreshToken != null) {
           await _apiService.setRefreshToken(response.refreshToken!);
         }
+
+        // Save auth response to local storage
+        await _saveAuthResponseToStorage(response);
 
         state = state.copyWith(
           isLoading: false,
@@ -239,6 +283,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
           await _apiService.setRefreshToken(response.refreshToken!);
         }
 
+        // Save auth response to local storage
+        await _saveAuthResponseToStorage(response);
+
         state = state.copyWith(
           isLoading: false,
           authResponse: response,
@@ -289,6 +336,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
         if (response.refreshToken != null) {
           await _apiService.setRefreshToken(response.refreshToken!);
         }
+
+        // Save auth response to local storage
+        await _saveAuthResponseToStorage(response);
 
         state = state.copyWith(
           isLoading: false,
@@ -382,24 +432,25 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
   /// Parse API error messages
   String _parseApiError(ApiException e) {
-    // Try to parse the error message from the response body
-    final message = e.message;
+    final errorMessage = e.extractMessage;
+
+    print("Api exception is $e and  API Error: $errorMessage");
 
     switch (e.code) {
       case 400:
-        return 'Invalid request: $message';
+        return errorMessage ?? 'Invalid request';
       case 401:
-        return 'Invalid email or password';
+        return errorMessage ?? 'Invalid email or password';
       case 403:
-        return 'Access forbidden';
+        return errorMessage ?? 'Access forbidden';
       case 404:
-        return 'Endpoint not found';
+        return errorMessage ?? 'Endpoint not found';
       case 409:
-        return 'User already exists';
+        return errorMessage ?? 'User already exists';
       case 500:
-        return 'Server error. Please try again later';
+        return errorMessage ?? 'Server error. Please try again later';
       default:
-        return message ?? 'An error occurred. Please try again';
+        return errorMessage ?? 'An error occurred. Please try again';
     }
   }
 

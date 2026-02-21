@@ -16,7 +16,7 @@ class BlurryModalProgressHUD extends StatelessWidget {
   const BlurryModalProgressHUD({
     super.key,
     required this.inAsyncCall,
-    this.opacity = 0.1,
+    this.opacity = 0.05,
     this.color = AppColors.primary,
     this.blurEffectIntensity = 1.0,
     this.progressIndicator,

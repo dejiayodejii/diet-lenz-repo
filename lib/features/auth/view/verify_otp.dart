@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/component/custom_otp.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
 import 'package:diet_lenz/features/auth/view/personization/plan_setup.dart';
 import 'package:flutter/material.dart';
@@ -21,20 +24,48 @@ class VerifyOTPScreen extends ConsumerStatefulWidget {
 
 class _VerifyOTPScreenState extends ConsumerState<VerifyOTPScreen> {
   final TextEditingController otpController = TextEditingController();
+  Timer? _resendTimer;
+  int _resendCountdown = 60; // 60 seconds countdown
+  bool _canResend = false;
+
+  @override
+  void initState() {
+    super.initState();
+    otpController.addListener(() {
+      setState(() {});
+    });
+    _startResendTimer();
+  }
+
+  void _startResendTimer() {
+    setState(() {
+      _resendCountdown = 60;
+      _canResend = false;
+    });
+
+    _resendTimer?.cancel();
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_resendCountdown > 0) {
+          _resendCountdown--;
+        } else {
+          _canResend = true;
+          timer.cancel();
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _resendTimer?.cancel();
+    // otpController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authViewModelProvider);
-
-    // Listen for error messages
-    ref.listen(authViewModelProvider, (previous, next) {
-      if (next.errorMessage != null && !next.isLoading) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.errorMessage!)),
-        );
-        ref.read(authViewModelProvider.notifier).clearError();
-      }
-    });
 
     return BlurryModalProgressHUD(
       inAsyncCall: authState.isLoading,
@@ -89,43 +120,57 @@ class _VerifyOTPScreenState extends ConsumerState<VerifyOTPScreen> {
                           fontSize: 17,
                           color: AppColors.white),
                     ),
-                    GestureDetector(
-                      onTap: () async {
-                        final success = await ref
-                            .read(authViewModelProvider.notifier)
-                            .resendOtp(email: widget.email);
-                        if (success) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("OTP resent successfully")),
-                          );
-                        }
-                      },
-                      child: const Text(
-                        "Resend code",
-                        style: TextStyle(
+                    if (!_canResend)
+                      Text(
+                        "Resend code in ${_resendCountdown}s",
+                        style: const TextStyle(
                             letterSpacing: 0,
                             fontFamily: AppFonts.spaceGrotesk,
-                            decoration: TextDecoration.underline,
-                            decorationColor: AppColors.primaryColor,
                             fontWeight: FontWeight.w400,
                             fontSize: 17,
                             color: AppColors.primaryColor),
+                      )
+                    else
+                      GestureDetector(
+                        onTap: () async {
+                          final success = await ref
+                              .read(authViewModelProvider.notifier)
+                              .resendOtp(email: widget.email);
+                          if (success) {
+                            _startResendTimer();
+                            ref
+                                .read(toastProvider)
+                                .showSuccess("OTP resent successfully.");
+                          } else {
+                            ref.read(toastProvider).showError(
+                                "Failed to resend OTP. Please try again.");
+                          }
+                        },
+                        child: const Text(
+                          "Resend code",
+                          style: TextStyle(
+                              letterSpacing: 0,
+                              fontFamily: AppFonts.spaceGrotesk,
+                              decoration: TextDecoration.underline,
+                              decorationColor: AppColors.primaryColor,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 17,
+                              color: AppColors.primaryColor),
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
               CustomYafButton(
+                  isDisabled:
+                      authState.isLoading || otpController.text.length < 6,
                   fontSize: 16,
                   weight: FontWeight.w600,
                   text: "Verify",
                   onPressed: () async {
-                    if (otpController.text.length < 4) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text("Please enter a valid OTP")),
-                      );
+                    if (otpController.text.length < 6) {
+                       ref.read(toastProvider).showError(
+                         "Please enter the 6-digit OTP code.");
                       return;
                     }
 
@@ -138,6 +183,9 @@ class _VerifyOTPScreenState extends ConsumerState<VerifyOTPScreen> {
 
                     if (success) {
                       NavigationService.push(child: const PlanSetUpScreen());
+                    } else {
+                      ref.read(toastProvider).showError(
+                          authState.errorMessage ?? "OTP verification failed.");
                     }
                   }),
               const SizedBox(height: 40),

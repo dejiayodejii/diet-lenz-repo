@@ -10,7 +10,7 @@ import 'package:country_flags/country_flags.dart';
 import 'package:flutter_svg/svg.dart'; // For the Flag visuals
 
 class CountrySelectionScreen extends ConsumerStatefulWidget {
-  const CountrySelectionScreen({super.key,this.isFromSettings = false});
+  const CountrySelectionScreen({super.key, this.isFromSettings = false});
   final bool isFromSettings;
 
   @override
@@ -173,6 +173,11 @@ class _CountrySelectionScreenState
                 iconWidget: SvgPicture.asset(AppImages.arrowRight),
                 onPressed: () {
                   // Save selected allergies
+                  if (widget.isFromSettings) {
+                    // If coming from settings, just pop back
+                    // Navigator.pop(context);
+                    return;
+                  }
 
                   ref
                       .read(onboardingProfileProvider.notifier)

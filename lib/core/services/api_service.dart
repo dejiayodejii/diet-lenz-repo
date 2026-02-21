@@ -52,27 +52,27 @@ $responseBody''');
       }
 
       // Check for 401 Unauthorized and handle token refresh
-      if (response.statusCode == 401 &&
-          !request.url.path.contains('/auth/refresh') &&
-          !_apiService._isRefreshing) {
-        print('🔐 Got 401 - attempting token refresh...');
+      // if (response.statusCode == 401 &&
+      //     !request.url.path.contains('/auth/refresh') &&
+      //     !_apiService._isRefreshing) {
+      //   print('🔐 Got 401 - attempting token refresh...');
 
-        final refreshed = await _apiService.refreshAccessToken();
+      //   final refreshed = await _apiService.refreshAccessToken();
 
-        if (refreshed) {
-          // Retry the original request with new token
-          print('🔄 Retrying original request with new token...');
+      //   if (refreshed) {
+      //     // Retry the original request with new token
+      //     print('🔄 Retrying original request with new token...');
 
-          // Clone the request with updated authorization header
-          final newRequest = _cloneRequest(request);
-          final newToken = _apiService.getAuthToken();
-          if (newToken != null) {
-            newRequest.headers['Authorization'] = 'Bearer $newToken';
-          }
+      //     // Clone the request with updated authorization header
+      //     final newRequest = _cloneRequest(request);
+      //     final newToken = _apiService.getAuthToken();
+      //     if (newToken != null) {
+      //       newRequest.headers['Authorization'] = 'Bearer $newToken';
+      //     }
 
-          return await send(newRequest);
-        }
-      }
+      //     return await send(newRequest);
+      //   }
+      // }
 
       // Return response with bytes
       return http.StreamedResponse(
@@ -187,8 +187,19 @@ class ApiService {
   Future<void> clearAuthToken() async {
     await _storageRepository.saveToken('');
     await _storageRepository.saveRefreshToken('');
+    await _storageRepository.clearAuthResponse();
     // Clear the authorization header by setting it to empty
     _apiClient.addDefaultHeader('Authorization', '');
+  }
+
+  /// Save auth response to local storage
+  Future<void> saveAuthResponse(String authResponseJson) async {
+    await _storageRepository.saveAuthResponse(authResponseJson);
+  }
+
+  /// Get saved auth response from local storage
+  String? getSavedAuthResponse() {
+    return _storageRepository.getAuthResponse();
   }
 
   /// Store refresh token

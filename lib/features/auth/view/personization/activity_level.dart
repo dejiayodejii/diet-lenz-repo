@@ -2,6 +2,7 @@ import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
+import 'package:diet_lenz/features/auth/view/personization/allergies.dart';
 import 'package:diet_lenz/features/auth/view/personization/diet-prefernce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -60,7 +61,7 @@ class _ActivityLevelScreenState extends ConsumerState<ActivityLevelScreen> {
             child: IconButton(
               icon: const Icon(Icons.arrow_back_ios_new, size: 18),
               onPressed: () {
-                // Handle back navigation
+                NavigationService.pop();
               },
             ),
           ),
@@ -141,7 +142,7 @@ class _ActivityLevelScreenState extends ConsumerState<ActivityLevelScreen> {
                   ref
                       .read(onboardingProfileProvider.notifier)
                       .updateActivityLevel(activityLevels[_selectedIndex]);
-                  NavigationService.push(child: const DietPreferenceScreen());
+                  NavigationService.push(child: const AllegiesScreen());
                 }),
           ),
           const SizedBox(height: 10),

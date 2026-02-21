@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:diet_lenz/api_client/lib/api.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
@@ -813,11 +814,37 @@ class HomeHeader extends ConsumerWidget {
 
     return Row(
       children: [
-        Image.asset(
-          AppImages.ppic,
-          scale: 2,
-          height: 50,
-          width: 50,
+        ClipRRect(
+          borderRadius: BorderRadius.circular(60),
+          child: authState!.profilePhoto != null
+              ? CachedNetworkImage(
+                  imageUrl: authState!.profilePhoto!,
+                  height: 50,
+                  width: 50,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) =>
+                      const CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => Container(
+                    height: 50,
+                    width: 50,
+                    color: AppColors.primaryColor.withOpacity(0.2),
+                    child: const Icon(
+                      Icons.person,
+                      size: 60,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                )
+              : Container(
+                  height: 50,
+                  width: 50,
+                  color: AppColors.primaryColor.withOpacity(0.2),
+                  child: const Icon(
+                    Icons.person,
+                    size: 30,
+                    color: AppColors.primaryColor,
+                  ),
+                ),
         ),
         const SizedBox(width: 10),
         Expanded(

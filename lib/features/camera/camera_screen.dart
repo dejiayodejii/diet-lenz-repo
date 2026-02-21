@@ -42,11 +42,13 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
   CameraController? _controller;
   late AnimationController _scannerController;
   late Animation<double> _scannerAnimation;
+  bool _isDisposed = false;
+  bool _isInitializingCamera = false;
 
   // Menu Items
   final List<String> modes = [
     "Food Scan",
-    "Suggest",
+    "Recipe",
     "Barcode",
     "Label",
     "Upload",
@@ -56,6 +58,8 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
 
   // Selected image for preview (used in Upload mode)
   File? _selectedImageFile;
+  // Captured file from camera (stored to avoid calling takePicture twice)
+  File? _capturedFile;
 
   @override
   void initState() {
@@ -77,67 +81,82 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
   }
 
   Future<void> _initializeCamera() async {
-    if (useCamera) {
+    if (!useCamera || _isDisposed || _isInitializingCamera) return;
+    _isInitializingCamera = true;
+    try {
       final cameras = await availableCameras();
+      if (_isDisposed || !mounted) return;
       final camera = widget.camera ?? cameras.first;
-      _controller = CameraController(camera, ResolutionPreset.medium);
-      await _controller!.initialize();
-      if (mounted) setState(() {});
+      final controller =
+          CameraController(camera, ResolutionPreset.medium, enableAudio: false);
+      await controller.initialize();
+      if (_isDisposed || !mounted) {
+        controller.dispose();
+        return;
+      }
+      _controller = controller;
+      setState(() {});
+    } catch (e) {
+      debugPrint('Camera init error: $e');
+    } finally {
+      _isInitializingCamera = false;
     }
   }
 
   @override
   void dispose() {
+    _isDisposed = true;
     WidgetsBinding.instance.removeObserver(this);
     _controller?.dispose();
+    _controller = null;
     _scannerController.dispose();
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // App lifecycle changed (background/foreground)
-    if (_controller == null || !_controller!.value.isInitialized) {
-      return;
-    }
+    if (_isDisposed) return;
 
     if (state == AppLifecycleState.inactive) {
       // Free up memory when camera not active
-      _controller?.dispose();
+      final controller = _controller;
+      _controller = null;
+      controller?.dispose();
     } else if (state == AppLifecycleState.resumed) {
       // Re-initialize the camera with a new controller
-      // onResume
-      _initializeCamera();
+      if (_controller == null) {
+        _initializeCamera();
+      }
     }
   }
 
   /// Compress image to reduce file size
-  // Future<Uint8List> _compressImage(Uint8List imageBytes) async {
-  //   // Decode the image
-  //   img.Image? image = img.decodeImage(imageBytes);
+  Future<Uint8List> _compressImage(Uint8List imageBytes) async {
+    // Decode the image
+    img.Image? image = img.decodeImage(imageBytes);
 
-  //   if (image == null) {
-  //     return imageBytes; // Return original if decoding fails
-  //   }
+    if (image == null) {
+      return imageBytes; // Return original if decoding fails
+    }
 
-  //   // Resize if image is too large (max 1024px on longest side)
-  //   if (image.width > 1024 || image.height > 1024) {
-  //     image = img.copyResize(
-  //       image,
-  //       width: image.width > image.height ? 1024 : null,
-  //       height: image.height > image.width ? 1024 : null,
-  //     );
-  //   }
+    // Resize if image is too large (max 1024px on longest side)
+    if (image.width > 1024 || image.height > 1024) {
+      image = img.copyResize(
+        image,
+        width: image.width > image.height ? 1024 : null,
+        height: image.height > image.width ? 1024 : null,
+      );
+    }
 
-  //   // Compress as JPEG with quality 85
-  //   final compressedBytes =
-  //       Uint8List.fromList(img.encodeJpg(image, quality: 85));
+    // Compress as JPEG with quality 85
+    final compressedBytes =
+        Uint8List.fromList(img.encodeJpg(image, quality: 85));
 
-  //   print(
-  //       '📊 Image compression: ${imageBytes.length} bytes → ${compressedBytes.length} bytes');
+    print(
+        '📊 Image compression: ${imageBytes.length} bytes → ${compressedBytes.length} bytes');
 
-  //   return compressedBytes;
-  // }
+    return compressedBytes;
+  }
 
   /// Scan image for barcodes and return the first barcode value found
   Future<String?> _scanBarcodeFromImage(String imagePath) async {
@@ -162,26 +181,28 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
 
   /// Handle barcode mode capture and analysis
   Future<void> _captureAndAnalyzeBarcode() async {
-    final controller = ref.read(recipeViewModelProvider.notifier);
+    final recipeController = ref.read(recipeViewModelProvider.notifier);
 
     try {
       String? barcode;
       String? imagePath;
 
-      if (_controller != null && _controller!.value.isInitialized) {
+      final cameraCtrl = _controller;
+      if (cameraCtrl != null && cameraCtrl.value.isInitialized) {
         // Capture from camera
-        final XFile image = await _controller!.takePicture();
+        final XFile image = await cameraCtrl.takePicture();
         imagePath = image.path;
 
         // Pause camera preview and scanner animation after capture
-        await _controller!.pausePreview();
+        if (!_isDisposed && _controller == cameraCtrl) {
+          try {
+            await cameraCtrl.pausePreview();
+          } catch (_) {}
+        }
         _scannerController.stop();
 
         // Scan for barcode
-        print("hello 1");
         barcode = await _scanBarcodeFromImage(imagePath);
-        print("hello 2");
-        print('Barcode: $barcode');
       } else {
         ref.read(toastProvider).showError('Camera not ready');
         return;
@@ -195,12 +216,11 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
             .showError('No barcode found in image. Please try again.');
         return;
       }
-      print("hello 3");
 
       print('📊 Barcode detected: $barcode');
 
       // Call the API to analyze the barcode
-      final success = await controller.analyzeByBarcode(barcode);
+      final success = await recipeController.analyzeByBarcode(barcode);
 
       if (success && mounted) {
         final state = ref.read(recipeViewModelProvider);
@@ -229,6 +249,8 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
       }
     }
   }
+
+  bool isLoading = false;
 
   /// Capture image from camera or use test image
   Future<void> _captureAndAnalyze() async {
@@ -265,8 +287,8 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         imageBytes = await file.readAsBytes();
 
         // Compress the image
-        // final compressedBytes = await _compressImage(imageBytes);
-         final compressedBytes = imageBytes;
+        final compressedBytes = await _compressImage(imageBytes);
+        // final compressedBytes = imageBytes;
 
         imageFile = http.MultipartFile.fromBytes(
           'image',
@@ -281,7 +303,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
 
         // Compress the image
         // final compressedBytes = await _compressImage(imageBytes);
-         final compressedBytes = imageBytes;
+        final compressedBytes = imageBytes;
 
         imageFile = http.MultipartFile.fromBytes(
           'image',
@@ -294,18 +316,28 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         _scannerController.stop();
       } else if (_controller != null && _controller!.value.isInitialized) {
         // Capture from camera
-        final XFile image = await _controller!.takePicture();
+        final cameraCtrl = _controller!;
+        final XFile image = await cameraCtrl.takePicture();
+
+        setState(() {
+          isLoading = true;
+        });
 
         // Pause camera preview and scanner animation after capture
-        await _controller!.pausePreview();
+        if (!_isDisposed && _controller == cameraCtrl) {
+          try {
+            await cameraCtrl.pausePreview();
+          } catch (_) {}
+        }
         _scannerController.stop();
 
         final File file = File(image.path);
+        _capturedFile = file; // Store for later use
         imageBytes = await file.readAsBytes();
 
         // Compress the image
         // final compressedBytes = await _compressImage(imageBytes);
-         final compressedBytes = imageBytes;
+        final compressedBytes = imageBytes;
 
         imageFile = http.MultipartFile.fromBytes(
           'image',
@@ -329,9 +361,9 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
       // Store the File object for navigation
       if (selectedModeIndex == 4) {
         capturedImageFile = _selectedImageFile;
-      } else if (!useTestImage && _controller != null) {
-        // For camera capture, we already have the file
-        capturedImageFile = File((await _controller!.takePicture()).path);
+      } else if (!useTestImage && _capturedFile != null) {
+        // Use the file from the first capture (don't call takePicture again)
+        capturedImageFile = _capturedFile;
       } else if (useTestImage) {
         // For test image, write bytes to temp file
         final tempDir = await getTemporaryDirectory();
@@ -385,6 +417,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         }
       } else {
         // Food Scan, Recipe, Upload
+        print("image file is $imageFile");
         success = await controller.analyzeRecipe(imageFile);
 
         if (success && mounted) {
@@ -411,36 +444,43 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
               'Error: ${e.toString()}',
             );
       }
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
   /// Resume camera preview and scanner animation
   Future<void> _resumeCameraAndScanner() async {
-    // Clear the selected image preview
-    if (mounted) {
-      setState(() {
-        _selectedImageFile = null;
-      });
-    }
+    if (_isDisposed || !mounted) return;
+
+    // Clear the selected image preview and captured file
+    setState(() {
+      _selectedImageFile = null;
+      _capturedFile = null;
+    });
 
     // Resume scanner animation
-    _scannerController.repeat(reverse: true);
+    if (!_isDisposed) {
+      _scannerController.repeat(reverse: true);
+    }
 
     // Completely re-initialize camera to ensure preview works fresh
-    // This fixes issues where resumePreview() fails to restart the stream
+    final oldController = _controller;
+    _controller = null;
+    if (mounted) setState(() {});
+
     try {
-      // Dispose the old controller if it exists
-      await _controller?.dispose();
-    } catch (e) {
+      await oldController?.dispose();
+    } catch (_) {
       // Ignore errors during dispose
-    } finally {
-      // Create a gap where controller is null so UI shows placeholder
-      _controller = null;
-      if (mounted) setState(() {});
     }
 
     // Re-initialize
-    await _initializeCamera();
+    if (!_isDisposed && mounted) {
+      await _initializeCamera();
+    }
   }
 
   @override
@@ -448,7 +488,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
     final state = ref.watch(recipeViewModelProvider);
 
     return BlurryModalProgressHUD(
-      inAsyncCall: state.isLoading,
+      inAsyncCall: state.isLoading || isLoading,
       child: Scaffold(
         backgroundColor: Colors.black,
         body: Column(
@@ -585,7 +625,14 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
 
     // Show camera preview
     if (useCamera && _controller != null && _controller!.value.isInitialized) {
-      return CameraPreview(_controller!);
+      return FittedBox(
+        fit: BoxFit.cover,
+        child: SizedBox(
+          width: _controller!.value.previewSize!.height,
+          height: _controller!.value.previewSize!.width,
+          child: CameraPreview(_controller!),
+        ),
+      );
     } else {
       // Placeholder if camera is off or not ready
       return Image.network(

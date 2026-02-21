@@ -13,6 +13,9 @@ import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmode
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../constants/app_fonts.dart';
+import '../../widgets/calorie_badge.dart';
+
 class SuggestMealDetailScreen extends ConsumerStatefulWidget {
   final SuggestedFoodAnalysis suggestion;
 
@@ -108,6 +111,11 @@ class _SuggestMealDetailScreenState
     }
   }
 
+  String _calculateTotalMacros() {
+    final total = protein + carbs + fat + fiber;
+    return total.toStringAsFixed(1);
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(foodLoggingViewModelProvider);
@@ -170,21 +178,27 @@ class _SuggestMealDetailScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        widget.suggestion.foodName ?? "Unknown Meal",
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.suggestion.foodName ?? "Unknown Food",
+                              style: const TextStyle(
+                                fontFamily: AppFonts.lato,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          CalorieBadge(
+                            text: '${_calculateTotalMacros()}g',
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "${widget.suggestion.totalMacros?.calories?.toStringAsFixed(0) ?? "0"} cal",
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 16,
-                        ),
+                      CalorieBadge(
+                        text:
+                        '${widget.suggestion.totalMacros?.calories?.toStringAsFixed(0) ?? "0"} cal',
                       ),
                       const SizedBox(height: 25),
                       _buildMacroBar(

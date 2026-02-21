@@ -60,7 +60,7 @@ class CustomYafButton extends StatefulWidget {
 class _CustomYafButtonState extends State<CustomYafButton> {
   @override
   Widget build(BuildContext context) {
-    bool isDisabled = widget.onPressed == null;
+    bool isDisabled = widget.onPressed == null || widget.isDisabled;
     // Default color is primary color if not specifie
     // Define size mappings
 

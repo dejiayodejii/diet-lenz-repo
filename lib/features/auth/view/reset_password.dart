@@ -4,6 +4,7 @@ import 'package:diet_lenz/component/blurred_dialog.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -84,12 +85,13 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       _showResetSuccessDialog(context);
     } else {
       final error = ref.read(userProfileViewModelProvider).errorMessage;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error ?? 'Failed to reset password'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      ref.read(toastProvider).showError(error ?? 'Failed to reset password');
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text(error ?? 'Failed to reset password'),
+      //     backgroundColor: Colors.red,
+      //   ),
+      // );
     }
   }
 
@@ -155,6 +157,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                       ),
                       const SizedBox(height: 60),
                       LabelTextFormField(
+                        maxLength: 6,
+                        counterText: "",
                         controller: _otpController,
                         radius: 12,
                         hintText: "Enter OTP",

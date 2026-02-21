@@ -21,6 +21,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:diet_lenz/core/utils/loader.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class SetttingsScreen extends ConsumerStatefulWidget {
   const SetttingsScreen({super.key});
@@ -38,7 +39,7 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
     // Clear tokens and profile
     await apiService.clearAuthToken();
     userProfileNotifier.clearProfile();
-    RestartWidget.restartApp(context);
+    // RestartWidget.restartApp(context);
 
     // Navigate to login
     if (mounted) {
@@ -94,22 +95,65 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
                     children: [
                       GestureDetector(
                         onTap: _pickImage,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(60),
-                          child: authState!.profilePhoto != null
-                              ? Image.network(
-                                  authState!.profilePhoto!,
-                                  height: 120,
-                                  width: 120,
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.asset(
-                                  AppImages.ppic,
-                                  scale: 2,
-                                  height: 120,
-                                  width: 120,
-                                  fit: BoxFit.cover,
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(60),
+                              child: authState!.profilePhoto != null
+                                  ? CachedNetworkImage(
+                                      imageUrl: authState!.profilePhoto!,
+                                      height: 120,
+                                      width: 120,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) =>
+                                          const CircularProgressIndicator(),
+                                      errorWidget: (context, url, error) =>
+                                          Container(
+                                        height: 120,
+                                        width: 120,
+                                        color: AppColors.primaryColor
+                                            .withOpacity(0.2),
+                                        child: const Icon(
+                                          Icons.person,
+                                          size: 60,
+                                          color: AppColors.primaryColor,
+                                        ),
+                                      ),
+                                    )
+                                  : Container(
+                                      height: 120,
+                                      width: 120,
+                                      color: AppColors.primaryColor
+                                          .withOpacity(0.2),
+                                      child: const Icon(
+                                        Icons.person,
+                                        size: 60,
+                                        color: AppColors.primaryColor,
+                                      ),
+                                    ),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                height: 36,
+                                width: 36,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryColor,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 2,
+                                  ),
                                 ),
+                                child: const Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -137,7 +181,10 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
                 settingTile(
                     title: "Location",
                     onTap: () {
-                      NavigationService.push(child: CountrySelectionScreen());
+                      NavigationService.push(
+                          child: CountrySelectionScreen(
+                        isFromSettings: true,
+                      ));
                     }),
                 settingTile(
                     title: "Notifications",
@@ -191,14 +238,14 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
       Widget? icon,
       VoidCallback? onTap,
       bool useSpace = true}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: icon == null ? 13.0 : 0),
-      child: InkWell(
-        onTap: () {
-          if (onTap != null) {
-            onTap();
-          }
-        },
+    return InkWell(
+      onTap: () {
+        if (onTap != null) {
+          onTap();
+        }
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: icon == null ? 13.0 : 0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

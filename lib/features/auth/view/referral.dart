@@ -4,6 +4,7 @@ import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/features/auth/view/verify_otp.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +19,7 @@ class ReferralScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<ReferralScreen> {
+  final TextEditingController _referralController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,8 +35,9 @@ class _LoginScreenState extends ConsumerState<ReferralScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     SvgPicture.asset(AppImages.dietLenzLogoAlt),
-                    const LabelTextFormField(
+                    LabelTextFormField(
                       hintText: "Referral Code",
+                      controller: _referralController,
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -45,6 +48,13 @@ class _LoginScreenState extends ConsumerState<ReferralScreen> {
                   onPressed: () {
                     NavigationService.push(
                         child: VerifyOTPScreen(email: widget.email));
+                    // if (_referralController.text.isNotEmpty) {
+                    //   NavigationService.push(
+                    //       child: VerifyOTPScreen(email: widget.email));
+                    // } else {
+                    //   ref.read(toastProvider).showError(
+                    //       "Please enter a referral code or skip to continue.");
+                    // }
                   }),
               const SizedBox(height: 10),
               Align(

@@ -137,11 +137,19 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       builder: (context) => _MeasurementPickerSheet(
         title: 'Select Height',
         initialValue: _height ?? 170,
-        minValue: 50,
-        maxValue: 250,
+        minValue: 0,
+        maxValue: 300,
+        minLeftValue: 100,
+        maxLeftValue: 300,
+        minRightValue: 3.0,
+        maxRightValue: 9.0,
         leftUnit: 'cm',
         rightUnit: 'ft',
         initialUnit: _heightUnit,
+        leftToRightConverter: (val) => val / 30.48,
+        rightToLeftConverter: (val) => val * 30.48,
+        leftStep: 1.0,
+        rightStep: 0.1,
         onSave: (value, unit) {
           setState(() {
             _height = value;
@@ -892,6 +900,16 @@ class _MeasurementPickerSheet extends StatefulWidget {
   final String initialUnit;
   final Function(double value, String unit) onSave;
 
+  // Optional overrides for specific units
+  final double? minLeftValue;
+  final double? maxLeftValue;
+  final double? minRightValue;
+  final double? maxRightValue;
+  final double Function(double)? leftToRightConverter;
+  final double Function(double)? rightToLeftConverter;
+  final double? leftStep;
+  final double? rightStep;
+
   const _MeasurementPickerSheet({
     required this.title,
     required this.initialValue,
@@ -901,6 +919,14 @@ class _MeasurementPickerSheet extends StatefulWidget {
     required this.rightUnit,
     required this.initialUnit,
     required this.onSave,
+    this.minLeftValue,
+    this.maxLeftValue,
+    this.minRightValue,
+    this.maxRightValue,
+    this.leftToRightConverter,
+    this.rightToLeftConverter,
+    this.leftStep,
+    this.rightStep,
   });
 
   @override
@@ -921,6 +947,40 @@ class _MeasurementPickerSheetState extends State<_MeasurementPickerSheet> {
   }
 
   String get _currentUnit => _isLeftUnit ? widget.leftUnit : widget.rightUnit;
+
+  double get _currentMin => _isLeftUnit
+      ? (widget.minLeftValue ?? widget.minValue)
+      : (widget.minRightValue ?? widget.minValue);
+
+  double get _currentMax => _isLeftUnit
+      ? (widget.maxLeftValue ?? widget.maxValue)
+      : (widget.maxRightValue ?? widget.maxValue);
+
+  double get _currentStep =>
+      _isLeftUnit ? (widget.leftStep ?? 1.0) : (widget.rightStep ?? 1.0);
+
+  void _switchUnit(bool toLeft) {
+    if (_isLeftUnit == toLeft) return;
+
+    setState(() {
+      final bool switchingToLeft = toLeft;
+      if (switchingToLeft) {
+        // Switching from right to left (e.g., ft to cm)
+        if (widget.rightToLeftConverter != null) {
+          _value = widget.rightToLeftConverter!(_value);
+        }
+      } else {
+        // Switching from left to right (e.g., cm to ft)
+        if (widget.leftToRightConverter != null) {
+          _value = widget.leftToRightConverter!(_value);
+        }
+      }
+      _isLeftUnit = toLeft;
+
+      // Ensure value is within new bounds
+      _value = _value.clamp(_currentMin, _currentMax);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -946,13 +1006,13 @@ class _MeasurementPickerSheetState extends State<_MeasurementPickerSheet> {
               _UnitButton(
                 label: widget.leftUnit,
                 isSelected: _isLeftUnit,
-                onTap: () => setState(() => _isLeftUnit = true),
+                onTap: () => _switchUnit(true),
               ),
               const SizedBox(width: 16),
               _UnitButton(
                 label: widget.rightUnit,
                 isSelected: !_isLeftUnit,
-                onTap: () => setState(() => _isLeftUnit = false),
+                onTap: () => _switchUnit(false),
               ),
             ],
           ),
@@ -960,7 +1020,7 @@ class _MeasurementPickerSheetState extends State<_MeasurementPickerSheet> {
 
           // Value Display
           Text(
-            '${_value.toStringAsFixed(0)} $_currentUnit',
+            '${_value.toStringAsFixed(_currentStep < 1.0 ? 1 : 0)} $_currentUnit',
             style: const TextStyle(
               fontSize: 48,
               fontWeight: FontWeight.bold,
@@ -971,9 +1031,10 @@ class _MeasurementPickerSheetState extends State<_MeasurementPickerSheet> {
 
           // Slider
           Slider(
-            value: _value,
-            min: widget.minValue,
-            max: widget.maxValue,
+            value: _value.clamp(_currentMin, _currentMax),
+            min: _currentMin,
+            max: _currentMax,
+            divisions: ((_currentMax - _currentMin) / _currentStep).round(),
             activeColor: AppColors.primaryColor,
             inactiveColor: Colors.grey[700],
             onChanged: (value) {

@@ -47,6 +47,28 @@ class _PlanSetUpScreenState extends ConsumerState<PlanFinishedScreen> {
         }
       }
 
+
+       // Map goal string to enum
+      ProfileRequestDtoMacroTargetEnum? macroTargetEnum;
+
+      if (profileData.macroTarget != null) {
+        if (profileData.macroTarget!.toLowerCase().contains('balanced')) {
+          macroTargetEnum = ProfileRequestDtoMacroTargetEnum.BALANCED;
+        } else if (profileData.macroTarget!.toLowerCase().contains('high_protein')) {
+          macroTargetEnum = ProfileRequestDtoMacroTargetEnum.HIGH_PROTEIN;
+        } else if (profileData.macroTarget!.toLowerCase().contains('low_carb')) {
+          macroTargetEnum = ProfileRequestDtoMacroTargetEnum.LOW_CARB;
+        } else if (profileData.macroTarget!.toLowerCase().contains('low_fat')) {
+          macroTargetEnum = ProfileRequestDtoMacroTargetEnum.LOW_FAT;
+        } else if (profileData.macroTarget!.toLowerCase().contains('high_fiber')) {
+          macroTargetEnum = ProfileRequestDtoMacroTargetEnum.HIGH_FIBER;
+        } else {
+          macroTargetEnum = ProfileRequestDtoMacroTargetEnum.BALANCED;
+        }
+      }
+        
+      
+
       // Create profile request with all collected data
       final profileRequest = ProfileRequestDto(
         gender: profileData.gender != null
@@ -76,6 +98,8 @@ class _PlanSetUpScreenState extends ConsumerState<PlanFinishedScreen> {
             : null,
         allergies: profileData.allergies ?? [],
         country: profileData.country,
+        macroTarget: macroTargetEnum,
+        
       );
 
       log(profileRequest.toString());

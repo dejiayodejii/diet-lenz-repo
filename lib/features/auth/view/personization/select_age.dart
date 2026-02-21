@@ -23,6 +23,7 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
     // Fetch goals when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(recipeViewModelProvider.notifier).getGoals();
+        ref.read(recipeViewModelProvider.notifier).getMacroTargets();
     });
   }
 
@@ -116,6 +117,15 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
               children: [
                 // Month Selector
                 Expanded(
+                  flex: 3,
+                  child: _DateSelectorBox(
+                    label: _selectedDate == null
+                        ? "YYYY"
+                        : _selectedDate!.year.toString(),
+                    onTap: _pickDate,
+                  ),
+                ),
+                Expanded(
                   flex: 2,
                   child: _DateSelectorBox(
                     label: _selectedDate == null
@@ -139,15 +149,7 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
                 const SizedBox(width: 12),
 
                 // Year Selector
-                Expanded(
-                  flex: 3,
-                  child: _DateSelectorBox(
-                    label: _selectedDate == null
-                        ? "YYYY"
-                        : _selectedDate!.year.toString(),
-                    onTap: _pickDate,
-                  ),
-                ),
+                
               ],
             ),
 

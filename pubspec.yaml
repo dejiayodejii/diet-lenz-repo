@@ -63,6 +63,8 @@ dependencies:
   image: ^4.0.0  # For image compression
   google_mlkit_barcode_scanning: ^0.12.0  # For barcode scanning
   rename_app:
+  health: ^13.3.0  # Health Connect & HealthKit integration
+  permission_handler: ^11.3.0  # Runtime permissions
 dev_dependencies:
   flutter_test:
     sdk: flutter

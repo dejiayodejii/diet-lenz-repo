@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:diet_lenz/data/network/app_exception.dart';
+
 abstract class AppException implements Exception {
   final String message;
   final String? code;
@@ -11,6 +15,24 @@ abstract class AppException implements Exception {
 
   @override
   String toString() => message;
+}
+
+extension ApiExceptionExtension on ApiException {
+  String? get extractMessage {
+    final message = this.message;
+
+    // Try to parse JSON if the message is in JSON format
+    if (message != null && message.contains('{')) {
+      try {
+        final jsonData = json.decode(message);
+        return jsonData['message'] as String?;
+      } catch (e) {
+        // If parsing fails, return the raw message
+        return message;
+      }
+    }
+    return message;
+  }
 }
 
 // Network related exceptions
@@ -54,3 +76,6 @@ class CacheException extends DataException {
     dynamic error,
   }) : super(message: message, code: code, error: error);
 }
+
+
+

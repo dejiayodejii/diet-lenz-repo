@@ -271,7 +271,7 @@ class MealPlanCard extends StatelessWidget {
         );
       },
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 25.0),
+        padding: const EdgeInsets.only(bottom: 15.0,top: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

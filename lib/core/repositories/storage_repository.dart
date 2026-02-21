@@ -41,6 +41,20 @@ class StorageRepository {
     return _storageService.getBool(StorageKeys.seenOnboarding) ?? false;
   }
 
+  // Auth response methods
+  Future<void> saveAuthResponse(String authResponseJson) async {
+    await _storageService.setString(
+        StorageKeys.authResponseData, authResponseJson);
+  }
+
+  String? getAuthResponse() {
+    return _storageService.getString(StorageKeys.authResponseData);
+  }
+
+  Future<void> clearAuthResponse() async {
+    await _storageService.remove(StorageKeys.authResponseData);
+  }
+
   // User related methods
   // Future<void> saveUserDetails({required User user}) async {
   //   // await _storageService.setString(StorageKeys.token, user.accessToken);

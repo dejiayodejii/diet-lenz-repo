@@ -5,6 +5,7 @@ import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
 import 'package:diet_lenz/features/auth/view/personization/select_weight.dart';
+import 'package:diet_lenz/features/recipe/controller/recipe_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -18,6 +19,15 @@ class GenderScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<GenderScreen> {
   bool isMale = true;
+    @override
+  void initState() {
+    super.initState();
+    // Fetch goals when screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+
+        ref.read(recipeViewModelProvider.notifier).getDietaryPreferences();
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

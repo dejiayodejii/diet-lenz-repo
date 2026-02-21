@@ -9,6 +9,7 @@ class OnboardingProfileData {
   String? heightUnit; // "cm" or "ft"
   DateTime? dateOfBirth;
   String? goal; // Goal selected from the list
+  String? macroTarget; // Macro target selected from the list
   double? desiredWeight;
   String? desiredWeightUnit; // "kg" or "lbs"
   String? activityLevel; // Activity level selected
@@ -17,6 +18,7 @@ class OnboardingProfileData {
   String? country;
 
   OnboardingProfileData({
+    this.macroTarget,
     this.gender,
     this.weight,
     this.weightUnit,
@@ -40,14 +42,17 @@ class OnboardingProfileData {
     String? heightUnit,
     DateTime? dateOfBirth,
     String? goal,
+    String? macroTarget,  
     double? desiredWeight,
     String? desiredWeightUnit,
     String? activityLevel,
     String? dietaryPreference,
     List<String>? allergies,
     String? country,
+    
   }) {
     return OnboardingProfileData(
+      macroTarget: macroTarget ?? this.macroTarget,
       gender: gender ?? this.gender,
       weight: weight ?? this.weight,
       weightUnit: weightUnit ?? this.weightUnit,
@@ -93,6 +98,10 @@ class OnboardingProfileNotifier extends StateNotifier<OnboardingProfileData> {
 
   void updateGoal(String goal) {
     state = state.copyWith(goal: goal);
+  }
+
+  void updateMacroTarget(String macroTarget) {
+    state = state.copyWith(macroTarget: macroTarget);
   }
 
   void updateDesiredWeight(double weight, String unit) {

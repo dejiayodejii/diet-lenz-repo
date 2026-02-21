@@ -6,6 +6,7 @@ import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
 import 'package:diet_lenz/features/auth/view/personization/desired_weight.dart';
+import 'package:diet_lenz/features/auth/view/personization/select_macro_target.dart';
 import 'package:diet_lenz/features/recipe/controller/recipe_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -175,7 +176,7 @@ class _LoginScreenState extends ConsumerState<SelectGoalScreen> {
                   ref
                       .read(onboardingProfileProvider.notifier)
                       .updateGoal(goals[selectedIndex]);
-                  NavigationService.push(child: const DesiredWeightScreen());
+                  NavigationService.push(child: const SelectMacroTargetScreen());
                 }),
             const SizedBox(height: 20),
           ],

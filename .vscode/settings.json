@@ -11,5 +11,13 @@
     "**/.plugin_symlinks": true
   },
   "hide-files.files": [],
-  "dart.flutterSdkPath": ".fvm/versions/3.32.1"
+  "dart.flutterSdkPath": ".fvm/versions/3.38.9",
+  "dart.flutterHotReloadOnSave": "always",
+  "dart.flutterHotRestartOnSave": "never",
+  "files.watcherExclude": {
+    "**/.dart_tool/**": true,
+    "**/build/**": true,
+    "**/.gradle/**": true,
+    "**/android/.gradle/**": true
+  }
 }
