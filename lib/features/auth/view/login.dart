@@ -103,9 +103,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         CustomYafButton(
                             text: "Login",
                             onPressed: () async {
-                              // NavigationService.push(
-                              //     child: const PaywallScreen());
-                              // return;
+                              NavigationService.push(
+                                  child: const PaywallScreen());
+                              return;
                               final response = await authController.login(
                                   email: emailController.text,
                                   deviceId: '',
