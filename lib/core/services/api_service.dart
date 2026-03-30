@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:diet_lenz/api_client/lib/api.dart';
@@ -52,27 +53,33 @@ $responseBody''');
       }
 
       // Check for 401 Unauthorized and handle token refresh
-      // if (response.statusCode == 401 &&
-      //     !request.url.path.contains('/auth/refresh') &&
-      //     !_apiService._isRefreshing) {
-      //   print('🔐 Got 401 - attempting token refresh...');
+      // Only refresh if the response body indicates a token-related issue
+      final isTokenExpired401 = response.statusCode == 401 &&
+          // !request.url.path.contains('/auth/refresh') &&
+          // !request.url.path.contains('/auth/login') &&
+          // !request.url.path.contains('/auth/register') &&
+          _isTokenRelatedError(responseBody);
 
-      //   final refreshed = await _apiService.refreshAccessToken();
+      if (isTokenExpired401) {
+        print(
+            '🔐 Got 401 with token-related error - attempting token refresh...');
 
-      //   if (refreshed) {
-      //     // Retry the original request with new token
-      //     print('🔄 Retrying original request with new token...');
+        final refreshed = await _apiService.refreshAccessToken();
 
-      //     // Clone the request with updated authorization header
-      //     final newRequest = _cloneRequest(request);
-      //     final newToken = _apiService.getAuthToken();
-      //     if (newToken != null) {
-      //       newRequest.headers['Authorization'] = 'Bearer $newToken';
-      //     }
+        if (refreshed) {
+          // Retry the original request with new token
+          print('🔄 Retrying original request with new token...');
 
-      //     return await send(newRequest);
-      //   }
-      // }
+          // Clone the request with updated authorization header
+          final newRequest = _cloneRequest(request);
+          final newToken = _apiService.getAuthToken();
+          if (newToken != null) {
+            newRequest.headers['Authorization'] = 'Bearer $newToken';
+          }
+
+          return await send(newRequest);
+        }
+      }
 
       // Return response with bytes
       return http.StreamedResponse(
@@ -95,6 +102,24 @@ $responseBody''');
 
       rethrow;
     }
+  }
+
+  /// Check if a 401 response body indicates a token-related error
+  /// (e.g. expired, invalid, or missing token) vs other auth failures
+  bool _isTokenRelatedError(String responseBody) {
+    final lower = responseBody.toLowerCase();
+    const tokenKeywords = [
+      'token',
+      'expired',
+      'jwt',
+      'invalid_token',
+      'token_expired',
+      'access denied',
+      'unauthorized',
+      'invalid signature',
+      'malformed',
+    ];
+    return tokenKeywords.any((keyword) => lower.contains(keyword));
   }
 
   // Clone request for retry
@@ -142,9 +167,13 @@ class ApiService {
   late final UserControllerApi userApi;
   late final FoodLoggingControllerApi foodLoggingApi;
   late final RecipeControllersApi recipeApi;
+  late final SubscriptionControllerApi subscriptionApi;
 
   // Track if we're currently refreshing to prevent multiple refresh attempts
   bool _isRefreshing = false;
+
+  // Completer to let concurrent callers wait for the same refresh
+  Completer<bool>? _refreshCompleter;
 
   // Callback for logout navigation
   Function()? onUnauthorized;
@@ -170,6 +199,7 @@ class ApiService {
     userApi = UserControllerApi(_apiClient);
     foodLoggingApi = FoodLoggingControllerApi(_apiClient);
     recipeApi = RecipeControllersApi(_apiClient);
+    subscriptionApi = SubscriptionControllerApi(_apiClient);
   }
 
   /// Set the authentication token for authenticated requests
@@ -188,8 +218,9 @@ class ApiService {
     await _storageRepository.saveToken('');
     await _storageRepository.saveRefreshToken('');
     await _storageRepository.clearAuthResponse();
-    // Clear the authorization header by setting it to empty
-    _apiClient.addDefaultHeader('Authorization', '');
+    await _storageRepository.clearUserProfile();
+    // Remove the authorization header entirely
+    _apiClient.defaultHeaderMap.remove('Authorization');
   }
 
   /// Save auth response to local storage
@@ -200,6 +231,21 @@ class ApiService {
   /// Get saved auth response from local storage
   String? getSavedAuthResponse() {
     return _storageRepository.getAuthResponse();
+  }
+
+  /// Save user profile to local storage
+  Future<void> saveUserProfile(String profileJson) async {
+    await _storageRepository.saveUserProfile(profileJson);
+  }
+
+  /// Get saved user profile from local storage
+  String? getSavedUserProfile() {
+    return _storageRepository.getUserProfile();
+  }
+
+  /// Clear saved user profile
+  Future<void> clearUserProfile() async {
+    await _storageRepository.clearUserProfile();
   }
 
   /// Store refresh token
@@ -223,11 +269,12 @@ class ApiService {
   /// Attempt to refresh the access token using the refresh token
   Future<bool> refreshAccessToken() async {
     if (_isRefreshing) {
-      // Already refreshing, wait and return
-      return false;
+      // Already refreshing, wait for the ongoing refresh to complete
+      return _refreshCompleter?.future ?? Future.value(false);
     }
 
     _isRefreshing = true;
+    _refreshCompleter = Completer<bool>();
 
     try {
       final refreshToken = getRefreshToken();
@@ -259,26 +306,30 @@ class ApiService {
         }
 
         _isRefreshing = false;
+        _refreshCompleter?.complete(true);
         return true;
       } else {
         print('❌ Token refresh failed - no access token in response');
         await _handleTokenExpired();
+        _refreshCompleter?.complete(false);
         return false;
       }
     } on ApiException catch (e) {
       print('❌ Token refresh failed with API error: ${e.code} - ${e.message}');
 
-      // if (e.code == 401 || e.code == 403) {
-      //   // Refresh token is also expired or invalid
-      //   await _handleTokenExpired();
-      // }
+      if (e.code == 401 || e.code == 403) {
+        // Refresh token is also expired or invalid
+        await _handleTokenExpired();
+      }
 
       _isRefreshing = false;
+      _refreshCompleter?.complete(false);
       return false;
     } catch (e) {
       print('❌ Token refresh failed with error: $e');
       await _handleTokenExpired();
       _isRefreshing = false;
+      _refreshCompleter?.complete(false);
       return false;
     }
   }
@@ -302,17 +353,17 @@ class ApiService {
     try {
       return await apiCall();
     } on ApiException catch (e) {
-      // if (e.code == 401 && !_isRefreshing) {
-      //   print('🔐 Got 401 - attempting token refresh...');
+      if (e.code == 401 && !_isRefreshing) {
+        print('🔐 Got 401 - attempting token refresh...');
 
-      //   final refreshed = await refreshAccessToken();
+        final refreshed = await refreshAccessToken();
 
-      //   if (refreshed) {
-      //     // Retry the original request with new token
-      //     print('🔄 Retrying original request with new token...');
-      //     return await apiCall();
-      //   }
-      // }
+        if (refreshed) {
+          // Retry the original request with new token
+          print('🔄 Retrying original request with new token...');
+          return await apiCall();
+        }
+      }
 
       // Re-throw the exception if refresh failed or not a 401
       rethrow;

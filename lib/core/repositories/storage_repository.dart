@@ -111,6 +111,29 @@ class StorageRepository {
   //   return null;
   // }
 
+  // User profile methods
+  Future<void> saveUserProfile(String profileJson) async {
+    await _storageService.setString(StorageKeys.userProfileData, profileJson);
+  }
+
+  String? getUserProfile() {
+    return _storageService.getString(StorageKeys.userProfileData);
+  }
+
+  Future<void> clearUserProfile() async {
+    await _storageService.remove(StorageKeys.userProfileData);
+  }
+
+  // Health permission methods
+  Future<void> setHealthPermissionGranted(bool value) async {
+    await _storageService.setBool(StorageKeys.healthPermissionGranted, value);
+  }
+
+  bool getHealthPermissionGranted() {
+    return _storageService.getBool(StorageKeys.healthPermissionGranted) ??
+        false;
+  }
+
   // Clear all stored data
   Future<void> clearStorage() async {
     await _storageService.clear();

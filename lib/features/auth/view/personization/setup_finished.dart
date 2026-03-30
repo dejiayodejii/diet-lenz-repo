@@ -7,7 +7,9 @@ import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
+import 'package:diet_lenz/features/auth/view/login.dart';
 import 'package:diet_lenz/features/auth/view/personization/select_payment.dart';
+import 'package:diet_lenz/features/bottom_nav/bottom.dart';
 import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -47,27 +49,30 @@ class _PlanSetUpScreenState extends ConsumerState<PlanFinishedScreen> {
         }
       }
 
-
-       // Map goal string to enum
+      // Map goal string to enum
       ProfileRequestDtoMacroTargetEnum? macroTargetEnum;
 
       if (profileData.macroTarget != null) {
         if (profileData.macroTarget!.toLowerCase().contains('balanced')) {
           macroTargetEnum = ProfileRequestDtoMacroTargetEnum.BALANCED;
-        } else if (profileData.macroTarget!.toLowerCase().contains('high_protein')) {
+        } else if (profileData.macroTarget!
+            .toLowerCase()
+            .contains('high_protein')) {
           macroTargetEnum = ProfileRequestDtoMacroTargetEnum.HIGH_PROTEIN;
-        } else if (profileData.macroTarget!.toLowerCase().contains('low_carb')) {
+        } else if (profileData.macroTarget!
+            .toLowerCase()
+            .contains('low_carb')) {
           macroTargetEnum = ProfileRequestDtoMacroTargetEnum.LOW_CARB;
         } else if (profileData.macroTarget!.toLowerCase().contains('low_fat')) {
           macroTargetEnum = ProfileRequestDtoMacroTargetEnum.LOW_FAT;
-        } else if (profileData.macroTarget!.toLowerCase().contains('high_fiber')) {
+        } else if (profileData.macroTarget!
+            .toLowerCase()
+            .contains('high_fiber')) {
           macroTargetEnum = ProfileRequestDtoMacroTargetEnum.HIGH_FIBER;
         } else {
           macroTargetEnum = ProfileRequestDtoMacroTargetEnum.BALANCED;
         }
       }
-        
-      
 
       // Create profile request with all collected data
       final profileRequest = ProfileRequestDto(
@@ -99,7 +104,6 @@ class _PlanSetUpScreenState extends ConsumerState<PlanFinishedScreen> {
         allergies: profileData.allergies ?? [],
         country: profileData.country,
         macroTarget: macroTargetEnum,
-        
       );
 
       log(profileRequest.toString());
@@ -117,7 +121,9 @@ class _PlanSetUpScreenState extends ConsumerState<PlanFinishedScreen> {
           // Clear onboarding data
           ref.read(onboardingProfileProvider.notifier).reset();
           // Navigate to next screen
-          NavigationService.push(child: const SelectPaymentScreen());
+          // NavigationService.push(child: const SelectPaymentScreen());
+          NavigationService.pushAndRemoveUntil(
+              child: const BottomNavScreen()); // Close dialog
         } else {
           ref.read(toastProvider).showError(
                 ref.read(userProfileViewModelProvider).errorMessage ??

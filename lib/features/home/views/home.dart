@@ -27,12 +27,21 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  /// Generate week days (Mon-Sat) based on the current date
+  /// The currently selected date (defaults to today)
+  late DateTime _selectedDate;
+
+  /// Generate last 7 days (today on the right, 6 previous days to the left)
   List<DayProgress> _generateWeekDays() {
     final foodLoggingState = ref.watch(foodLoggingViewModelProvider);
     final weeklyTrend = foodLoggingState.weeklyTrend;
     final dashboard = foodLoggingState.dashboard;
     final targetCal = (dashboard?.targets?.calories ?? 2000).toDouble();
+
+    // debugPrint(
+    //     '📊 [WeekDays] dashboard: ${dashboard != null ? "loaded" : "null"}');
+    // debugPrint('📊 [WeekDays] targetCalories: $targetCal');
+    // debugPrint(
+    //     '📊 [WeekDays] weeklyTrend: ${weeklyTrend != null ? "loaded (${weeklyTrend.dailyTrends.length} days)" : "null"}');
 
     // Create a map for easy lookup of trend data
     final Map<String, DailyTrendDto> trendMap = {};
@@ -41,6 +50,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         if (day.date != null) {
           final dateKey = DateFormat('yyyy-MM-dd').format(day.date!);
           trendMap[dateKey] = day;
+          // debugPrint(
+          //     '📊 [WeekDays] trend entry: $dateKey -> calories: ${day.actuals?.calories}');
         }
       }
     }
@@ -48,17 +59,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    // Always align to Monday of the CURRENT week (Local time)
-    // This ensures consistency of the UI (Mon-Sat) regardless of data availability
-    final daysFromMonday = (now.weekday - 1) % 7;
-    final monday = today.subtract(Duration(days: daysFromMonday));
+    // Show the last 7 days: 6 days ago -> today (today is rightmost)
+    final startDate = today.subtract(const Duration(days: 6));
 
-    const dayNames = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    const dayNamesList = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
-    // Generate fixed 6 days (Monday to Saturday)
-    return List.generate(6, (index) {
-      final date = monday.add(Duration(days: index));
+    // debugPrint(
+    //     '📊 [WeekDays] range: ${DateFormat('yyyy-MM-dd').format(startDate)} to ${DateFormat('yyyy-MM-dd').format(today)}');
+
+    // Generate 7 days from startDate to today
+    return List.generate(7, (index) {
+      final date = startDate.add(Duration(days: index));
       final dateKey = DateFormat('yyyy-MM-dd').format(date);
+
+      // weekday: 1=Mon, 7=Sun
+      final dayName = dayNamesList[date.weekday - 1];
 
       // Lookup data for this day
       final trend = trendMap[dateKey];
@@ -72,33 +87,57 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         progress = (trend.actuals!.calories! / targetCal).clamp(0.0, 1.0);
       }
 
+      // debugPrint(
+      //     '📊 [WeekDays] $dayName $dateKey -> hasData: ${trend != null}, progress: ${progress.toStringAsFixed(2)}, isToday: $isToday');
+
       return DayProgress(
-        day: dayNames[index],
+        day: dayName,
         date: date.day,
+        fullDate: date,
         progress: progress,
         isToday: isToday,
       );
     });
   }
 
+  /// Called when a day card is tapped
+  void _onDaySelected(DateTime date) {
+    setState(() {
+      _selectedDate = date;
+    });
+    // Refresh recipes and dashboard for the selected date
+    ref.read(foodLoggingViewModelProvider.notifier).getUserRecipes(date: date);
+    ref.read(foodLoggingViewModelProvider.notifier).getDashboard(date: date);
+  }
+
   @override
   void initState() {
     super.initState();
+    final now = DateTime.now();
+    _selectedDate = DateTime(now.year, now.month, now.day);
     // Fetch dashboard, weekly trend, and user recipes on screen load
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(foodLoggingViewModelProvider.notifier).getDashboard();
+      ref
+          .read(foodLoggingViewModelProvider.notifier)
+          .getDashboard(date: _selectedDate);
       ref.read(foodLoggingViewModelProvider.notifier).getWeeklyTrend();
-      ref.read(foodLoggingViewModelProvider.notifier).getUserRecipes();
+      ref
+          .read(foodLoggingViewModelProvider.notifier)
+          .getUserRecipes(date: _selectedDate);
       ref.read(userProfileViewModelProvider.notifier).getUserProfile();
     });
   }
 
   Future<void> _refreshData() async {
-    // Refresh all data
+    // Refresh all data for the selected date
     await Future.wait([
-      ref.read(foodLoggingViewModelProvider.notifier).getDashboard(),
+      ref
+          .read(foodLoggingViewModelProvider.notifier)
+          .getDashboard(date: _selectedDate),
       ref.read(foodLoggingViewModelProvider.notifier).getWeeklyTrend(),
-      ref.read(foodLoggingViewModelProvider.notifier).getUserRecipes(),
+      ref
+          .read(foodLoggingViewModelProvider.notifier)
+          .getUserRecipes(date: _selectedDate),
     ]);
   }
 
@@ -116,6 +155,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const SizedBox(height: 5),
               const HomeHeader(),
               const SizedBox(height: 25),
+              WeekProgressRow(
+                weekDays: weekDays,
+                selectedDate: _selectedDate,
+                onDaySelected: _onDaySelected,
+              ),
+              const SizedBox(height: 25),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: _refreshData,
@@ -125,8 +170,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        WeekProgressRow(weekDays: weekDays),
-                        const SizedBox(height: 25),
                         const Text(
                           "Count Your Daily Calories",
                           style: TextStyle(
@@ -301,8 +344,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       );
     }
 
-    // Show actual recipes (limit to 3 for home screen)
-    final displayRecipes = recipes.take(3).toList();
+    // Show actual recipes (limit to 6 for home screen)
+    final displayRecipes = recipes.take(6).toList();
     return Column(
       children: displayRecipes
           .map((recipe) => FoodLoggedPreview(recipe: recipe))
@@ -313,10 +356,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
 class FoodLoggedPreview extends ConsumerWidget {
   final RecipeResponseDto recipe;
+  final bool fromFavourites;
 
   const FoodLoggedPreview({
     super.key,
     required this.recipe,
+    this.fromFavourites = false,
   });
 
   @override
@@ -326,7 +371,10 @@ class FoodLoggedPreview extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         NavigationService.push(
-          child: FoodLogDetail(recipe: recipe),
+          child: FoodLogDetail(
+            recipe: recipe,
+            fromFavorite: fromFavourites,
+          ),
         );
       },
       child: Column(
@@ -467,63 +515,109 @@ class FoodLoggedPreview extends ConsumerWidget {
   }
 }
 
-// Week Progress Row Widget
-class WeekProgressRow extends StatelessWidget {
+// Week Progress Row Widget (scrollable, today on the right)
+class WeekProgressRow extends StatefulWidget {
   final List<DayProgress> weekDays;
+  final DateTime selectedDate;
+  final ValueChanged<DateTime> onDaySelected;
 
   const WeekProgressRow({
     super.key,
     required this.weekDays,
+    required this.selectedDate,
+    required this.onDaySelected,
   });
 
   @override
+  State<WeekProgressRow> createState() => _WeekProgressRowState();
+}
+
+class _WeekProgressRowState extends State<WeekProgressRow> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Scroll to the end (today) after the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: weekDays.map((dayData) {
-        return BorderProgressContainer(
-          progress: dayData.progress,
-          width: 57,
-          height: 88,
-          borderWidth: 2,
-          progressColor: AppColors.primaryColor,
-          backgroundColor: AppColors.borderGrey,
-          borderRadius: 11,
-          child: Container(
-            decoration: BoxDecoration(
-              color:
-                  dayData.isToday ? AppColors.primaryColor : Colors.transparent,
-              borderRadius: BorderRadius.circular(9),
+    return SingleChildScrollView(
+      controller: _scrollController,
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: widget.weekDays.asMap().entries.map((entry) {
+          final index = entry.key;
+          final dayData = entry.value;
+          final isSelected =
+              dayData.fullDate.year == widget.selectedDate.year &&
+                  dayData.fullDate.month == widget.selectedDate.month &&
+                  dayData.fullDate.day == widget.selectedDate.day;
+          return Padding(
+            padding: EdgeInsets.only(
+              right: index < widget.weekDays.length - 1 ? 10 : 0,
             ),
-            child: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    dayData.day,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color:
-                          dayData.isToday ? Colors.white : AppColors.textColor,
+            child: GestureDetector(
+              onTap: () => widget.onDaySelected(dayData.fullDate),
+              child: BorderProgressContainer(
+                progress: dayData.progress,
+                width: 57,
+                height: 88,
+                borderWidth: 2,
+                progressColor: AppColors.primaryColor,
+                backgroundColor: AppColors.borderGrey,
+                borderRadius: 11,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.primaryColor
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  child: Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          dayData.day,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color:
+                                isSelected ? Colors.white : AppColors.textColor,
+                          ),
+                        ),
+                        Text(
+                          '${dayData.date}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color:
+                                isSelected ? Colors.white : AppColors.textColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    '${dayData.date}',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color:
-                          dayData.isToday ? Colors.white : AppColors.textColor,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-        );
-      }).toList(),
+          );
+        }).toList(),
+      ),
     );
   }
 }
@@ -791,12 +885,14 @@ class MacroNutrientCard extends StatelessWidget {
 class DayProgress {
   final String day;
   final int date;
+  final DateTime fullDate;
   final double progress;
   final bool isToday;
 
   DayProgress({
     required this.day,
     required this.date,
+    required this.fullDate,
     required this.progress,
     required this.isToday,
   });
@@ -810,7 +906,7 @@ class HomeHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authViewModelProvider).authResponse;
-    final userName = authState?.firstName ?? "Ayodeji";
+    final userName = authState?.firstName ?? "John Doe";
 
     return Row(
       children: [
@@ -871,7 +967,7 @@ class HomeHeader extends ConsumerWidget {
           ),
         ),
         const SizedBox(width: 10),
-        SvgPicture.asset(AppImages.notif),
+        // SvgPicture.asset(AppImages.notif),
       ],
     );
   }

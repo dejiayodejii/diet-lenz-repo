@@ -182,6 +182,8 @@ class ApiClient {
           return valueString == 'true' || valueString == '1';
         case 'DateTime':
           return value is DateTime ? value : DateTime.tryParse(value);
+        case 'AppleSubscriptionVerifyRequest':
+          return AppleSubscriptionVerifyRequest.fromJson(value);
         case 'AuthResponse':
           return AuthResponse.fromJson(value);
         case 'AverageMacrosDto':
@@ -194,12 +196,16 @@ class ApiClient {
           return DailyTrendDto.fromJson(value);
         case 'DashboardResponseDto':
           return DashboardResponseDto.fromJson(value);
+        case 'DeleteAccountRequest':
+          return DeleteAccountRequest.fromJson(value);
         case 'FavoriteRecipeResponseDto':
           return FavoriteRecipeResponseDto.fromJson(value);
         case 'FoodAnalysisDto':
           return FoodAnalysisDto.fromJson(value);
         case 'ForgotPasswordRequest':
           return ForgotPasswordRequest.fromJson(value);
+        case 'GoogleSubscriptionVerifyRequest':
+          return GoogleSubscriptionVerifyRequest.fromJson(value);
         case 'ImageUploadResponse':
           return ImageUploadResponse.fromJson(value);
         case 'IngredientDto':
@@ -230,12 +236,20 @@ class ApiClient {
           return PageableObject.fromJson(value);
         case 'PasswordChangedResponse':
           return PasswordChangedResponse.fromJson(value);
+        case 'PricingResponse':
+          return PricingResponse.fromJson(value);
         case 'ProfileRequestDto':
           return ProfileRequestDto.fromJson(value);
         case 'QuantityDto':
           return QuantityDto.fromJson(value);
         case 'RecipeResponseDto':
           return RecipeResponseDto.fromJson(value);
+        case 'ReferralApplyRequest':
+          return ReferralApplyRequest.fromJson(value);
+        case 'ReferralEarningsResponse':
+          return ReferralEarningsResponse.fromJson(value);
+        case 'ReferralHistoryResponse':
+          return ReferralHistoryResponse.fromJson(value);
         case 'RefreshTokenRequest':
           return RefreshTokenRequest.fromJson(value);
         case 'RegisterDeviceRequest':
@@ -250,6 +264,8 @@ class ApiClient {
           return SortObject.fromJson(value);
         case 'StreakInfoDto':
           return StreakInfoDto.fromJson(value);
+        case 'SubscriptionPlanDto':
+          return SubscriptionPlanDto.fromJson(value);
         case 'SuggestedFoodAnalysis':
           return SuggestedFoodAnalysis.fromJson(value);
         case 'User':
@@ -258,6 +274,8 @@ class ApiClient {
           return UserNotification.fromJson(value);
         case 'UserProfile':
           return UserProfile.fromJson(value);
+        case 'UserSubscriptionDto':
+          return UserSubscriptionDto.fromJson(value);
         case 'WeeklyTrendDto':
           return WeeklyTrendDto.fromJson(value);
         default:

@@ -15,10 +15,10 @@ class PageableObject {
   PageableObject({
     this.offset,
     this.unpaged,
-    this.pageSize,
-    this.sort,
     this.paged,
     this.pageNumber,
+    this.pageSize,
+    this.sort,
   });
 
   ///
@@ -43,22 +43,6 @@ class PageableObject {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  int? pageSize;
-
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  SortObject? sort;
-
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
   bool? paged;
 
   ///
@@ -69,27 +53,43 @@ class PageableObject {
   ///
   int? pageNumber;
 
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  int? pageSize;
+
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  SortObject? sort;
+
   @override
   bool operator ==(Object other) => identical(this, other) || other is PageableObject &&
     other.offset == offset &&
     other.unpaged == unpaged &&
-    other.pageSize == pageSize &&
-    other.sort == sort &&
     other.paged == paged &&
-    other.pageNumber == pageNumber;
+    other.pageNumber == pageNumber &&
+    other.pageSize == pageSize &&
+    other.sort == sort;
 
   @override
   int get hashCode =>
     // ignore: unnecessary_parenthesis
     (offset == null ? 0 : offset!.hashCode) +
     (unpaged == null ? 0 : unpaged!.hashCode) +
-    (pageSize == null ? 0 : pageSize!.hashCode) +
-    (sort == null ? 0 : sort!.hashCode) +
     (paged == null ? 0 : paged!.hashCode) +
-    (pageNumber == null ? 0 : pageNumber!.hashCode);
+    (pageNumber == null ? 0 : pageNumber!.hashCode) +
+    (pageSize == null ? 0 : pageSize!.hashCode) +
+    (sort == null ? 0 : sort!.hashCode);
 
   @override
-  String toString() => 'PageableObject[offset=$offset, unpaged=$unpaged, pageSize=$pageSize, sort=$sort, paged=$paged, pageNumber=$pageNumber]';
+  String toString() => 'PageableObject[offset=$offset, unpaged=$unpaged, paged=$paged, pageNumber=$pageNumber, pageSize=$pageSize, sort=$sort]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -103,16 +103,6 @@ class PageableObject {
     } else {
       json[r'unpaged'] = null;
     }
-    if (this.pageSize != null) {
-      json[r'pageSize'] = this.pageSize;
-    } else {
-      json[r'pageSize'] = null;
-    }
-    if (this.sort != null) {
-      json[r'sort'] = this.sort;
-    } else {
-      json[r'sort'] = null;
-    }
     if (this.paged != null) {
       json[r'paged'] = this.paged;
     } else {
@@ -122,6 +112,16 @@ class PageableObject {
       json[r'pageNumber'] = this.pageNumber;
     } else {
       json[r'pageNumber'] = null;
+    }
+    if (this.pageSize != null) {
+      json[r'pageSize'] = this.pageSize;
+    } else {
+      json[r'pageSize'] = null;
+    }
+    if (this.sort != null) {
+      json[r'sort'] = this.sort;
+    } else {
+      json[r'sort'] = null;
     }
     return json;
   }
@@ -147,10 +147,10 @@ class PageableObject {
       return PageableObject(
         offset: mapValueOfType<int>(json, r'offset'),
         unpaged: mapValueOfType<bool>(json, r'unpaged'),
-        pageSize: mapValueOfType<int>(json, r'pageSize'),
-        sort: SortObject.fromJson(json[r'sort']),
         paged: mapValueOfType<bool>(json, r'paged'),
         pageNumber: mapValueOfType<int>(json, r'pageNumber'),
+        pageSize: mapValueOfType<int>(json, r'pageSize'),
+        sort: SortObject.fromJson(json[r'sort']),
       );
     }
     return null;

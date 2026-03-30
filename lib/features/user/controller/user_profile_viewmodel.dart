@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:diet_lenz/api_client/lib/api.dart';
 import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/services/api_service.dart';
@@ -62,6 +64,10 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
       final response = await _apiService.userApi.getUserProfile();
 
       if (response != null) {
+        // Save profile to local storage
+        try {
+          await _apiService.saveUserProfile(json.encode(response.toJson()));
+        } catch (_) {}
         state = state.copyWith(
           isLoading: false,
           userProfile: response,
@@ -302,7 +308,37 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
 
   /// Clear profile data
   void clearProfile() {
+    _apiService.clearUserProfile();
     state = UserProfileState();
+  }
+
+  /// Delete user account
+  Future<bool> deleteAccount({required String password}) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final request = DeleteAccountRequest(password: password);
+      await _apiService.userApi.deleteAccount(request);
+
+      state = state.copyWith(
+        isLoading: false,
+        successMessage: 'Account deleted successfully',
+        errorMessage: null,
+      );
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+      );
+      return false;
+    }
   }
 
   /// Parse API error messages

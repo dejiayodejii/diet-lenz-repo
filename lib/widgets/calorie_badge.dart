@@ -9,6 +9,7 @@ class CalorieBadge extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final double borderRadius;
   final double fontSize;
+  final double width;
   final FontWeight fontWeight;
 
   const CalorieBadge({
@@ -19,13 +20,14 @@ class CalorieBadge extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
     this.borderRadius = 20.0,
     this.fontSize = 14,
+    this.width = 60,
     this.fontWeight = FontWeight.w600,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 60,
+      width: width,
       padding: padding,
       decoration: BoxDecoration(
         color: backgroundColor,

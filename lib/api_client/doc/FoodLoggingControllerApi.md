@@ -296,7 +296,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getUserRecipes**
-> List<RecipeResponseDto> getUserRecipes()
+> List<RecipeResponseDto> getUserRecipes(date)
 
 
 
@@ -311,9 +311,10 @@ import 'package:openapi/api.dart';
 //defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken(yourTokenGeneratorFunction);
 
 final api_instance = FoodLoggingControllerApi();
+final date = 2013-10-20; // DateTime | 
 
 try {
-    final result = api_instance.getUserRecipes();
+    final result = api_instance.getUserRecipes(date);
     print(result);
 } catch (e) {
     print('Exception when calling FoodLoggingControllerApi->getUserRecipes: $e\n');
@@ -321,7 +322,10 @@ try {
 ```
 
 ### Parameters
-This endpoint does not need any parameter.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **date** | **DateTime**|  | [optional] 
 
 ### Return type
 

@@ -1,6 +1,15 @@
+import 'dart:io';
+
+import 'package:diet_lenz/core/services/message_service.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/core/services/social_auth_service.dart';
+import 'package:diet_lenz/core/services/toast_service.dart';
+import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
 import 'package:diet_lenz/features/auth/view/login.dart';
+import 'package:diet_lenz/features/auth/view/use_referral.dart';
 import 'package:diet_lenz/features/auth/view/register.dart';
+import 'package:diet_lenz/features/bottom_nav/bottom.dart';
+import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
@@ -21,6 +30,96 @@ class SocialSignUp extends ConsumerStatefulWidget {
 }
 
 class _SocialSignUpState extends ConsumerState<SocialSignUp> {
+  bool _isLoading = false;
+
+  Future<void> _handleGoogleSignIn() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+
+    try {
+      final socialAuth = ref.read(socialAuthServiceProvider);
+      final idToken = await socialAuth.signInWithGoogle();
+
+      if (idToken == null) {
+        setState(() => _isLoading = false);
+        return; // User cancelled
+      }
+
+      final authController = ref.read(authViewModelProvider.notifier);
+      final success = await authController.googleLogin(
+          idToken: idToken, deviceId: "", deviceName: "");
+
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+
+      if (success) {
+        if (!mounted) return;
+        await _navigateBasedOnProfile();
+      } else {
+        final error = ref.read(authViewModelProvider).errorMessage;
+        ref.read(toastProvider).showError(error ?? 'Google sign-in failed');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ref.read(toastProvider).showError('Google sign-in failed');
+      }
+    }
+  }
+
+  Future<void> _handleAppleSignIn() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+
+    try {
+      final socialAuth = ref.read(socialAuthServiceProvider);
+      final idToken = await socialAuth.signInWithApple();
+
+      if (idToken == null) {
+        setState(() => _isLoading = false);
+        return; // User cancelled
+      }
+
+      final authController = ref.read(authViewModelProvider.notifier);
+      final success = await authController.appleLogin(idToken: idToken);
+
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+
+      if (success) {
+        if (!mounted) return;
+        await _navigateBasedOnProfile();
+      } else {
+        final error = ref.read(authViewModelProvider).errorMessage;
+        ref.read(toastProvider).showError(error ?? 'Apple sign-in failed');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ref.read(toastProvider).showError('Apple sign-in failed');
+      }
+    }
+  }
+
+  /// Check if user has a profile. If not, they're new — send to referral.
+  Future<void> _navigateBasedOnProfile() async {
+    final hasProfile =
+        await ref.read(userProfileViewModelProvider.notifier).getUserProfile();
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (hasProfile) {
+      NavigationService.pushAndRemoveUntil(child: const BottomNavScreen());
+    } else {
+     ref.read(toastProvider).showSuccess('Sign-in successful! Please complete your profile.');
+      // First-time social login user — go to referral, then plan setup
+      NavigationService.pushAndRemoveUntil(
+        child: const ReferralScreen(email: '', isSocialLogin: true),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -51,18 +150,19 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
             iconWidget: SvgPicture.asset(
               AppImages.googleIcon,
             ),
-            text: "Continue with Google",
-            onPressed: () {}),
+            text: _isLoading ? "Signing in..." : "Continue with Google",
+            onPressed: _isLoading ? () {} : _handleGoogleSignIn),
         const SizedBox(height: 15),
-        CustomYafButton(
-          color: AppColors.surfaceColor,
-          iconWidget: SvgPicture.asset(
-            AppImages.appleIcon,
+        if (Platform.isIOS)
+          CustomYafButton(
+            color: AppColors.surfaceColor,
+            iconWidget: SvgPicture.asset(
+              AppImages.appleIcon,
+            ),
+            text: _isLoading ? "Signing in..." : "Continue with Apple",
+            onPressed: _isLoading ? () {} : _handleAppleSignIn,
           ),
-          text: "Continue with Apple",
-          onPressed: () {},
-        ),
-        const SizedBox(height: 15),
+        if (Platform.isIOS) const SizedBox(height: 15),
         InkWell(
           onTap: () {
             if (widget.isLogin) {

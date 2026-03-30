@@ -53,8 +53,8 @@ class NetworkProviderImp extends NetworkProvider {
     final dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
-        connectTimeout: const Duration(seconds: 1000),
-        receiveTimeout: const Duration(seconds: 1000),
+        connectTimeout: const Duration(seconds: 10000),
+        receiveTimeout: const Duration(seconds: 10000),
         headers: {
           'accept': 'application/json',
           'content-type': 'application/json',

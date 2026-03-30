@@ -79,7 +79,7 @@ class _SuggestMealDetailScreenState
       description: widget.suggestion.description,
       // ingredients: ingredients,
       totalMacros: widget.suggestion.totalMacros,
-      imageBase64: widget.suggestion.imageBase64,
+      // imageBase64: widget.suggestion.imageBase64,
     );
 
     // Create log meal request
@@ -132,21 +132,22 @@ class _SuggestMealDetailScreenState
                 // Top Image Section
                 Stack(
                   children: [
-                    widget.suggestion.suggestedImage != null
-                        ? Image.network(
-                            widget.suggestion.suggestedImage!,
-                            height: 350,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (ctx, err, st) => Image.asset(
-                              AppImages.salad,
-                              scale: 2,
-                              height: 350,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : Image.asset(
+                    // widget.suggestion.suggestedImage != null
+                    //     ? Image.network(
+                    //         widget.suggestion.suggestedImage!,
+                    //         height: 350,
+                    //         width: double.infinity,
+                    //         fit: BoxFit.cover,
+                    //         errorBuilder: (ctx, err, st) => Image.asset(
+                    //           AppImages.salad,
+                    //           scale: 2,
+                    //           height: 350,
+                    //           width: double.infinity,
+                    //           fit: BoxFit.cover,
+                    //         ),
+                    //       )
+                    //     : 
+                        Image.asset(
                             AppImages.salad,
                             scale: 2,
                             height: 350,

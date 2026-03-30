@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
 import 'package:diet_lenz/features/home/controller/health_provider.dart';
@@ -87,25 +88,6 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                     foodLoggingState.streak == null,
               ),
               const SizedBox(height: 40),
-              const Text(
-                " Trends and Insights",
-                style: TextStyle(
-                  fontSize: 22,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              const SizedBox(height: 20),
-              SegmentedToggle(
-                options: const ['Daily', 'Weekly', 'Monthly'],
-                selectedIndex: selectedIndex,
-                onChanged: _onTimeRangeChanged,
-              ),
-              const SizedBox(height: 50),
-              HealthChart(
-                timeRange: _getTimeRangeFromIndex(selectedIndex),
-              ),
-              const SizedBox(height: 20),
 
               // Health Permission Request
               if (healthState.needsPermissions)
@@ -127,14 +109,40 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                   },
                 )
               // Health Data Stats
-              else if (healthState.hasData)
-                _HealthStatsRow(healthData: healthState.healthData)
+              else if (healthState.hasData) ...[
+                _HealthSourceAttribution(),
+                const SizedBox(height: 10),
+                _HealthStatsRow(healthData: healthState.healthData),
+              ]
               // Loading State
               else if (healthState.isLoading)
                 _HealthStatsLoading()
               // Default/Placeholder
-              else
+              else ...[
+                _HealthSourceAttribution(),
+                const SizedBox(height: 10),
                 _HealthStatsRow(healthData: healthState.healthData),
+              ],
+              const SizedBox(height: 20),
+              const Text(
+                " Trends and Insights",
+                style: TextStyle(
+                  fontSize: 22,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SegmentedToggle(
+                options: const ['Daily', 'Weekly', 'Monthly'],
+                selectedIndex: selectedIndex,
+                onChanged: _onTimeRangeChanged,
+              ),
+              const SizedBox(height: 50),
+              HealthChart(
+                timeRange: _getTimeRangeFromIndex(selectedIndex),
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -297,6 +305,29 @@ class StreakWidget extends StatelessWidget {
   }
 }
 
+// Health Source Attribution
+class _HealthSourceAttribution extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final source = Platform.isIOS ? 'Apple Health' : 'Health Connect';
+    final icon = Platform.isIOS ? Icons.favorite : Icons.health_and_safety;
+    return Row(
+      children: [
+        Icon(icon, color: Platform.isIOS ? Colors.red : Colors.green, size: 16),
+        const SizedBox(width: 6),
+        Text(
+          'Data from $source',
+          style: const TextStyle(
+            fontSize: 12,
+            color: Color.fromRGBO(158, 160, 165, 1),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 // Health Stats Row Widget
 class _HealthStatsRow extends StatelessWidget {
   final dynamic healthData;
@@ -421,22 +452,31 @@ class _HealthPermissionCard extends StatelessWidget {
                 child: const Icon(Icons.health_and_safety, color: Colors.white),
               ),
               const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Enable Health Data',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      Platform.isIOS
+                          ? 'Connect Apple Health'
+                          : 'Enable Health Data',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Connect your health app to track steps, calories, and heart rate automatically.',
-            style: TextStyle(
+          Text(
+            Platform.isIOS
+                ? 'Allow Diet Lenz to read your steps, calories, and heart rate from Apple Health (HealthKit).'
+                : 'Connect your health app to track steps, calories, and heart rate automatically.',
+            style: const TextStyle(
               fontSize: 14,
               color: Color.fromRGBO(158, 160, 165, 1),
             ),

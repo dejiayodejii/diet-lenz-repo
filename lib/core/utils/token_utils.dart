@@ -6,7 +6,7 @@ class TokenUtils {
     try {
       if (token.isEmpty) return true;
       final value = getTokenExpirationDate(token);
-      print("expiration time is $value");
+      print("token expiration time is $value");
       return JwtDecoder.isExpired(token);
     } catch (e) {
       return true; // If there's any error decoding, consider it expired

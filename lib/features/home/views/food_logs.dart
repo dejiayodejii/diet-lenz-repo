@@ -23,15 +23,17 @@ class _FoodLogsScreenState extends ConsumerState<FoodLogsScreen> {
   @override
   void initState() {
     super.initState();
-    // Fetch both user recipes and favorites on screen load
+    // Fetch all recipes (unfiltered) and favorites on screen load
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(foodLoggingViewModelProvider.notifier).getUserRecipes();
+      ref.read(foodLoggingViewModelProvider.notifier).getAllRecipes();
       ref.read(foodLoggingViewModelProvider.notifier).getFavorites();
     });
   }
 
   Future<void> _refreshRecipes() async {
-    await ref.read(foodLoggingViewModelProvider.notifier).getUserRecipes();
+    // Clear cached allRecipes so it refetches
+    ref.read(foodLoggingViewModelProvider.notifier).clearAllRecipes();
+    await ref.read(foodLoggingViewModelProvider.notifier).getAllRecipes();
   }
 
   Future<void> _refreshFavorites() async {
@@ -74,22 +76,21 @@ class _FoodLogsScreenState extends ConsumerState<FoodLogsScreen> {
 
     switch (selectedIndex) {
       case 0: // All
-        if (foodLoggingState.isLoading &&
-            foodLoggingState.userRecipes == null) {
+        if (foodLoggingState.isLoading && foodLoggingState.allRecipes == null) {
           // Show shimmer loading
           return Column(
-            children: List.generate(5, (index) => const FoodLogShimmer()),
+            children: List.generate(3, (index) => const FoodLogShimmer()),
           );
         }
 
-        if (foodLoggingState.recipesError != null &&
-            foodLoggingState.userRecipes == null) {
+        if (foodLoggingState.allRecipesError != null &&
+            foodLoggingState.allRecipes == null) {
           // Show error message
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Text(
-                foodLoggingState.recipesError!,
+                foodLoggingState.allRecipesError!,
                 style: const TextStyle(color: Colors.red),
                 textAlign: TextAlign.center,
               ),
@@ -97,7 +98,7 @@ class _FoodLogsScreenState extends ConsumerState<FoodLogsScreen> {
           );
         }
 
-        final recipes = foodLoggingState.userRecipes;
+        final recipes = foodLoggingState.allRecipes;
 
         if (recipes == null || recipes.isEmpty) {
           // Show empty state
@@ -128,7 +129,10 @@ class _FoodLogsScreenState extends ConsumerState<FoodLogsScreen> {
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             children: recipes
-                .map((recipe) => FoodLoggedPreview(recipe: recipe))
+                .map((recipe) => FoodLoggedPreview(
+                      recipe: recipe,
+                      // fromFavourites: true,
+                    ))
                 .toList(),
           ),
         );
@@ -137,7 +141,7 @@ class _FoodLogsScreenState extends ConsumerState<FoodLogsScreen> {
         if (foodLoggingState.isLoading && foodLoggingState.favorites == null) {
           // Show shimmer loading
           return Column(
-            children: List.generate(5, (index) => const FoodLogShimmer()),
+            children: List.generate(3, (index) => const FoodLogShimmer()),
           );
         }
 
@@ -210,7 +214,10 @@ class FavouriteFood extends StatelessWidget {
     return InkWell(
       onTap: () {
         NavigationService.push(
-          child: FoodLogDetail(favorite: favorite),
+          child: FoodLogDetail(
+            favorite: favorite,
+            fromFavorite: true,
+          ),
         );
       },
       child: Column(
@@ -321,14 +328,16 @@ class SegmentedToggle extends StatelessWidget {
           (index) => Expanded(
             child: GestureDetector(
               onTap: () => onChanged(index),
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 height: 37,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
                   color: selectedIndex == index
                       ? (selectedColor ?? AppColors.primaryColor)
-                      : null,
+                      : Colors.transparent,
                 ),
                 child: Center(
                   child: Text(

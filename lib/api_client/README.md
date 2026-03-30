@@ -96,7 +96,17 @@ Class | Method | HTTP request | Description
 *RecipeControllersApi* | [**health**](doc//RecipeControllersApi.md#health) | **GET** /api/v1/recipe/health | 
 *RecipeControllersApi* | [**hello**](doc//RecipeControllersApi.md#hello) | **GET** /api/v1/recipe/hello | 
 *RecipeControllersApi* | [**suggestAndAnalyze**](doc//RecipeControllersApi.md#suggestandanalyze) | **POST** /api/v1/recipe/suggest | 
+*SubscriptionControllerApi* | [**applyReferral**](doc//SubscriptionControllerApi.md#applyreferral) | **POST** /api/v1/referrals/apply | 
+*SubscriptionControllerApi* | [**cancelSubscription**](doc//SubscriptionControllerApi.md#cancelsubscription) | **POST** /api/v1/subscriptions/{subscriptionId}/cancel | 
+*SubscriptionControllerApi* | [**getMySubscription**](doc//SubscriptionControllerApi.md#getmysubscription) | **GET** /api/v1/users/me/subscription | 
+*SubscriptionControllerApi* | [**getPlans**](doc//SubscriptionControllerApi.md#getplans) | **GET** /api/v1/plans | 
+*SubscriptionControllerApi* | [**getPricing**](doc//SubscriptionControllerApi.md#getpricing) | **GET** /api/v1/subscriptions/pricing | 
+*SubscriptionControllerApi* | [**getReferralEarnings**](doc//SubscriptionControllerApi.md#getreferralearnings) | **GET** /api/v1/referrals/earnings | 
+*SubscriptionControllerApi* | [**getReferralHistory**](doc//SubscriptionControllerApi.md#getreferralhistory) | **GET** /api/v1/referrals/history | 
+*SubscriptionControllerApi* | [**verifyAppleSubscription**](doc//SubscriptionControllerApi.md#verifyapplesubscription) | **POST** /api/v1/subscriptions/verify/apple | 
+*SubscriptionControllerApi* | [**verifyGoogleSubscription**](doc//SubscriptionControllerApi.md#verifygooglesubscription) | **POST** /api/v1/subscriptions/verify/google | 
 *UserControllerApi* | [**changePassword**](doc//UserControllerApi.md#changepassword) | **POST** /api/v1/users/password/change | 
+*UserControllerApi* | [**deleteAccount**](doc//UserControllerApi.md#deleteaccount) | **DELETE** /api/v1/users/me | 
 *UserControllerApi* | [**getUserNotifications**](doc//UserControllerApi.md#getusernotifications) | **GET** /api/v1/users/notifications/all | 
 *UserControllerApi* | [**getUserProfile**](doc//UserControllerApi.md#getuserprofile) | **GET** /api/v1/users/profile | 
 *UserControllerApi* | [**markNotificationAsRead**](doc//UserControllerApi.md#marknotificationasread) | **PUT** /api/v1/users/notifications/all | 
@@ -106,15 +116,18 @@ Class | Method | HTTP request | Description
 
 ## Documentation For Models
 
+ - [AppleSubscriptionVerifyRequest](doc//AppleSubscriptionVerifyRequest.md)
  - [AuthResponse](doc//AuthResponse.md)
  - [AverageMacrosDto](doc//AverageMacrosDto.md)
  - [ChangePasswordRequest](doc//ChangePasswordRequest.md)
  - [ConsumedMacrosDto](doc//ConsumedMacrosDto.md)
  - [DailyTrendDto](doc//DailyTrendDto.md)
  - [DashboardResponseDto](doc//DashboardResponseDto.md)
+ - [DeleteAccountRequest](doc//DeleteAccountRequest.md)
  - [FavoriteRecipeResponseDto](doc//FavoriteRecipeResponseDto.md)
  - [FoodAnalysisDto](doc//FoodAnalysisDto.md)
  - [ForgotPasswordRequest](doc//ForgotPasswordRequest.md)
+ - [GoogleSubscriptionVerifyRequest](doc//GoogleSubscriptionVerifyRequest.md)
  - [ImageUploadResponse](doc//ImageUploadResponse.md)
  - [IngredientDto](doc//IngredientDto.md)
  - [LogMealRequestDto](doc//LogMealRequestDto.md)
@@ -130,9 +143,13 @@ Class | Method | HTTP request | Description
  - [PageUserNotification](doc//PageUserNotification.md)
  - [PageableObject](doc//PageableObject.md)
  - [PasswordChangedResponse](doc//PasswordChangedResponse.md)
+ - [PricingResponse](doc//PricingResponse.md)
  - [ProfileRequestDto](doc//ProfileRequestDto.md)
  - [QuantityDto](doc//QuantityDto.md)
  - [RecipeResponseDto](doc//RecipeResponseDto.md)
+ - [ReferralApplyRequest](doc//ReferralApplyRequest.md)
+ - [ReferralEarningsResponse](doc//ReferralEarningsResponse.md)
+ - [ReferralHistoryResponse](doc//ReferralHistoryResponse.md)
  - [RefreshTokenRequest](doc//RefreshTokenRequest.md)
  - [RegisterDeviceRequest](doc//RegisterDeviceRequest.md)
  - [RegisterRequest](doc//RegisterRequest.md)
@@ -140,10 +157,12 @@ Class | Method | HTTP request | Description
  - [SocialLoginRequest](doc//SocialLoginRequest.md)
  - [SortObject](doc//SortObject.md)
  - [StreakInfoDto](doc//StreakInfoDto.md)
+ - [SubscriptionPlanDto](doc//SubscriptionPlanDto.md)
  - [SuggestedFoodAnalysis](doc//SuggestedFoodAnalysis.md)
  - [User](doc//User.md)
  - [UserNotification](doc//UserNotification.md)
  - [UserProfile](doc//UserProfile.md)
+ - [UserSubscriptionDto](doc//UserSubscriptionDto.md)
  - [WeeklyTrendDto](doc//WeeklyTrendDto.md)
 
 

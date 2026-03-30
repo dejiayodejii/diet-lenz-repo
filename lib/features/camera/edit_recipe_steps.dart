@@ -156,21 +156,22 @@ class _EditRecipeStepsScreenState extends State<EditRecipeStepsScreen> {
                 // Top Header
                 Stack(
                   children: [
-                    widget.suggestion.suggestedImage != null
-                        ? Image.network(
-                            widget.suggestion.suggestedImage!,
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (ctx, err, st) => Image.asset(
-                              AppImages.salad,
-                              scale: 2,
-                              height: 200,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : Image.asset(
+                    // widget.suggestion.suggestedImage != null
+                    //     ? Image.network(
+                    //         widget.suggestion.suggestedImage!,
+                    //         height: 200,
+                    //         width: double.infinity,
+                    //         fit: BoxFit.cover,
+                    //         errorBuilder: (ctx, err, st) => Image.asset(
+                    //           AppImages.salad,
+                    //           scale: 2,
+                    //           height: 200,
+                    //           width: double.infinity,
+                    //           fit: BoxFit.cover,
+                    //         ),
+                    //       )
+                    //     : 
+                        Image.asset(
                             AppImages.salad,
                             scale: 2,
                             height: 200,

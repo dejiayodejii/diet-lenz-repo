@@ -16,7 +16,7 @@ class RegisterDeviceRequest {
     this.timeZone,
     this.deviceId,
     this.platform,
-    this.pushToken,
+    required this.pushToken,
     this.appVersion,
   });
 
@@ -38,13 +38,7 @@ class RegisterDeviceRequest {
 
   RegisterDeviceRequestPlatformEnum? platform;
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  String? pushToken;
+  String pushToken;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -68,7 +62,7 @@ class RegisterDeviceRequest {
     (timeZone == null ? 0 : timeZone!.hashCode) +
     (deviceId == null ? 0 : deviceId!.hashCode) +
     (platform == null ? 0 : platform!.hashCode) +
-    (pushToken == null ? 0 : pushToken!.hashCode) +
+    (pushToken.hashCode) +
     (appVersion == null ? 0 : appVersion!.hashCode);
 
   @override
@@ -91,11 +85,7 @@ class RegisterDeviceRequest {
     } else {
       json[r'platform'] = null;
     }
-    if (this.pushToken != null) {
       json[r'pushToken'] = this.pushToken;
-    } else {
-      json[r'pushToken'] = null;
-    }
     if (this.appVersion != null) {
       json[r'appVersion'] = this.appVersion;
     } else {
@@ -126,7 +116,7 @@ class RegisterDeviceRequest {
         timeZone: mapValueOfType<String>(json, r'timeZone'),
         deviceId: mapValueOfType<String>(json, r'deviceId'),
         platform: RegisterDeviceRequestPlatformEnum.fromJson(json[r'platform']),
-        pushToken: mapValueOfType<String>(json, r'pushToken'),
+        pushToken: mapValueOfType<String>(json, r'pushToken')!,
         appVersion: mapValueOfType<String>(json, r'appVersion'),
       );
     }
@@ -175,6 +165,7 @@ class RegisterDeviceRequest {
 
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
+    'pushToken',
   };
 }
 
@@ -193,11 +184,15 @@ class RegisterDeviceRequestPlatformEnum {
 
   static const IOS = RegisterDeviceRequestPlatformEnum._(r'IOS');
   static const ANDROID = RegisterDeviceRequestPlatformEnum._(r'ANDROID');
+  static const APPLE = RegisterDeviceRequestPlatformEnum._(r'APPLE');
+  static const GOOGLE = RegisterDeviceRequestPlatformEnum._(r'GOOGLE');
 
   /// List of all possible values in this [enum][RegisterDeviceRequestPlatformEnum].
   static const values = <RegisterDeviceRequestPlatformEnum>[
     IOS,
     ANDROID,
+    APPLE,
+    GOOGLE,
   ];
 
   static RegisterDeviceRequestPlatformEnum? fromJson(dynamic value) => RegisterDeviceRequestPlatformEnumTypeTransformer().decode(value);
@@ -238,6 +233,8 @@ class RegisterDeviceRequestPlatformEnumTypeTransformer {
       switch (data) {
         case r'IOS': return RegisterDeviceRequestPlatformEnum.IOS;
         case r'ANDROID': return RegisterDeviceRequestPlatformEnum.ANDROID;
+        case r'APPLE': return RegisterDeviceRequestPlatformEnum.APPLE;
+        case r'GOOGLE': return RegisterDeviceRequestPlatformEnum.GOOGLE;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');

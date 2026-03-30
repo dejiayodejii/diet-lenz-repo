@@ -47,7 +47,7 @@ void main() {
       // TODO
     });
 
-    //Future<List<RecipeResponseDto>> getUserRecipes() async
+    //Future<List<RecipeResponseDto>> getUserRecipes({ DateTime date }) async
     test('test getUserRecipes', () async {
       // TODO
     });

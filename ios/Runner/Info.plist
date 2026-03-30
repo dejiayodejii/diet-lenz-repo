@@ -52,8 +52,18 @@
 	<key>NSHealthShareUsageDescription</key>
 	<string>This app needs access to your health data to display your daily activity and track your progress.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>This app needs access to update your health data.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app needs access to the microphone for video recording and voice input features.</string>
+	<string>This app needs access to your health data to display your daily activity and track your progress.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.77989643764-r9d6s3bo54s474jli72loanuronr5fgr</string>
+			</array>
+		</dict>
+	</array>
+	
 </dict>
 </plist>

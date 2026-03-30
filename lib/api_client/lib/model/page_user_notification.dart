@@ -18,8 +18,8 @@ class PageUserNotification {
     this.size,
     this.content = const [],
     this.number,
-    this.sort,
     this.pageable,
+    this.sort,
     this.numberOfElements,
     this.first,
     this.last,
@@ -66,7 +66,7 @@ class PageUserNotification {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  SortObject? sort;
+  PageableObject? pageable;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -74,7 +74,7 @@ class PageUserNotification {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  PageableObject? pageable;
+  SortObject? sort;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -115,8 +115,8 @@ class PageUserNotification {
     other.size == size &&
     _deepEquality.equals(other.content, content) &&
     other.number == number &&
-    other.sort == sort &&
     other.pageable == pageable &&
+    other.sort == sort &&
     other.numberOfElements == numberOfElements &&
     other.first == first &&
     other.last == last &&
@@ -130,15 +130,15 @@ class PageUserNotification {
     (size == null ? 0 : size!.hashCode) +
     (content.hashCode) +
     (number == null ? 0 : number!.hashCode) +
-    (sort == null ? 0 : sort!.hashCode) +
     (pageable == null ? 0 : pageable!.hashCode) +
+    (sort == null ? 0 : sort!.hashCode) +
     (numberOfElements == null ? 0 : numberOfElements!.hashCode) +
     (first == null ? 0 : first!.hashCode) +
     (last == null ? 0 : last!.hashCode) +
     (empty == null ? 0 : empty!.hashCode);
 
   @override
-  String toString() => 'PageUserNotification[totalElements=$totalElements, totalPages=$totalPages, size=$size, content=$content, number=$number, sort=$sort, pageable=$pageable, numberOfElements=$numberOfElements, first=$first, last=$last, empty=$empty]';
+  String toString() => 'PageUserNotification[totalElements=$totalElements, totalPages=$totalPages, size=$size, content=$content, number=$number, pageable=$pageable, sort=$sort, numberOfElements=$numberOfElements, first=$first, last=$last, empty=$empty]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -163,15 +163,15 @@ class PageUserNotification {
     } else {
       json[r'number'] = null;
     }
-    if (this.sort != null) {
-      json[r'sort'] = this.sort;
-    } else {
-      json[r'sort'] = null;
-    }
     if (this.pageable != null) {
       json[r'pageable'] = this.pageable;
     } else {
       json[r'pageable'] = null;
+    }
+    if (this.sort != null) {
+      json[r'sort'] = this.sort;
+    } else {
+      json[r'sort'] = null;
     }
     if (this.numberOfElements != null) {
       json[r'numberOfElements'] = this.numberOfElements;
@@ -220,8 +220,8 @@ class PageUserNotification {
         size: mapValueOfType<int>(json, r'size'),
         content: UserNotification.listFromJson(json[r'content']),
         number: mapValueOfType<int>(json, r'number'),
-        sort: SortObject.fromJson(json[r'sort']),
         pageable: PageableObject.fromJson(json[r'pageable']),
+        sort: SortObject.fromJson(json[r'sort']),
         numberOfElements: mapValueOfType<int>(json, r'numberOfElements'),
         first: mapValueOfType<bool>(json, r'first'),
         last: mapValueOfType<bool>(json, r'last'),

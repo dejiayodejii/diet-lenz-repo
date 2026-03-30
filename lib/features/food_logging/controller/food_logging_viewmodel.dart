@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:diet_lenz/api_client/lib/api.dart';
 import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/services/api_service.dart';
@@ -10,6 +12,7 @@ class FoodLoggingState {
   final StreakInfoDto? streak;
   final WeeklyTrendDto? weeklyTrend;
   final List<RecipeResponseDto>? userRecipes;
+  final List<RecipeResponseDto>? allRecipes;
   final List<RecipeResponseDto>? searchResults;
   final List<RecipeResponseDto>? recommendations;
   final List<FavoriteRecipeResponseDto>? favorites;
@@ -18,6 +21,7 @@ class FoodLoggingState {
   final Map<String, int>? ingredientStats;
   final String? errorMessage;
   final String? recipesError;
+  final String? allRecipesError;
   final String? favoritesError;
 
   FoodLoggingState({
@@ -26,6 +30,7 @@ class FoodLoggingState {
     this.streak,
     this.weeklyTrend,
     this.userRecipes,
+    this.allRecipes,
     this.searchResults,
     this.recommendations,
     this.favorites,
@@ -34,6 +39,7 @@ class FoodLoggingState {
     this.ingredientStats,
     this.errorMessage,
     this.recipesError,
+    this.allRecipesError,
     this.favoritesError,
   });
 
@@ -43,6 +49,7 @@ class FoodLoggingState {
     StreakInfoDto? streak,
     WeeklyTrendDto? weeklyTrend,
     List<RecipeResponseDto>? userRecipes,
+    List<RecipeResponseDto>? allRecipes,
     List<RecipeResponseDto>? searchResults,
     List<RecipeResponseDto>? recommendations,
     List<FavoriteRecipeResponseDto>? favorites,
@@ -51,6 +58,7 @@ class FoodLoggingState {
     Map<String, int>? ingredientStats,
     String? errorMessage,
     String? recipesError,
+    String? allRecipesError,
     String? favoritesError,
   }) {
     return FoodLoggingState(
@@ -59,6 +67,7 @@ class FoodLoggingState {
       streak: streak ?? this.streak,
       weeklyTrend: weeklyTrend ?? this.weeklyTrend,
       userRecipes: userRecipes ?? this.userRecipes,
+      allRecipes: allRecipes ?? this.allRecipes,
       searchResults: searchResults ?? this.searchResults,
       recommendations: recommendations ?? this.recommendations,
       favorites: favorites ?? this.favorites,
@@ -67,6 +76,7 @@ class FoodLoggingState {
       ingredientStats: ingredientStats ?? this.ingredientStats,
       errorMessage: errorMessage,
       recipesError: recipesError,
+      allRecipesError: allRecipesError,
       favoritesError: favoritesError,
     );
   }
@@ -89,16 +99,53 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
 
   final ApiService _apiService;
 
+  /// In-memory caches keyed by date string (yyyy-MM-dd)
+  final Map<String, List<RecipeResponseDto>> _recipesCache = {};
+  final Map<String, DashboardResponseDto> _dashboardCache = {};
+
+  /// Helper to format a date key for caching
+  String _dateKey(DateTime? date) {
+    if (date == null) return 'all';
+    return '${date.year.toString().padLeft(4, '0')}-'
+        '${date.month.toString().padLeft(2, '0')}-'
+        '${date.day.toString().padLeft(2, '0')}';
+  }
+
+  /// Invalidate cache for a specific date (e.g. after logging a meal)
+  void invalidateCache({DateTime? date}) {
+    if (date != null) {
+      final key = _dateKey(date);
+      _recipesCache.remove(key);
+      _dashboardCache.remove(key);
+    } else {
+      _recipesCache.clear();
+      _dashboardCache.clear();
+    }
+  }
+
   /// Get dashboard data for a specific date
   Future<bool> getDashboard({DateTime? date}) async {
-    state = state.copyWith(
-        isLoading: state.dashboard == null ? true : false, errorMessage: null);
+    final key = _dateKey(date);
+
+    // Serve from cache if available (no loading state)
+    if (_dashboardCache.containsKey(key)) {
+      state = state.copyWith(
+        isLoading: false,
+        dashboard: _dashboardCache[key],
+        errorMessage: null,
+      );
+      return true;
+    }
+
+    state =
+        state.copyWith(isLoading: true, dashboard: null, errorMessage: null);
 
     try {
       final response =
           await _apiService.foodLoggingApi.getDashboard(date: date);
 
       if (response != null) {
+        _dashboardCache[key] = response;
         state = state.copyWith(
           isLoading: false,
           dashboard: response,
@@ -129,7 +176,8 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
 
   /// Get current streak information
   Future<bool> getCurrentStreak() async {
-    state = state.copyWith(isLoading: state.streak != null ? false : true, errorMessage: null);
+    state = state.copyWith(
+        isLoading: state.streak != null ? false : true, errorMessage: null);
 
     try {
       final response = await _apiService.foodLoggingApi.getCurrentStreak();
@@ -237,17 +285,28 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
   }
 
   /// Get all user recipes
-  Future<bool> getUserRecipes() async {
-    state = state.copyWith(
-        isLoading: state.userRecipes != null && state.userRecipes!.isNotEmpty
-            ? false
-            : true,
-        recipesError: null);
+  Future<bool> getUserRecipes({DateTime? date}) async {
+    final key = _dateKey(date);
+
+    // Serve from cache if available (no loading state)
+    if (_recipesCache.containsKey(key)) {
+      state = state.copyWith(
+        isLoading: false,
+        userRecipes: _recipesCache[key],
+        recipesError: null,
+      );
+      return true;
+    }
+
+    state =
+        state.copyWith(isLoading: true, userRecipes: null, recipesError: null);
 
     try {
-      final response = await _apiService.foodLoggingApi.getUserRecipes();
+      final response =
+          await _apiService.foodLoggingApi.getUserRecipes(date: date);
 
       if (response != null) {
+        _recipesCache[key] = response;
         state = state.copyWith(
           isLoading: false,
           userRecipes: response,
@@ -262,15 +321,60 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
         return false;
       }
     } on ApiException catch (e) {
+      print(e.toString());
       state = state.copyWith(
         isLoading: false,
         recipesError: _parseApiError(e),
       );
       return false;
     } catch (e) {
+      print(e.toString());
       state = state.copyWith(
         isLoading: false,
         recipesError: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Get all user recipes (no date filter) — used by "See All" screen
+  Future<bool> getAllRecipes() async {
+    // Don't refetch if we already have all recipes loaded
+    if (state.allRecipes != null && state.allRecipes!.isNotEmpty) {
+      return true;
+    }
+
+    state = state.copyWith(isLoading: true, allRecipesError: null);
+
+    try {
+      final response = await _apiService.foodLoggingApi.getUserRecipes();
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          allRecipes: response,
+          allRecipesError: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          allRecipesError: 'Failed to load recipes',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      print(e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        allRecipesError: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      print(e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        allRecipesError: 'An unexpected error occurred',
       );
       return false;
     }
@@ -637,6 +741,11 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
   /// Clear search results
   void clearSearchResults() {
     state = state.copyWith(searchResults: []);
+  }
+
+  /// Clear all recipes (used before refreshing See All screen)
+  void clearAllRecipes() {
+    state = state.copyWith(allRecipes: []);
   }
 
   /// Clear selected recipe

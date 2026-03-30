@@ -6,6 +6,7 @@ import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/core/services/iap_service.dart';
 import 'package:diet_lenz/core/widgets/restart_widget.dart';
 import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
 import 'package:diet_lenz/features/auth/view/login.dart';
@@ -14,6 +15,7 @@ import 'package:diet_lenz/features/settings/views/change_password.dart';
 import 'package:diet_lenz/features/settings/views/edit_profile.dart';
 import 'package:diet_lenz/features/settings/views/more.dart';
 import 'package:diet_lenz/features/settings/views/referal.dart';
+import 'package:diet_lenz/features/subscription/controller/subscription_viewmodel.dart';
 import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,6 +34,87 @@ class SetttingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
+  Future<void> _handleDeleteAccount() async {
+    final passwordController = TextEditingController();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Delete Account',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'This action is permanent and cannot be undone. Enter your password to confirm.',
+              style: TextStyle(color: AppColors.textLightGrey, fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'Enter your password',
+                hintStyle: const TextStyle(color: AppColors.textLightGrey),
+                filled: true,
+                fillColor: AppColors.surfaceGrey,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.primaryColor),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete',
+                style: TextStyle(fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    final password = passwordController.text.trim();
+    if (password.isEmpty) return;
+
+    final success = await ref
+        .read(userProfileViewModelProvider.notifier)
+        .deleteAccount(password: password);
+
+    if (success && mounted) {
+      final apiService = ref.read(apiServiceProvider);
+      await apiService.clearAuthToken();
+      ref.read(userProfileViewModelProvider.notifier).clearProfile();
+      NavigationService.pushAndRemoveUntil(child: const LoginScreen());
+    } else if (mounted) {
+      final errorMsg = ref.read(userProfileViewModelProvider).errorMessage;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMsg ??
+              'Failed to delete account. Please check your password and try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Future<void> _handleLogout() async {
     final apiService = ref.read(apiServiceProvider);
     final userProfileNotifier = ref.read(userProfileViewModelProvider.notifier);
@@ -39,7 +122,14 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
     // Clear tokens and profile
     await apiService.clearAuthToken();
     userProfileNotifier.clearProfile();
-    // RestartWidget.restartApp(context);
+
+    // Log out from RevenueCat
+    try {
+      final iapService = ref.read(iapServiceProvider);
+      if (iapService.isConfigured) {
+        await iapService.logout();
+      }
+    } catch (_) {}
 
     // Navigate to login
     if (mounted) {
@@ -186,12 +276,26 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
                         isFromSettings: true,
                       ));
                     }),
-                settingTile(
-                    title: "Notifications",
-                    icon: Switch.adaptive(
-                        activeColor: AppColors.primaryColor,
-                        value: true,
-                        onChanged: (val) {})),
+                // settingTile(
+                //     title: "Notifications",
+                //     icon: Switch.adaptive(
+                //         activeColor: AppColors.primaryColor,
+                //         value: true,
+                //         onChanged: (val) {})),
+                // settingTile(
+                //     title: "Subscription",
+                //     onTap: () {
+                //       final vm =
+                //           ref.read(subscriptionViewModelProvider.notifier);
+                //       vm.presentPaywallIfNeeded();
+                //     }),
+                // settingTile(
+                //     title: "Manage Subscription",
+                //     onTap: () {
+                //       final vm =
+                //           ref.read(subscriptionViewModelProvider.notifier);
+                //       vm.presentCustomerCenter();
+                //     }),
                 settingTile(
                     title: "Referal",
                     onTap: () {
@@ -209,22 +313,22 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
                 ),
                 const SizedBox(height: 10),
                 CustomYafButton(
-                  color: Colors.white,
-                  textColor: Colors.black,
-                  text: "Delete",
-                  onPressed: () {},
+                  color: Colors.red,
+                  textColor: Colors.white,
+                  text: "Delete Account",
+                  onPressed: _handleDeleteAccount,
                 ),
-                const SizedBox(height: 5),
-                const Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    "Reset Goals",
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: AppFonts.lato),
-                  ),
-                ),
+                // const SizedBox(height: 5),
+                // const Align(
+                //   alignment: Alignment.center,
+                //   child: Text(
+                //     "Reset Goals",
+                //     style: TextStyle(
+                //         fontSize: 16,
+                //         fontWeight: FontWeight.w700,
+                //         fontFamily: AppFonts.lato),
+                //   ),
+                // ),
               ],
             ),
           ),

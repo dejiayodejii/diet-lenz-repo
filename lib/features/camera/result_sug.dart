@@ -104,26 +104,26 @@ class SuggestResultScreen extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: firstSuggestion?.suggestedImage != null
-                          ? Image.network(firstSuggestion!.suggestedImage!,
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                              errorBuilder: (ctx, err, st) => Image.asset(
-                                    AppImages.salad,
-                                    scale: 2,
-                                    height: 60,
-                                    width: 60,
-                                  ))
-                          : Image.network(
-                              'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=200&auto=format&fit=crop',
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                            ),
-                    ),
+                    // ClipRRect(
+                    //   borderRadius: BorderRadius.circular(8),
+                    //   child: firstSuggestion?.suggestedImage != null
+                    //       ? Image.network(firstSuggestion!.suggestedImage!,
+                    //           width: 60,
+                    //           height: 60,
+                    //           fit: BoxFit.cover,
+                    //           errorBuilder: (ctx, err, st) => Image.asset(
+                    //                 AppImages.salad,
+                    //                 scale: 2,
+                    //                 height: 60,
+                    //                 width: 60,
+                    //               ))
+                    //       : Image.network(
+                    //           'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=200&auto=format&fit=crop',
+                    //           width: 60,
+                    //           height: 60,
+                    //           fit: BoxFit.cover,
+                    //         ),
+                    // ),
                     const SizedBox(width: 15),
                     Expanded(
                       child: Text(
@@ -221,8 +221,7 @@ class MealOptionsScreen extends StatelessWidget {
                             "${suggestion.totalMacros?.carbs?.value?.toStringAsFixed(0) ?? "0"}g",
                         fat:
                             "${suggestion.totalMacros?.fat?.value?.toStringAsFixed(0) ?? "0"}g",
-                        imageUrl: suggestion.suggestedImage ??
-                            'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000&auto=format&fit=crop',
+                        imageUrl: "",
                         suggestion: suggestion,
                       )),
                   const SizedBox(height: 20),

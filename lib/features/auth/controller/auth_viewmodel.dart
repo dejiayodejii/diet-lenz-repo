@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:diet_lenz/api_client/lib/api.dart';
 import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/services/api_service.dart';
+import 'package:diet_lenz/core/services/iap_service.dart';
+import 'package:diet_lenz/core/services/push_notification_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Extension to extract error message from ApiException
@@ -57,16 +60,21 @@ class AuthState {
 final authViewModelProvider =
     StateNotifierProvider<AuthViewModel, AuthState>((ref) {
   final apiService = ref.watch(apiServiceProvider);
-  return AuthViewModel(apiService);
+  final iapService = ref.watch(iapServiceProvider);
+  final pushService = ref.watch(pushNotificationServiceProvider);
+  return AuthViewModel(apiService, iapService, pushService);
 });
 
 /// Auth ViewModel with all authentication methods
 class AuthViewModel extends StateNotifier<AuthState> {
-  AuthViewModel(this._apiService) : super(AuthState()) {
+  AuthViewModel(this._apiService, this._iapService, this._pushService)
+      : super(AuthState()) {
     _checkAuthStatus();
   }
 
   final ApiService _apiService;
+  final IAPService _iapService;
+  final PushNotificationService _pushService;
 
   /// Check if user is already authenticated on app start
   void _checkAuthStatus() {
@@ -114,14 +122,14 @@ class AuthViewModel extends StateNotifier<AuthState> {
       // Create device request (if you need device info)
       final loginWithDeviceRequest = LoginWithDeviceRequest(
         login: loginRequest,
-        device: deviceId != null
-            ? RegisterDeviceRequest(
-                pushToken: 'ppooii',
-                platform: RegisterDeviceRequestPlatformEnum.IOS,
-                deviceId: deviceId,
-                appVersion: deviceName,
-              )
-            : null,
+        device: RegisterDeviceRequest(
+          pushToken: _pushService.fcmToken ?? '',
+          platform: Platform.isIOS
+              ? RegisterDeviceRequestPlatformEnum.IOS
+              : RegisterDeviceRequestPlatformEnum.ANDROID,
+          deviceId: deviceId,
+          appVersion: deviceName,
+        ),
       );
 
       // Call the API
@@ -136,6 +144,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
         // Save auth response to local storage
         await _saveAuthResponseToStorage(response);
+
+        // Identify user with RevenueCat
+        await _identifyWithRevenueCat(response.userId);
 
         state = state.copyWith(
           isLoading: false,
@@ -152,6 +163,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
         return false;
       }
     } on ApiException catch (e) {
+      print("eee ${e.toString()}");
       // API returned an error response (400, 401, 500, etc.)
       state = state.copyWith(
         isLoading: false,
@@ -159,6 +171,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
       );
       return false;
     } catch (e) {
+      print(e.toString());
       // Network error, parsing error, or other unexpected errors
       state = state.copyWith(
         isLoading: false,
@@ -196,6 +209,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
         // Save auth response to local storage
         await _saveAuthResponseToStorage(response);
+
+        // Identify user with RevenueCat
+        await _identifyWithRevenueCat(response.userId);
 
         state = state.copyWith(
           isLoading: false,
@@ -266,12 +282,14 @@ class AuthViewModel extends StateNotifier<AuthState> {
     try {
       final socialLoginRequest = SocialLoginRequest(
         idToken: idToken,
-        device: deviceId != null
-            ? RegisterDeviceRequest(
-                deviceId: deviceId,
-                appVersion: deviceName,
-              )
-            : null,
+        device: RegisterDeviceRequest(
+          pushToken: _pushService.fcmToken ?? "",
+          platform: Platform.isIOS
+              ? RegisterDeviceRequestPlatformEnum.IOS
+              : RegisterDeviceRequestPlatformEnum.ANDROID,
+          deviceId: deviceId,
+          appVersion: deviceName,
+        ),
       );
 
       final response =
@@ -285,6 +303,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
         // Save auth response to local storage
         await _saveAuthResponseToStorage(response);
+
+        // Identify user with RevenueCat
+        await _identifyWithRevenueCat(response.userId);
 
         state = state.copyWith(
           isLoading: false,
@@ -321,12 +342,14 @@ class AuthViewModel extends StateNotifier<AuthState> {
     try {
       final socialLoginRequest = SocialLoginRequest(
         idToken: idToken,
-        device: deviceId != null
-            ? RegisterDeviceRequest(
-                deviceId: deviceId,
-                appVersion: deviceName,
-              )
-            : null,
+        device: RegisterDeviceRequest(
+          pushToken: _pushService.fcmToken ?? "",
+          platform: Platform.isIOS
+              ? RegisterDeviceRequestPlatformEnum.IOS
+              : RegisterDeviceRequestPlatformEnum.ANDROID,
+          deviceId: deviceId,
+          appVersion: deviceName,
+        ),
       );
 
       final response = await _apiService.authApi.appleLogin(socialLoginRequest);
@@ -339,6 +362,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
         // Save auth response to local storage
         await _saveAuthResponseToStorage(response);
+
+        // Identify user with RevenueCat
+        await _identifyWithRevenueCat(response.userId);
 
         state = state.copyWith(
           isLoading: false,
@@ -426,13 +452,36 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
   /// Logout user
   Future<void> logout() async {
+    // Log out from RevenueCat (creates anonymous user)
+    try {
+      if (_iapService.isConfigured) {
+        await _iapService.logout();
+      }
+    } catch (e) {
+      print('⚠️ RevenueCat logout error (non-fatal): $e');
+    }
+
     await _apiService.clearAuthToken();
     state = AuthState(); // Reset to initial state
+  }
+
+  /// Identify the user with RevenueCat after authentication.
+  Future<void> _identifyWithRevenueCat(String? userId) async {
+    if (userId == null || userId.isEmpty) return;
+    try {
+      if (_iapService.isConfigured) {
+        await _iapService.login(userId);
+      }
+    } catch (e) {
+      print('⚠️ RevenueCat login error (non-fatal): $e');
+    }
   }
 
   /// Parse API error messages
   String _parseApiError(ApiException e) {
     final errorMessage = e.extractMessage;
+
+    print("extracted message is $errorMessage");
 
     print("Api exception is $e and  API Error: $errorMessage");
 

@@ -115,7 +115,7 @@ class _CalorieProgressCardState extends State<CalorieProgressCard>
     double progress = widget.currentCalories / widget.targetCalories;
 
     return Container(
-      width: 400,
+      width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: const Color(0xFF2A2A2A),

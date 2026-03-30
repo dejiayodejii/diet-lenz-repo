@@ -26,16 +26,6 @@ void main() {
       // TODO
     });
 
-    // int pageSize
-    test('to test the property `pageSize`', () async {
-      // TODO
-    });
-
-    // SortObject sort
-    test('to test the property `sort`', () async {
-      // TODO
-    });
-
     // bool paged
     test('to test the property `paged`', () async {
       // TODO
@@ -43,6 +33,16 @@ void main() {
 
     // int pageNumber
     test('to test the property `pageNumber`', () async {
+      // TODO
+    });
+
+    // int pageSize
+    test('to test the property `pageSize`', () async {
+      // TODO
+    });
+
+    // SortObject sort
+    test('to test the property `sort`', () async {
       // TODO
     });
 

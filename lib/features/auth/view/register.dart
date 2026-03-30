@@ -5,7 +5,8 @@ import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/core/utils/loader.dart';
 import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
-import 'package:diet_lenz/features/auth/view/referral.dart';
+import 'package:diet_lenz/features/auth/view/use_referral.dart';
+import 'package:diet_lenz/features/auth/view/verify_otp.dart';
 import 'package:diet_lenz/features/auth/view/widgets/social_signup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -210,6 +211,10 @@ class _LoginScreenState extends ConsumerState<SignUpScreen> {
                                     lastName: lastNameController.text.trim(),
                                   );
                                   if (response) {
+                                    // NavigationService.push(
+                                    //     child: VerifyOTPScreen(
+                                    //         email:
+                                    //             emailController.text.trim()));
                                     NavigationService.push(
                                         child: ReferralScreen(
                                       email: emailController.text.trim(),

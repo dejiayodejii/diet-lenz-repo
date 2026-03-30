@@ -16,8 +16,6 @@ class HealthChart extends StatefulWidget {
 }
 
 class _HealthChartState extends State<HealthChart> {
-  int? hoveredIndex;
-
   // Sample data - replace with your actual data
   final List<FlSpot> calorieData = [
     FlSpot(0, 20),
@@ -125,17 +123,8 @@ class _HealthChartState extends State<HealthChart> {
           maxY: 600,
           lineTouchData: LineTouchData(
             enabled: true,
-            touchCallback: (FlTouchEvent event, LineTouchResponse? response) {
-              if (response == null || response.lineBarSpots == null) {
-                setState(() {
-                  hoveredIndex = null;
-                });
-                return;
-              }
-              setState(() {
-                hoveredIndex = response.lineBarSpots!.first.spotIndex;
-              });
-            },
+            touchCallback: (FlTouchEvent event, LineTouchResponse? response) {},
+            handleBuiltInTouches: true,
             getTouchedSpotIndicator:
                 (LineChartBarData barData, List<int> spotIndexes) {
               return spotIndexes.map((spotIndex) {

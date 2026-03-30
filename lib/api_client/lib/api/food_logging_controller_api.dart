@@ -303,7 +303,10 @@ class FoodLoggingControllerApi {
   }
 
   /// Performs an HTTP 'GET /api/v1/food/recipes' operation and returns the [Response].
-  Future<Response> getUserRecipesWithHttpInfo() async {
+  /// Parameters:
+  ///
+  /// * [DateTime] date:
+  Future<Response> getUserRecipesWithHttpInfo({ DateTime? date, }) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/food/recipes';
 
@@ -313,6 +316,10 @@ class FoodLoggingControllerApi {
     final queryParams = <QueryParam>[];
     final headerParams = <String, String>{};
     final formParams = <String, String>{};
+
+    if (date != null) {
+      queryParams.addAll(_queryParams('', 'date', date));
+    }
 
     const contentTypes = <String>[];
 
@@ -328,8 +335,11 @@ class FoodLoggingControllerApi {
     );
   }
 
-  Future<List<RecipeResponseDto>?> getUserRecipes() async {
-    final response = await getUserRecipesWithHttpInfo();
+  /// Parameters:
+  ///
+  /// * [DateTime] date:
+  Future<List<RecipeResponseDto>?> getUserRecipes({ DateTime? date, }) async {
+    final response = await getUserRecipesWithHttpInfo( date: date, );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
