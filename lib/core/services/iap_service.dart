@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
@@ -148,6 +149,7 @@ class IAPService {
   Future<bool> isPremium() async {
     try {
       final info = await Purchases.getCustomerInfo();
+      log('🔍 Customer info fetched: $info');
       return info.entitlements.all[entitlementId]?.isActive ?? false;
     } catch (e) {
       print('❌ Error checking entitlement: $e');

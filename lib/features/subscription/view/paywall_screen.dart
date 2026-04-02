@@ -1,5 +1,7 @@
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
+import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/features/bottom_nav/bottom.dart';
 import 'package:diet_lenz/features/subscription/controller/subscription_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,7 +22,13 @@ class PaywallScreen extends ConsumerStatefulWidget {
   /// If already premium, the screen pops immediately.
   final bool onlyIfNeeded;
 
-  const PaywallScreen({super.key, this.onlyIfNeeded = false});
+  /// If true, the user cannot dismiss the paywall without subscribing.
+  /// On purchase, navigates directly to BottomNavScreen.
+  /// On dismiss without subscribing, re-presents the paywall.
+  final bool mandatory;
+
+  const PaywallScreen(
+      {super.key, this.onlyIfNeeded = false, this.mandatory = false});
 
   @override
   ConsumerState<PaywallScreen> createState() => _PaywallScreenState();
@@ -47,51 +55,69 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       }
     }
 
-    setState(() => _loading = false);
+    if (mounted) setState(() => _loading = false);
 
     // Present the RevenueCat paywall modal
     final purchased = widget.onlyIfNeeded
         ? await vm.presentPaywallIfNeeded()
         : await vm.presentPaywall();
 
-    if (mounted) {
+    if (!mounted) return;
+
+    if (widget.mandatory) {
+      // Verify actual subscription status after modal closes
+      final isPremium = await vm.checkPremiumStatus();
+      if (!mounted) return;
+      if (isPremium) {
+        NavigationService.pushAndRemoveUntil(child: const BottomNavScreen());
+      } else {
+        // Not subscribed — loop back and re-present the paywall
+        if (mounted) setState(() => _loading = true);
+        await _showPaywall();
+      }
+    } else {
       Navigator.of(context).pop(purchased);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(false),
-        ),
-      ),
-      backgroundColor: Colors.black,
-      body: _loading
-          ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(
-                    color: AppColors.primaryColor,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Loading...',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                      fontFamily: AppFonts.lato,
-                    ),
-                  ),
-                ],
+    return PopScope(
+      canPop: !widget.mandatory,
+      child: Scaffold(
+        appBar: widget.mandatory
+            ? null
+            : AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                leading: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => Navigator.of(context).pop(false),
+                ),
               ),
-            )
-          : const SizedBox.shrink(),
+        backgroundColor: Colors.black,
+        body: _loading
+            ? const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      color: AppColors.primaryColor,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Loading...',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                        fontFamily: AppFonts.lato,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : const SizedBox.shrink(),
+      ),
     );
   }
 }

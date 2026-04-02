@@ -157,13 +157,19 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
 
   /// Check whether the user currently has an active "Diet Lenz Pro" entitlement
   Future<bool> checkPremiumStatus() async {
-    final isPremium = await _iapService.isPremium();
-    final customerInfo = await _iapService.getCustomerInfo();
-    state = state.copyWith(
-      isPremium: isPremium,
-      customerInfo: customerInfo,
-    );
-    return isPremium;
+    try {
+  final isPremium = await _iapService.isPremium();
+  final customerInfo = await _iapService.getCustomerInfo();
+  state = state.copyWith(
+    isPremium: isPremium,
+    customerInfo: customerInfo,
+  );
+  print('Checked premium status: $isPremium');
+  return isPremium;
+} catch (e) {
+  log('Error checking premium status: $e');
+  return false;
+}
   }
 
   // ──────────────────────────────────────────────────────────────────────────

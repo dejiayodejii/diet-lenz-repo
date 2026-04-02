@@ -10,9 +10,9 @@
 
 part of openapi.api;
 
-
 class FoodLoggingControllerApi {
-  FoodLoggingControllerApi([ApiClient? apiClient]) : apiClient = apiClient ?? defaultApiClient;
+  FoodLoggingControllerApi([ApiClient? apiClient])
+      : apiClient = apiClient ?? defaultApiClient;
 
   final ApiClient apiClient;
 
@@ -29,7 +29,6 @@ class FoodLoggingControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -50,9 +49,12 @@ class FoodLoggingControllerApi {
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'StreakInfoDto',) as StreakInfoDto;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'StreakInfoDto',
+      ) as StreakInfoDto;
     }
     return null;
   }
@@ -61,7 +63,9 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [DateTime] date:
-  Future<Response> getDashboardWithHttpInfo({ DateTime? date, }) async {
+  Future<Response> getDashboardWithHttpInfo({
+    DateTime? date,
+  }) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/food/dashboard';
 
@@ -73,11 +77,11 @@ class FoodLoggingControllerApi {
     final formParams = <String, String>{};
 
     if (date != null) {
-      queryParams.addAll(_queryParams('', 'date', date));
+      queryParams.addAll(_queryParams('', 'date',
+          '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}'));
     }
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -93,17 +97,24 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [DateTime] date:
-  Future<DashboardResponseDto?> getDashboard({ DateTime? date, }) async {
-    final response = await getDashboardWithHttpInfo( date: date, );
+  Future<DashboardResponseDto?> getDashboard({
+    DateTime? date,
+  }) async {
+    final response = await getDashboardWithHttpInfo(
+      date: date,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'DashboardResponseDto',) as DashboardResponseDto;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'DashboardResponseDto',
+      ) as DashboardResponseDto;
     }
     return null;
   }
@@ -121,7 +132,6 @@ class FoodLoggingControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -142,12 +152,13 @@ class FoodLoggingControllerApi {
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
       final responseBody = await _decodeBodyBytes(response);
-      return (await apiClient.deserializeAsync(responseBody, 'List<FavoriteRecipeResponseDto>') as List)
-        .cast<FavoriteRecipeResponseDto>()
-        .toList(growable: false);
-
+      return (await apiClient.deserializeAsync(
+              responseBody, 'List<FavoriteRecipeResponseDto>') as List)
+          .cast<FavoriteRecipeResponseDto>()
+          .toList(growable: false);
     }
     return null;
   }
@@ -165,7 +176,6 @@ class FoodLoggingControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -186,9 +196,12 @@ class FoodLoggingControllerApi {
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return Map<String, int>.from(await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'Map<String, int>'),);
-
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return Map<String, int>.from(
+        await apiClient.deserializeAsync(
+            await _decodeBodyBytes(response), 'Map<String, int>'),
+      );
     }
     return null;
   }
@@ -197,10 +210,12 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [String] recipeId (required):
-  Future<Response> getRecipeByIdWithHttpInfo(String recipeId,) async {
+  Future<Response> getRecipeByIdWithHttpInfo(
+    String recipeId,
+  ) async {
     // ignore: prefer_const_declarations
-    final path = r'/api/v1/food/recipes/{recipeId}'
-      .replaceAll('{recipeId}', recipeId);
+    final path =
+        r'/api/v1/food/recipes/{recipeId}'.replaceAll('{recipeId}', recipeId);
 
     // ignore: prefer_final_locals
     Object? postBody;
@@ -210,7 +225,6 @@ class FoodLoggingControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -226,17 +240,24 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [String] recipeId (required):
-  Future<RecipeResponseDto?> getRecipeById(String recipeId,) async {
-    final response = await getRecipeByIdWithHttpInfo(recipeId,);
+  Future<RecipeResponseDto?> getRecipeById(
+    String recipeId,
+  ) async {
+    final response = await getRecipeByIdWithHttpInfo(
+      recipeId,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'RecipeResponseDto',) as RecipeResponseDto;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'RecipeResponseDto',
+      ) as RecipeResponseDto;
     }
     return null;
   }
@@ -247,7 +268,10 @@ class FoodLoggingControllerApi {
   /// * [String] macroTarget:
   ///
   /// * [int] limit:
-  Future<Response> getRecommendationsWithHttpInfo({ String? macroTarget, int? limit, }) async {
+  Future<Response> getRecommendationsWithHttpInfo({
+    String? macroTarget,
+    int? limit,
+  }) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/food/recipes/recommendations';
 
@@ -267,7 +291,6 @@ class FoodLoggingControllerApi {
 
     const contentTypes = <String>[];
 
-
     return apiClient.invokeAPI(
       path,
       'GET',
@@ -284,20 +307,27 @@ class FoodLoggingControllerApi {
   /// * [String] macroTarget:
   ///
   /// * [int] limit:
-  Future<List<RecipeResponseDto>?> getRecommendations({ String? macroTarget, int? limit, }) async {
-    final response = await getRecommendationsWithHttpInfo( macroTarget: macroTarget, limit: limit, );
+  Future<List<RecipeResponseDto>?> getRecommendations({
+    String? macroTarget,
+    int? limit,
+  }) async {
+    final response = await getRecommendationsWithHttpInfo(
+      macroTarget: macroTarget,
+      limit: limit,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
       final responseBody = await _decodeBodyBytes(response);
-      return (await apiClient.deserializeAsync(responseBody, 'List<RecipeResponseDto>') as List)
-        .cast<RecipeResponseDto>()
-        .toList(growable: false);
-
+      return (await apiClient.deserializeAsync(
+              responseBody, 'List<RecipeResponseDto>') as List)
+          .cast<RecipeResponseDto>()
+          .toList(growable: false);
     }
     return null;
   }
@@ -306,7 +336,9 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [DateTime] date:
-  Future<Response> getUserRecipesWithHttpInfo({ DateTime? date, }) async {
+  Future<Response> getUserRecipesWithHttpInfo({
+    DateTime? date,
+  }) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/food/recipes';
 
@@ -318,11 +350,11 @@ class FoodLoggingControllerApi {
     final formParams = <String, String>{};
 
     if (date != null) {
-      queryParams.addAll(_queryParams('', 'date', date));
+      queryParams.addAll(_queryParams('', 'date',
+          '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}'));
     }
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -338,20 +370,25 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [DateTime] date:
-  Future<List<RecipeResponseDto>?> getUserRecipes({ DateTime? date, }) async {
-    final response = await getUserRecipesWithHttpInfo( date: date, );
+  Future<List<RecipeResponseDto>?> getUserRecipes({
+    DateTime? date,
+  }) async {
+    final response = await getUserRecipesWithHttpInfo(
+      date: date,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
       final responseBody = await _decodeBodyBytes(response);
-      return (await apiClient.deserializeAsync(responseBody, 'List<RecipeResponseDto>') as List)
-        .cast<RecipeResponseDto>()
-        .toList(growable: false);
-
+      return (await apiClient.deserializeAsync(
+              responseBody, 'List<RecipeResponseDto>') as List)
+          .cast<RecipeResponseDto>()
+          .toList(growable: false);
     }
     return null;
   }
@@ -360,7 +397,9 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [DateTime] startDate:
-  Future<Response> getWeeklyTrendWithHttpInfo({ DateTime? startDate, }) async {
+  Future<Response> getWeeklyTrendWithHttpInfo({
+    DateTime? startDate,
+  }) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/food/trends/weekly';
 
@@ -377,7 +416,6 @@ class FoodLoggingControllerApi {
 
     const contentTypes = <String>[];
 
-
     return apiClient.invokeAPI(
       path,
       'GET',
@@ -392,17 +430,24 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [DateTime] startDate:
-  Future<WeeklyTrendDto?> getWeeklyTrend({ DateTime? startDate, }) async {
-    final response = await getWeeklyTrendWithHttpInfo( startDate: startDate, );
+  Future<WeeklyTrendDto?> getWeeklyTrend({
+    DateTime? startDate,
+  }) async {
+    final response = await getWeeklyTrendWithHttpInfo(
+      startDate: startDate,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'WeeklyTrendDto',) as WeeklyTrendDto;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'WeeklyTrendDto',
+      ) as WeeklyTrendDto;
     }
     return null;
   }
@@ -411,7 +456,9 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [LogMealRequestDto] logMealRequestDto (required):
-  Future<Response> logMealWithHttpInfo(LogMealRequestDto logMealRequestDto,) async {
+  Future<Response> logMealWithHttpInfo(
+    LogMealRequestDto logMealRequestDto,
+  ) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/food/log-meal';
 
@@ -423,7 +470,6 @@ class FoodLoggingControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>['application/json'];
-
 
     return apiClient.invokeAPI(
       path,
@@ -439,17 +485,24 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [LogMealRequestDto] logMealRequestDto (required):
-  Future<MealLogResponseDto?> logMeal(LogMealRequestDto logMealRequestDto,) async {
-    final response = await logMealWithHttpInfo(logMealRequestDto,);
+  Future<MealLogResponseDto?> logMeal(
+    LogMealRequestDto logMealRequestDto,
+  ) async {
+    final response = await logMealWithHttpInfo(
+      logMealRequestDto,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'MealLogResponseDto',) as MealLogResponseDto;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'MealLogResponseDto',
+      ) as MealLogResponseDto;
     }
     return null;
   }
@@ -458,7 +511,9 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [String] ingredient (required):
-  Future<Response> searchByIngredientWithHttpInfo(String ingredient,) async {
+  Future<Response> searchByIngredientWithHttpInfo(
+    String ingredient,
+  ) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/food/recipes/search/by-ingredient';
 
@@ -469,10 +524,9 @@ class FoodLoggingControllerApi {
     final headerParams = <String, String>{};
     final formParams = <String, String>{};
 
-      queryParams.addAll(_queryParams('', 'ingredient', ingredient));
+    queryParams.addAll(_queryParams('', 'ingredient', ingredient));
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -488,20 +542,25 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [String] ingredient (required):
-  Future<List<RecipeResponseDto>?> searchByIngredient(String ingredient,) async {
-    final response = await searchByIngredientWithHttpInfo(ingredient,);
+  Future<List<RecipeResponseDto>?> searchByIngredient(
+    String ingredient,
+  ) async {
+    final response = await searchByIngredientWithHttpInfo(
+      ingredient,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
       final responseBody = await _decodeBodyBytes(response);
-      return (await apiClient.deserializeAsync(responseBody, 'List<RecipeResponseDto>') as List)
-        .cast<RecipeResponseDto>()
-        .toList(growable: false);
-
+      return (await apiClient.deserializeAsync(
+              responseBody, 'List<RecipeResponseDto>') as List)
+          .cast<RecipeResponseDto>()
+          .toList(growable: false);
     }
     return null;
   }
@@ -510,7 +569,9 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [String] query (required):
-  Future<Response> searchRecipesWithHttpInfo(String query,) async {
+  Future<Response> searchRecipesWithHttpInfo(
+    String query,
+  ) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/food/recipes/search';
 
@@ -521,10 +582,9 @@ class FoodLoggingControllerApi {
     final headerParams = <String, String>{};
     final formParams = <String, String>{};
 
-      queryParams.addAll(_queryParams('', 'query', query));
+    queryParams.addAll(_queryParams('', 'query', query));
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -540,20 +600,25 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [String] query (required):
-  Future<List<RecipeResponseDto>?> searchRecipes(String query,) async {
-    final response = await searchRecipesWithHttpInfo(query,);
+  Future<List<RecipeResponseDto>?> searchRecipes(
+    String query,
+  ) async {
+    final response = await searchRecipesWithHttpInfo(
+      query,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
       final responseBody = await _decodeBodyBytes(response);
-      return (await apiClient.deserializeAsync(responseBody, 'List<RecipeResponseDto>') as List)
-        .cast<RecipeResponseDto>()
-        .toList(growable: false);
-
+      return (await apiClient.deserializeAsync(
+              responseBody, 'List<RecipeResponseDto>') as List)
+          .cast<RecipeResponseDto>()
+          .toList(growable: false);
     }
     return null;
   }
@@ -562,10 +627,12 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [String] recipeId (required):
-  Future<Response> toggleFavoriteWithHttpInfo(String recipeId,) async {
+  Future<Response> toggleFavoriteWithHttpInfo(
+    String recipeId,
+  ) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/food/favorites/{recipeId}/toggle'
-      .replaceAll('{recipeId}', recipeId);
+        .replaceAll('{recipeId}', recipeId);
 
     // ignore: prefer_final_locals
     Object? postBody;
@@ -575,7 +642,6 @@ class FoodLoggingControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -591,8 +657,12 @@ class FoodLoggingControllerApi {
   /// Parameters:
   ///
   /// * [String] recipeId (required):
-  Future<void> toggleFavorite(String recipeId,) async {
-    final response = await toggleFavoriteWithHttpInfo(recipeId,);
+  Future<void> toggleFavorite(
+    String recipeId,
+  ) async {
+    final response = await toggleFavoriteWithHttpInfo(
+      recipeId,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }

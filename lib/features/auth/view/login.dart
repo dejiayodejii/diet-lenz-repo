@@ -6,6 +6,7 @@ import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/core/utils/loader.dart';
+import 'package:diet_lenz/core/widgets/biometric_setup_dialog.dart';
 import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
 import 'package:diet_lenz/features/auth/view/forgot_password.dart';
 import 'package:diet_lenz/features/auth/view/personization/activity_level.dart';
@@ -13,6 +14,7 @@ import 'package:diet_lenz/features/auth/view/personization/select_country.dart';
 import 'package:diet_lenz/features/auth/view/widgets/social_signup.dart';
 import 'package:diet_lenz/features/bottom_nav/bottom.dart';
 import 'package:diet_lenz/features/home/views/home.dart';
+import 'package:diet_lenz/features/subscription/controller/subscription_viewmodel.dart';
 import 'package:diet_lenz/features/subscription/view/paywall_screen.dart';
 import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
 import 'package:flutter/foundation.dart';
@@ -103,9 +105,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         CustomYafButton(
                             text: "Login",
                             onPressed: () async {
-                              NavigationService.push(
-                                  child: const PaywallScreen());
-                              return;
+                              // NavigationService.push(
+                              //     child: const PaywallScreen());
+                              // return;
                               final response = await authController.login(
                                   email: emailController.text,
                                   deviceId: '',
@@ -118,8 +120,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     .getUserProfile();
 
                                 if (hasProfile) {
-                                  NavigationService.push(
-                                      child: const BottomNavScreen());
+                                  final isPremium = await ref
+                                      .read(subscriptionViewModelProvider
+                                          .notifier)
+                                      .checkPremiumStatus();
+                                  // Prompt biometric setup before navigating
+                                  if (context.mounted) {
+                                    await showBiometricSetupDialog(
+                                        context, ref);
+                                  }
+                                  if (isPremium) {
+                                    NavigationService.push(
+                                        child: const BottomNavScreen());
+                                  } else {
+                                    NavigationService.push(
+                                        child: const PaywallScreen(
+                                            mandatory: true));
+                                  }
                                 } else {
                                   final currentError = ref
                                       .read(authViewModelProvider)

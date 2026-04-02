@@ -123,7 +123,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
       final loginWithDeviceRequest = LoginWithDeviceRequest(
         login: loginRequest,
         device: RegisterDeviceRequest(
-          pushToken: _pushService.fcmToken ?? '',
+          pushToken: _pushService.fcmToken ?? 'xyz',
           platform: Platform.isIOS
               ? RegisterDeviceRequestPlatformEnum.IOS
               : RegisterDeviceRequestPlatformEnum.ANDROID,
@@ -146,7 +146,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
         await _saveAuthResponseToStorage(response);
 
         // Identify user with RevenueCat
-        await _identifyWithRevenueCat(response.userId);
+        await _identifyWithRevenueCat(response.email);
 
         state = state.copyWith(
           isLoading: false,
@@ -211,7 +211,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
         await _saveAuthResponseToStorage(response);
 
         // Identify user with RevenueCat
-        await _identifyWithRevenueCat(response.userId);
+        await _identifyWithRevenueCat(response.email);
 
         state = state.copyWith(
           isLoading: false,
@@ -305,7 +305,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
         await _saveAuthResponseToStorage(response);
 
         // Identify user with RevenueCat
-        await _identifyWithRevenueCat(response.userId);
+        await _identifyWithRevenueCat(response.email);
 
         state = state.copyWith(
           isLoading: false,
@@ -364,7 +364,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
         await _saveAuthResponseToStorage(response);
 
         // Identify user with RevenueCat
-        await _identifyWithRevenueCat(response.userId);
+        await _identifyWithRevenueCat(response.email);
 
         state = state.copyWith(
           isLoading: false,
@@ -468,13 +468,12 @@ class AuthViewModel extends StateNotifier<AuthState> {
   /// Identify the user with RevenueCat after authentication.
   Future<void> _identifyWithRevenueCat(String? userId) async {
     if (userId == null || userId.isEmpty) return;
-    try {
-      if (_iapService.isConfigured) {
-        await _iapService.login(userId);
-      }
-    } catch (e) {
+    // Fire-and-forget: do not block the login flow waiting for RevenueCat
+    _iapService.login(userId).then((result) {
+      print('RevenueCat login result: $result');
+    }).catchError((Object e) {
       print('⚠️ RevenueCat login error (non-fatal): $e');
-    }
+    });
   }
 
   /// Parse API error messages

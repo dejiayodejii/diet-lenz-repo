@@ -10,4 +10,5 @@ class StorageKeys {
   static const String authResponseData = 'auth_response_data';
   static const String healthPermissionGranted = 'health_permission_granted';
   static const String userProfileData = 'user_profile_data';
+  static const String biometricEnabled = 'biometric_enabled';
 }

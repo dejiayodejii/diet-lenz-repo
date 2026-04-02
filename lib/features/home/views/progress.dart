@@ -29,37 +29,37 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     // Fetch streak data and health data when the screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(foodLoggingViewModelProvider.notifier).getCurrentStreak();
-      ref.read(healthProvider.notifier).checkPermissions();
+      // ref.read(healthProvider.notifier).checkPermissions();
     });
   }
 
-  TimeRange _getTimeRangeFromIndex(int index) {
-    switch (index) {
-      case 0:
-        return TimeRange.daily;
-      case 1:
-        return TimeRange.weekly;
-      case 2:
-        return TimeRange.monthly;
-      default:
-        return TimeRange.daily;
-    }
-  }
+  // TimeRange _getTimeRangeFromIndex(int index) {
+  //   switch (index) {
+  //     case 0:
+  //       return TimeRange.daily;
+  //     case 1:
+  //       return TimeRange.weekly;
+  //     case 2:
+  //       return TimeRange.monthly;
+  //     default:
+  //       return TimeRange.daily;
+  //   }
+  // }
 
   void _onTimeRangeChanged(int index) {
-    setState(() {
-      selectedIndex = index;
-    });
+    // setState(() {
+    //   selectedIndex = index;
+    // });
 
-    // Fetch health data for the selected time range
-    final timeRange = _getTimeRangeFromIndex(index);
-    ref.read(healthProvider.notifier).loadHealthData(timeRange);
+    // // Fetch health data for the selected time range
+    // final timeRange = _getTimeRangeFromIndex(index);
+    // ref.read(healthProvider.notifier).loadHealthData(timeRange);
   }
 
   @override
   Widget build(BuildContext context) {
     final foodLoggingState = ref.watch(foodLoggingViewModelProvider);
-    final healthState = ref.watch(healthProvider);
+    // final healthState = ref.watch(healthProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -67,14 +67,14 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
         centerTitle: false,
         title: const Text('Progress'),
         actions: [
-          if (healthState.hasData)
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () {
-                final timeRange = _getTimeRangeFromIndex(selectedIndex);
-                ref.read(healthProvider.notifier).refresh(timeRange);
-              },
-            ),
+          // if (healthState.hasData)
+          //   IconButton(
+          //     icon: const Icon(Icons.refresh),
+          //     onPressed: () {
+          //       final timeRange = _getTimeRangeFromIndex(selectedIndex);
+          //       ref.read(healthProvider.notifier).refresh(timeRange);
+          //     },
+          //   ),
         ],
       ),
       body: Padding(
@@ -89,60 +89,60 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               ),
               const SizedBox(height: 40),
 
-              // Health Permission Request
-              if (healthState.needsPermissions)
-                _HealthPermissionCard(
-                  onRequest: () async {
-                    final granted = await ref
-                        .read(healthProvider.notifier)
-                        .requestPermissions();
-                    if (!granted && context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Please install Health Connect from the Play Store to enable health tracking.',
-                          ),
-                          duration: Duration(seconds: 4),
-                        ),
-                      );
-                    }
-                  },
-                )
-              // Health Data Stats
-              else if (healthState.hasData) ...[
-                _HealthSourceAttribution(),
-                const SizedBox(height: 10),
-                _HealthStatsRow(healthData: healthState.healthData),
-              ]
-              // Loading State
-              else if (healthState.isLoading)
-                _HealthStatsLoading()
-              // Default/Placeholder
-              else ...[
-                _HealthSourceAttribution(),
-                const SizedBox(height: 10),
-                _HealthStatsRow(healthData: healthState.healthData),
-              ],
-              const SizedBox(height: 20),
-              const Text(
-                " Trends and Insights",
-                style: TextStyle(
-                  fontSize: 22,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              const SizedBox(height: 20),
-              SegmentedToggle(
-                options: const ['Daily', 'Weekly', 'Monthly'],
-                selectedIndex: selectedIndex,
-                onChanged: _onTimeRangeChanged,
-              ),
-              const SizedBox(height: 50),
-              HealthChart(
-                timeRange: _getTimeRangeFromIndex(selectedIndex),
-              ),
-              const SizedBox(height: 20),
+              // // Health Permission Request
+              // if (healthState.needsPermissions)
+              //   _HealthPermissionCard(
+              //     onRequest: () async {
+              //       final granted = await ref
+              //           .read(healthProvider.notifier)
+              //           .requestPermissions();
+              //       if (!granted && context.mounted) {
+              //         ScaffoldMessenger.of(context).showSnackBar(
+              //           const SnackBar(
+              //             content: Text(
+              //               'Please install Health Connect from the Play Store to enable health tracking.',
+              //             ),
+              //             duration: Duration(seconds: 4),
+              //           ),
+              //         );
+              //       }
+              //     },
+              //   )
+              // // Health Data Stats
+              // else if (healthState.hasData) ...[
+              //   _HealthSourceAttribution(),
+              //   const SizedBox(height: 10),
+              //   _HealthStatsRow(healthData: healthState.healthData),
+              // ]
+              // // Loading State
+              // else if (healthState.isLoading)
+              //   _HealthStatsLoading()
+              // // Default/Placeholder
+              // else ...[
+              //   _HealthSourceAttribution(),
+              //   const SizedBox(height: 10),
+              //   _HealthStatsRow(healthData: healthState.healthData),
+              // ],
+              // const SizedBox(height: 20),
+              // const Text(
+              //   " Trends and Insights",
+              //   style: TextStyle(
+              //     fontSize: 22,
+              //     color: Colors.white,
+              //     fontWeight: FontWeight.w400,
+              //   ),
+              // ),
+              // const SizedBox(height: 20),
+              // SegmentedToggle(
+              //   options: const ['Daily', 'Weekly', 'Monthly'],
+              //   selectedIndex: selectedIndex,
+              //   onChanged: _onTimeRangeChanged,
+              // ),
+              // const SizedBox(height: 50),
+              // // HealthChart(
+              // //   timeRange: _getTimeRangeFromIndex(selectedIndex),
+              // // ),
+              // const SizedBox(height: 20),
             ],
           ),
         ),

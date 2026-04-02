@@ -9,6 +9,8 @@ import 'package:diet_lenz/features/auth/view/login.dart';
 import 'package:diet_lenz/features/auth/view/use_referral.dart';
 import 'package:diet_lenz/features/auth/view/register.dart';
 import 'package:diet_lenz/features/bottom_nav/bottom.dart';
+import 'package:diet_lenz/features/subscription/controller/subscription_viewmodel.dart';
+import 'package:diet_lenz/features/subscription/view/paywall_screen.dart';
 import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:diet_lenz/component/custom_button.dart';
@@ -110,9 +112,19 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
     setState(() => _isLoading = false);
 
     if (hasProfile) {
-      NavigationService.pushAndRemoveUntil(child: const BottomNavScreen());
+      final isPremium = await ref
+          .read(subscriptionViewModelProvider.notifier)
+          .checkPremiumStatus();
+      if (!mounted) return;
+      if (isPremium) {
+        NavigationService.pushAndRemoveUntil(child: const BottomNavScreen());
+      } else {
+        NavigationService.push(child: const PaywallScreen(mandatory: true));
+      }
     } else {
-     ref.read(toastProvider).showSuccess('Sign-in successful! Please complete your profile.');
+      ref
+          .read(toastProvider)
+          .showSuccess('Sign-in successful! Please complete your profile.');
       // First-time social login user — go to referral, then plan setup
       NavigationService.pushAndRemoveUntil(
         child: const ReferralScreen(email: '', isSocialLogin: true),
@@ -124,45 +136,45 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Row(
-          children: [
-            Expanded(
-                child: Divider(
-              color: AppColors.surfaceGrey,
-            )),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text("Or",
-                  style: TextStyle(
-                      fontFamily: AppFonts.spaceGrotesk,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400)),
-            ),
-            Expanded(
-                child: Divider(
-              color: AppColors.surfaceGrey,
-            )),
-          ],
-        ),
-        const SizedBox(height: 25),
-        CustomYafButton(
-            color: AppColors.surfaceColor,
-            iconWidget: SvgPicture.asset(
-              AppImages.googleIcon,
-            ),
-            text: _isLoading ? "Signing in..." : "Continue with Google",
-            onPressed: _isLoading ? () {} : _handleGoogleSignIn),
-        const SizedBox(height: 15),
-        if (Platform.isIOS)
-          CustomYafButton(
-            color: AppColors.surfaceColor,
-            iconWidget: SvgPicture.asset(
-              AppImages.appleIcon,
-            ),
-            text: _isLoading ? "Signing in..." : "Continue with Apple",
-            onPressed: _isLoading ? () {} : _handleAppleSignIn,
-          ),
-        if (Platform.isIOS) const SizedBox(height: 15),
+        // const Row(
+        //   children: [
+        //     Expanded(
+        //         child: Divider(
+        //       color: AppColors.surfaceGrey,
+        //     )),
+        //     Padding(
+        //       padding: EdgeInsets.symmetric(horizontal: 8.0),
+        //       child: Text("Or",
+        //           style: TextStyle(
+        //               fontFamily: AppFonts.spaceGrotesk,
+        //               fontSize: 12,
+        //               fontWeight: FontWeight.w400)),
+        //     ),
+        //     Expanded(
+        //         child: Divider(
+        //       color: AppColors.surfaceGrey,
+        //     )),
+        //   ],
+        // ),
+        // const SizedBox(height: 25),
+        // CustomYafButton(
+        //     color: AppColors.surfaceColor,
+        //     iconWidget: SvgPicture.asset(
+        //       AppImages.googleIcon,
+        //     ),
+        //     text: _isLoading ? "Signing in..." : "Continue with Google",
+        //     onPressed: _isLoading ? () {} : _handleGoogleSignIn),
+        // const SizedBox(height: 15),
+        // if (Platform.isIOS)
+        //   CustomYafButton(
+        //     color: AppColors.surfaceColor,
+        //     iconWidget: SvgPicture.asset(
+        //       AppImages.appleIcon,
+        //     ),
+        //     text: _isLoading ? "Signing in..." : "Continue with Apple",
+        //     onPressed: _isLoading ? () {} : _handleAppleSignIn,
+        //   ),
+        // if (Platform.isIOS) const SizedBox(height: 15),
         InkWell(
           onTap: () {
             if (widget.isLogin) {

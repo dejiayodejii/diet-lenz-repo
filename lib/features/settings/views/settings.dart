@@ -5,6 +5,7 @@ import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/providers/api_providers.dart';
+import 'package:diet_lenz/core/providers/biometric_providers.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/iap_service.dart';
 import 'package:diet_lenz/core/widgets/restart_widget.dart';
@@ -113,6 +114,35 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
         ),
       );
     }
+  }
+
+  Future<void> _handleBiometricToggle(bool enable) async {
+    final biometricService = ref.read(biometricServiceProvider);
+    final isAvailable = await biometricService.isAvailable();
+
+    if (!isAvailable) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Biometric authentication is not available on this device.'),
+          ),
+        );
+      }
+      return;
+    }
+
+    if (enable) {
+      // Require biometric confirmation before enabling
+      final authenticated = await biometricService.authenticate(
+        reason: 'Confirm your identity to enable biometric login',
+      );
+      if (!authenticated) return;
+    }
+
+    await ref
+        .read(biometricEnabledNotifierProvider.notifier)
+        .setEnabled(enable);
   }
 
   Future<void> _handleLogout() async {
@@ -269,6 +299,19 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
                   },
                 ),
                 settingTile(
+                    title: "Biometric Login",
+                    icon: Consumer(
+                      builder: (context, ref, _) {
+                        final biometricEnabled =
+                            ref.watch(biometricEnabledNotifierProvider);
+                        return Switch.adaptive(
+                          activeColor: AppColors.primaryColor,
+                          value: biometricEnabled,
+                          onChanged: (val) => _handleBiometricToggle(val),
+                        );
+                      },
+                    )),
+                settingTile(
                     title: "Location",
                     onTap: () {
                       NavigationService.push(
@@ -289,13 +332,13 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
                 //           ref.read(subscriptionViewModelProvider.notifier);
                 //       vm.presentPaywallIfNeeded();
                 //     }),
-                // settingTile(
-                //     title: "Manage Subscription",
-                //     onTap: () {
-                //       final vm =
-                //           ref.read(subscriptionViewModelProvider.notifier);
-                //       vm.presentCustomerCenter();
-                //     }),
+                settingTile(
+                    title: "Manage Subscription",
+                    onTap: () {
+                      final vm =
+                          ref.read(subscriptionViewModelProvider.notifier);
+                      vm.presentCustomerCenter();
+                    }),
                 settingTile(
                     title: "Referal",
                     onTap: () {

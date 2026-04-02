@@ -55,6 +55,15 @@ class StorageRepository {
     await _storageService.remove(StorageKeys.authResponseData);
   }
 
+  // Biometric settings
+  Future<void> setBiometricEnabled(bool value) async {
+    await _storageService.setBool(StorageKeys.biometricEnabled, value);
+  }
+
+  bool isBiometricEnabled() {
+    return _storageService.getBool(StorageKeys.biometricEnabled) ?? false;
+  }
+
   // User related methods
   // Future<void> saveUserDetails({required User user}) async {
   //   // await _storageService.setString(StorageKeys.token, user.accessToken);
