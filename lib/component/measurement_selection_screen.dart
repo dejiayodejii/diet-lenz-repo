@@ -29,6 +29,10 @@ class MeasurementSelectionScreen extends StatefulWidget {
   final double? leftStep;
   final double? rightStep;
 
+  /// When true and in left-unit mode, shows two separate integer pickers
+  /// for feet and inches (e.g. 5'11") instead of a single decimal ruler.
+  final bool useCompoundLeftUnit;
+
   const MeasurementSelectionScreen({
     super.key,
     required this.title,
@@ -48,6 +52,7 @@ class MeasurementSelectionScreen extends StatefulWidget {
     this.rightToLeftConverter,
     this.leftStep,
     this.rightStep,
+    this.useCompoundLeftUnit = false,
   });
 
   @override
@@ -60,11 +65,37 @@ class _MeasurementSelectionScreenState
   late bool isLeftUnitSelected;
   late double selectedValue;
 
+  // Used only when useCompoundLeftUnit is true and in left-unit mode
+  int _feetValue = 5;
+  int _inchesValue = 7;
+
   @override
   void initState() {
     super.initState();
     isLeftUnitSelected = widget.initialLeftUnitSelected;
     selectedValue = widget.initialValue;
+    if (widget.useCompoundLeftUnit) {
+      if (isLeftUnitSelected) {
+        _initFeetAndInches(selectedValue);
+      } else if (widget.rightToLeftConverter != null) {
+        _initFeetAndInches(widget.rightToLeftConverter!(selectedValue));
+      }
+    }
+  }
+
+  void _initFeetAndInches(double decimalFeet) {
+    final minFt = (widget.minLeftValue ?? widget.minValue).toInt();
+    final maxFt = (widget.maxLeftValue ?? widget.maxValue).toInt();
+    int feet = decimalFeet.floor().clamp(minFt, maxFt);
+    int inches =
+        ((decimalFeet - decimalFeet.floor()) * 12).round().clamp(0, 11);
+    if (inches == 12) {
+      inches = 0;
+      feet = (feet + 1).clamp(minFt, maxFt);
+    }
+    _feetValue = feet;
+    _inchesValue = inches;
+    selectedValue = _feetValue + _inchesValue / 12.0;
   }
 
   String get currentUnit =>
@@ -91,6 +122,9 @@ class _MeasurementSelectionScreenState
         if (widget.rightToLeftConverter != null) {
           selectedValue = widget.rightToLeftConverter!(selectedValue);
         }
+        if (widget.useCompoundLeftUnit) {
+          _initFeetAndInches(selectedValue);
+        }
       } else {
         // Switched to Right
         if (widget.leftToRightConverter != null) {
@@ -105,6 +139,9 @@ class _MeasurementSelectionScreenState
 
   @override
   Widget build(BuildContext context) {
+    final bool isCompoundMode =
+        widget.useCompoundLeftUnit && isLeftUnitSelected;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -140,7 +177,7 @@ class _MeasurementSelectionScreenState
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 50),
+                  SizedBox(height: isCompoundMode ? 20 : 50),
                   UnitToggleWidget(
                     leftUnit: widget.leftUnit,
                     rightUnit: widget.rightUnit,
@@ -148,22 +185,27 @@ class _MeasurementSelectionScreenState
                     onLeftTap: () => _switchUnit(true),
                     onRightTap: () => _switchUnit(false),
                   ),
-                  const SizedBox(height: 80),
-                  MeasurementValueDisplay(
-                    value: selectedValue,
-                    unit: currentUnit,
-                  ),
-                  RulerPicker(
-                    minValue: currentMin,
-                    maxValue: currentMax,
-                    step: currentStep,
-                    initialValue: selectedValue,
-                    onValueChanged: (value) {
-                      setState(() {
-                        selectedValue = value;
-                      });
-                    },
-                  ),
+                  SizedBox(height: isCompoundMode ? 24 : 80),
+                  if (isCompoundMode)
+                    ..._buildCompoundFeetInches()
+                  else ...[
+                    MeasurementValueDisplay(
+                      value: selectedValue,
+                      unit: currentUnit,
+                    ),
+                    RulerPicker(
+                      key: ValueKey('ruler_$isLeftUnitSelected'),
+                      minValue: currentMin,
+                      maxValue: currentMax,
+                      step: currentStep,
+                      initialValue: selectedValue,
+                      onValueChanged: (value) {
+                        setState(() {
+                          selectedValue = value;
+                        });
+                      },
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -188,5 +230,113 @@ class _MeasurementSelectionScreenState
         ),
       ),
     );
+  }
+
+  List<Widget> _buildCompoundFeetInches() {
+    final minFt = (widget.minLeftValue ?? widget.minValue).toDouble();
+    final maxFt = (widget.maxLeftValue ?? widget.maxValue).toDouble();
+
+    return [
+      // Value display: 5'11"
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Text(
+            '$_feetValue',
+            style: const TextStyle(
+              fontSize: 64,
+              fontWeight: FontWeight.bold,
+              color: AppColors.white,
+              letterSpacing: -2,
+            ),
+          ),
+          const Text(
+            "'",
+            style: TextStyle(
+              fontSize: 48,
+              fontWeight: FontWeight.bold,
+              color: AppColors.white,
+            ),
+          ),
+          Text(
+            '$_inchesValue',
+            style: const TextStyle(
+              fontSize: 64,
+              fontWeight: FontWeight.bold,
+              color: AppColors.white,
+              letterSpacing: -2,
+            ),
+          ),
+          const Text(
+            '"',
+            style: TextStyle(
+              color: Color.fromRGBO(158, 160, 165, 1),
+              fontSize: 24,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 16),
+      // Feet ruler
+      const Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          'Feet',
+          style: TextStyle(
+            fontSize: 13,
+            color: Color.fromRGBO(158, 160, 165, 1),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+      const SizedBox(height: 4),
+      RulerPicker(
+        key: const ValueKey('feet_ruler'),
+        minValue: minFt,
+        maxValue: maxFt,
+        step: 1,
+        initialValue: _feetValue.toDouble(),
+        majorTickInterval: 1,
+        height: 90,
+        onValueChanged: (val) {
+          setState(() {
+            _feetValue = val.round();
+            selectedValue = _feetValue + _inchesValue / 12.0;
+          });
+        },
+      ),
+      const SizedBox(height: 12),
+      // Inches ruler
+      const Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          'Inches',
+          style: TextStyle(
+            fontSize: 13,
+            color: Color.fromRGBO(158, 160, 165, 1),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+      const SizedBox(height: 4),
+      RulerPicker(
+        key: const ValueKey('inches_ruler'),
+        minValue: 0,
+        maxValue: 11,
+        step: 1,
+        initialValue: _inchesValue.toDouble(),
+        majorTickInterval: 3,
+        height: 90,
+        onValueChanged: (val) {
+          setState(() {
+            _inchesValue = val.round();
+            selectedValue = _feetValue + _inchesValue / 12.0;
+          });
+        },
+      ),
+    ];
   }
 }

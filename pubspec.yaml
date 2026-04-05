@@ -61,7 +61,7 @@ dependencies:
   camera:
   image_picker: ^1.0.0  # For gallery image picking
   image: ^4.0.0  # For image compression
-  google_mlkit_barcode_scanning:
+  mobile_scanner: ^7.2.0
   rename_app:
   # health: ^13.3.0  # Health Connect & HealthKit integration
   permission_handler: ^11.3.0  # Runtime permissions

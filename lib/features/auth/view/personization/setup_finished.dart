@@ -122,8 +122,7 @@ class _PlanSetUpScreenState extends ConsumerState<PlanFinishedScreen> {
           ref.read(onboardingProfileProvider.notifier).reset();
           // Navigate to next screen
           // NavigationService.push(child: const SelectPaymentScreen());
-          NavigationService.pushAndRemoveUntil(
-              child: const BottomNavScreen()); // Close dialog
+          NavigationService.pushAndRemoveUntil(child: const BottomNavScreen());
         } else {
           ref.read(toastProvider).showError(
                 ref.read(userProfileViewModelProvider).errorMessage ??

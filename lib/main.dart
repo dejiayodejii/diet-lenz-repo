@@ -34,9 +34,9 @@ void main() async {
   final pushService = PushNotificationService();
   try {
     await pushService.initialize();
-    print('✅ Push notifications initialized');
+    // print('✅ Push notifications initialized');
   } catch (e) {
-    print('⚠️ Push notification init failed (non-fatal): $e');
+    // print('⚠️ Push notification init failed (non-fatal): $e');
   }
 
   // Initialize storage service

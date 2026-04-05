@@ -128,7 +128,8 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
   /// Initialize RevenueCat SDK and listen for entitlement changes
   Future<void> _initRevenueCat() async {
     try {
-      await _iapService.configure(appUserId: Platform.isIOS ? "appb37391a1f8" : "app3f5208cc8e");
+      await _iapService.configure(
+          appUserId: Platform.isIOS ? "appb37391a1f8" : "app3f5208cc8e");
 
       // Listen for entitlement changes (renewal, expiry, etc.)
       _customerInfoSub =
@@ -158,18 +159,18 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
   /// Check whether the user currently has an active "Diet Lenz Pro" entitlement
   Future<bool> checkPremiumStatus() async {
     try {
-  final isPremium = await _iapService.isPremium();
-  final customerInfo = await _iapService.getCustomerInfo();
-  state = state.copyWith(
-    isPremium: isPremium,
-    customerInfo: customerInfo,
-  );
-  print('Checked premium status: $isPremium');
-  return isPremium;
-} catch (e) {
-  log('Error checking premium status: $e');
-  return false;
-}
+      final isPremium = await _iapService.isPremium();
+      final customerInfo = await _iapService.getCustomerInfo();
+      state = state.copyWith(
+        isPremium: isPremium,
+        customerInfo: customerInfo,
+      );
+      print('Checked premium status: $isPremium');
+      return isPremium;
+    } catch (e) {
+      log('Error checking premium status: $e');
+      return false;
+    }
   }
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -270,7 +271,7 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
       // Sync with backend if purchase/restore happened
       if (result == PaywallResult.purchased ||
           result == PaywallResult.restored) {
-        await getMySubscription();
+       getMySubscription();
       }
 
       return state.isPremium;
@@ -452,17 +453,27 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
 
   /// Fetch current user subscription
   Future<bool> getMySubscription() async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: state.mySubscription == null, errorMessage: null);
 
     try {
-      final response = await _apiService.subscriptionApi.getMySubscription();
+      // Use the raw HTTP response to avoid the generated client's broken
+      // 'Object' deserializer — the server returns a plain JSON object on 200.
+      final response =
+          await _apiService.subscriptionApi.getMySubscriptionWithHttpInfo();
 
-      state = state.copyWith(
-        isLoading: false,
-        mySubscription: response,
-        errorMessage: null,
-      );
-      return true;
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final decoded = response.body.isNotEmpty
+            ? json.decode(response.body) as Map<String, dynamic>
+            : <String, dynamic>{};
+        state = state.copyWith(
+          isLoading: false,
+          mySubscription: decoded,
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        throw ApiException(response.statusCode, response.body);
+      }
     } on ApiException catch (e) {
       log('Failed to fetch subscription: ${e.code} - ${e.message}');
       state = state.copyWith(
@@ -481,14 +492,13 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
   }
 
   /// Verify Apple subscription receipt
-  Future<bool> verifyAppleSubscription(AppleSubscriptionVerifyRequest appleSubscriptionVerifyRequest) async {
+  Future<bool> verifyAppleSubscription(
+      AppleSubscriptionVerifyRequest appleSubscriptionVerifyRequest) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final response =
-          await _apiService.subscriptionApi.verifyAppleSubscription(
-          appleSubscriptionVerifyRequest
-      );
+      final response = await _apiService.subscriptionApi
+          .verifyAppleSubscription(appleSubscriptionVerifyRequest);
 
       state = state.copyWith(
         isLoading: false,
@@ -514,14 +524,13 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
   }
 
   /// Verify Google subscription purchase
-  Future<bool> verifyGoogleSubscription(GoogleSubscriptionVerifyRequest googleSubscriptionVerifyRequest) async {
+  Future<bool> verifyGoogleSubscription(
+      GoogleSubscriptionVerifyRequest googleSubscriptionVerifyRequest) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final response =
-          await _apiService.subscriptionApi.verifyGoogleSubscription(
-        googleSubscriptionVerifyRequest
-      );
+      final response = await _apiService.subscriptionApi
+          .verifyGoogleSubscription(googleSubscriptionVerifyRequest);
 
       state = state.copyWith(
         isLoading: false,
@@ -584,13 +593,17 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      await _apiService.subscriptionApi.applyReferral(referralApplyRequest);
+      // Use the raw HTTP response to avoid the generated client's broken
+      // 'Object' deserializer — the server returns {"message":"..."} on 200.
+      final response = await _apiService.subscriptionApi
+          .applyReferralWithHttpInfo(referralApplyRequest);
 
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: null,
-      );
-      return true;
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        state = state.copyWith(isLoading: false, errorMessage: null);
+        return true;
+      } else {
+        throw ApiException(response.statusCode, response.body);
+      }
     } on ApiException catch (e) {
       log('Failed to apply referral: ${e.code} - ${e.message}');
       state = state.copyWith(

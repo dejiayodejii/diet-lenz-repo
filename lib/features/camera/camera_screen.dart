@@ -18,7 +18,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart' as http_parser;
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
-import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:path_provider/path_provider.dart'; // Add path_provider
 
 class AICameraScreen extends ConsumerStatefulWidget {
@@ -160,22 +160,19 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
 
   /// Scan image for barcodes and return the first barcode value found
   Future<String?> _scanBarcodeFromImage(String imagePath) async {
-    final inputImage = InputImage.fromFilePath(imagePath);
-    final barcodeScanner = BarcodeScanner();
-
+    final controller = MobileScannerController();
     try {
-      final List<Barcode> barcodes =
-          await barcodeScanner.processImage(inputImage);
-
-      if (barcodes.isNotEmpty) {
-        // Return the first barcode's raw value
-        print('Barcode: ${barcodes.first.rawValue}');
-        return barcodes.first.rawValue;
+      final BarcodeCapture? result =
+          await controller.analyzeImage(imagePath);
+      if (result != null && result.barcodes.isNotEmpty) {
+        final value = result.barcodes.first.rawValue;
+        print('Barcode: $value');
+        return value;
       }
       print('No barcode found in image');
       return null;
     } finally {
-      barcodeScanner.close();
+      await controller.dispose();
     }
   }
 

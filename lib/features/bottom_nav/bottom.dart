@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/features/home/views/home.dart';
 import 'package:diet_lenz/features/home/views/progress.dart';
 import 'package:diet_lenz/features/settings/views/settings.dart';
 import 'package:diet_lenz/features/camera/camera_screen.dart';
+import 'package:diet_lenz/features/subscription/controller/subscription_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -36,6 +35,27 @@ class _BottomNavState extends ConsumerState<BottomNavScreen> {
       const AICameraScreen()
     ];
     super.initState();
+    // Show paywall once if user is not premium when they land on the home tab
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _checkPremiumOnLaunch());
+  }
+
+  Future<void> _checkPremiumOnLaunch() async {
+    final isPremium = await ref
+        .read(subscriptionViewModelProvider.notifier)
+        .checkPremiumStatus();
+    if (!isPremium && mounted) {
+      await ref.read(subscriptionViewModelProvider.notifier).presentPaywall();
+    }
+  }
+
+  Future<void> _navigateToScan() async {
+    final isPremium = ref.read(subscriptionViewModelProvider).isPremium;
+    if (!isPremium) {
+      await ref.read(subscriptionViewModelProvider.notifier).presentPaywall();
+      return;
+    }
+    setState(() => _selectedIndex = 3);
   }
 
   @override
@@ -137,11 +157,7 @@ class _BottomNavState extends ConsumerState<BottomNavScreen> {
   // Helper widget for the unique Scan button
   Widget _buildScanButton() {
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedIndex = 3;
-        });
-      },
+      onTap: _navigateToScan,
       child: Container(
         height: 60,
         width: 60,

@@ -22,6 +22,7 @@ class SelectHeightScreen extends ConsumerWidget {
       leftToRightConverter: (val) => val * 30.48,
       rightToLeftConverter: (val) => val / 30.48,
       leftStep: 0.1,
+      useCompoundLeftUnit: true,
       nextScreen: const SelectAgeScreen(),
       onContinue: (value, unit, isLeftUnit) {
         // Save height data

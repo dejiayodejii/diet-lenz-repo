@@ -43,22 +43,6 @@ post_install do |installer|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
       config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
-      # GoogleMLKit's prebuilt static frameworks have arm64 slices tagged for
-      # iOS device. Force simulator builds to x86_64 (via Rosetta on Apple Silicon)
-      # so the linker uses the correctly-tagged x86_64 simulator slices instead.
-      config.build_settings['ARCHS[sdk=iphonesimulator*]'] = 'x86_64'
-      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
-    end
-  end
-
-  # Remove EXCLUDED_ARCHS from CocoaPods-generated aggregate xcconfig so Xcode
-  # does not drop the iPhone 17 simulator as a valid build destination.
-  # ARCHS=x86_64 (set per-target above) still forces x86_64 at link time.
-  installer.aggregate_targets.each do |aggregate_target|
-    aggregate_target.xcconfigs.each do |config_name, config_file|
-      config_file.attributes.delete('EXCLUDED_ARCHS[sdk=iphonesimulator*]')
-      xcconfig_path = aggregate_target.xcconfig_path(config_name)
-      config_file.save_as(Pathname.new(xcconfig_path))
     end
   end
 end

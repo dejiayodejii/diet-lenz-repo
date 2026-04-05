@@ -89,7 +89,9 @@ class _SetttingsScreenState extends ConsumerState<ReferalScreen> {
                   subscriptionState.isLoading
                       ? const Padding(
                           padding: EdgeInsets.all(20),
-                          child: CircularProgressIndicator(),
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
                         )
                       : Text(
                           referralCode.isNotEmpty ? referralCode : '---',
