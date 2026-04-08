@@ -77,8 +77,10 @@ class FoodLoggingControllerApi {
     final formParams = <String, String>{};
 
     if (date != null) {
-      queryParams.addAll(_queryParams('', 'date',
-          '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}'));
+      final dateStr = '${date.year.toString().padLeft(4, '0')}-'
+          '${date.month.toString().padLeft(2, '0')}-'
+          '${date.day.toString().padLeft(2, '0')}';
+      queryParams.addAll(_queryParams('', 'date', dateStr));
     }
 
     const contentTypes = <String>[];
@@ -350,8 +352,10 @@ class FoodLoggingControllerApi {
     final formParams = <String, String>{};
 
     if (date != null) {
-      queryParams.addAll(_queryParams('', 'date',
-          '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}'));
+      final dateStr = '${date.year.toString().padLeft(4, '0')}-'
+          '${date.month.toString().padLeft(2, '0')}-'
+          '${date.day.toString().padLeft(2, '0')}';
+      queryParams.addAll(_queryParams('', 'date', dateStr));
     }
 
     const contentTypes = <String>[];

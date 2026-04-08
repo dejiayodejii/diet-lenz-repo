@@ -283,7 +283,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
       final socialLoginRequest = SocialLoginRequest(
         idToken: idToken,
         device: RegisterDeviceRequest(
-          pushToken: _pushService.fcmToken ?? "",
+          pushToken: _pushService.fcmToken ?? "xyz",
           platform: Platform.isIOS
               ? RegisterDeviceRequestPlatformEnum.IOS
               : RegisterDeviceRequestPlatformEnum.ANDROID,

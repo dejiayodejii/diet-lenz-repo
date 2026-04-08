@@ -96,6 +96,31 @@ void main() {
       // TODO
     });
 
+    // String firstPromoterReferralCode
+    test('to test the property `firstPromoterReferralCode`', () async {
+      // TODO
+    });
+
+    // String firstPromoterReferralLink
+    test('to test the property `firstPromoterReferralLink`', () async {
+      // TODO
+    });
+
+    // String firstPromoterAuthToken
+    test('to test the property `firstPromoterAuthToken`', () async {
+      // TODO
+    });
+
+    // String referredByCode
+    test('to test the property `referredByCode`', () async {
+      // TODO
+    });
+
+    // User referrer
+    test('to test the property `referrer`', () async {
+      // TODO
+    });
+
     // DateTime premiumExpiresAt
     test('to test the property `premiumExpiresAt`', () async {
       // TODO

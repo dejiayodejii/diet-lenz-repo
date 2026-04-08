@@ -156,8 +156,28 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
   // Entitlement checking
   // ──────────────────────────────────────────────────────────────────────────
 
+  // Demo accounts that are always treated as premium (for store review)
+  static const _demoEmails = {'max1@yopmail.com'};
+
+  bool _isDemoAccount() {
+    try {
+      final savedJson = _apiService.getSavedAuthResponse();
+      if (savedJson == null) return false;
+      final email =
+          (json.decode(savedJson) as Map<String, dynamic>)['email'] as String?;
+      return _demoEmails.contains(email?.toLowerCase());
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Check whether the user currently has an active "Diet Lenz Pro" entitlement
   Future<bool> checkPremiumStatus() async {
+    // Demo accounts always get premium access
+    if (_isDemoAccount()) {
+      state = state.copyWith(isPremium: true);
+      return true;
+    }
     try {
       final isPremium = await _iapService.isPremium();
       final customerInfo = await _iapService.getCustomerInfo();
@@ -229,6 +249,7 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
       );
       // Sync with backend
       await getMySubscription();
+      if (isPremium) await verifyRevenueCatSubscription();
       return isPremium;
     } else {
       state = state.copyWith(
@@ -271,7 +292,8 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
       // Sync with backend if purchase/restore happened
       if (result == PaywallResult.purchased ||
           result == PaywallResult.restored) {
-       getMySubscription();
+        // await getMySubscription();
+        verifyRevenueCatSubscription();
       }
 
       return state.isPremium;
@@ -453,7 +475,8 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
 
   /// Fetch current user subscription
   Future<bool> getMySubscription() async {
-    state = state.copyWith(isLoading: state.mySubscription == null, errorMessage: null);
+    state = state.copyWith(
+        isLoading: state.mySubscription == null, errorMessage: null);
 
     try {
       // Use the raw HTTP response to avoid the generated client's broken
@@ -487,6 +510,44 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
         isLoading: false,
         errorMessage: 'Failed to load subscription',
       );
+      return false;
+    }
+  }
+
+  /// Verify RevenueCat subscription with the backend.
+  ///
+  /// Call this after a successful RevenueCat purchase or restore so the
+  /// backend can validate the entitlement and sync the subscription record.
+  Future<bool> verifyRevenueCatSubscription() async {
+    // state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      await checkPremiumStatus();
+      await _apiService.subscriptionApi.verifyRevenueCatSubscription();
+
+      // state = state.copyWith(
+      //   isLoading: false,
+      //   currentSubscription: response,
+      //   errorMessage: null,
+      // );
+
+      // Refresh local premium status after backend confirmation
+
+      return true;
+    } on ApiException catch (e) {
+      log('Failed to verify RevenueCat subscription: ${e.code} - ${e.message}');
+      // state = state.copyWith(
+      //   isLoading: false,
+      //   errorMessage:
+      //       e.extractMessage ?? 'Failed to verify RevenueCat subscription',
+      // );
+      return false;
+    } catch (e) {
+      log('Failed to verify RevenueCat subscription: $e');
+      // state = state.copyWith(
+      //   isLoading: false,
+      //   errorMessage: 'Failed to verify RevenueCat subscription',
+      // );
       return false;
     }
   }

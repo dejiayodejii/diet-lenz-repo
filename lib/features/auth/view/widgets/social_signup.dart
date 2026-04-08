@@ -47,7 +47,7 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
 
       final authController = ref.read(authViewModelProvider.notifier);
       final success = await authController.googleLogin(
-          idToken: idToken, deviceId: "", deviceName: "");
+          idToken: idToken, deviceId: "xyz", deviceName: "");
 
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -154,17 +154,17 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
             ),
             text: _isLoading ? "Signing in..." : "Continue with Google",
             onPressed: _isLoading ? () {} : _handleGoogleSignIn),
-        // const SizedBox(height: 15),
-        // if (Platform.isIOS)
-        //   CustomYafButton(
-        //     color: AppColors.surfaceColor,
-        //     iconWidget: SvgPicture.asset(
-        //       AppImages.appleIcon,
-        //     ),
-        //     text: _isLoading ? "Signing in..." : "Continue with Apple",
-        //     onPressed: _isLoading ? () {} : _handleAppleSignIn,
-        //   ),
-        // if (Platform.isIOS) const SizedBox(height: 15),
+        const SizedBox(height: 15),
+        if (Platform.isIOS)
+          CustomYafButton(
+            color: AppColors.surfaceColor,
+            iconWidget: SvgPicture.asset(
+              AppImages.appleIcon,
+            ),
+            text: _isLoading ? "Signing in..." : "Continue with Apple",
+            onPressed: _isLoading ? () {} : _handleAppleSignIn,
+          ),
+        if (Platform.isIOS) const SizedBox(height: 15),
         InkWell(
           onTap: () {
             if (widget.isLogin) {

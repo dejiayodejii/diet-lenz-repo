@@ -453,22 +453,17 @@ class _ReferralDashboardScreenState
 
   Widget _historyTile(ReferralHistoryResponse item) {
     final isPaid = item.isPaid ?? false;
-    final status = item.status ?? 'pending';
+    final statusValue = item.status?.value ?? 'PENDING';
     final statusColor = isPaid
         ? Colors.greenAccent
-        : status.toLowerCase() == 'completed'
+        : statusValue.toUpperCase() == 'COMPLETED'
             ? Colors.blueAccent
             : Colors.amber;
-    final statusLabel = isPaid ? 'Paid' : status;
+    final statusLabel = isPaid ? 'Paid' : statusValue;
 
     String formattedDate = '';
-    if (item.createdAt != null && item.createdAt!.isNotEmpty) {
-      try {
-        final date = DateTime.parse(item.createdAt!);
-        formattedDate = DateFormat('MMM d, yyyy').format(date);
-      } catch (_) {
-        formattedDate = item.createdAt!;
-      }
+    if (item.createdAt != null) {
+      formattedDate = DateFormat('MMM d, yyyy').format(item.createdAt!);
     }
 
     final email = item.refereeEmail ?? 'Unknown';

@@ -20,6 +20,8 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
+  bool _isRefreshing = false;
+
   @override
   void initState() {
     super.initState();
@@ -33,36 +35,63 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   Future<void> _checkAuthAndNavigate() async {
     if (!mounted) return;
     try {
-      print('🔍 _checkAuthAndNavigate: start');
       final authState = ref.read(authViewModelProvider);
-      print(
-          '🔍 authState fetched — isAuthenticated: ${authState.isAuthenticated}');
+
       final apiService = ref.read(apiServiceProvider);
-      print('🔍 apiService fetched');
 
       if (!mounted) return;
 
-      Widget destination;
+      Widget destination = const LoginScreen();
 
       if (!authState.isAuthenticated || authState.authResponse == null) {
         print('🔍 Not authenticated, navigating to LoginScreen');
         destination = const LoginScreen();
       } else {
+        bool tokenOk = false;
         final token = apiService.getAuthToken();
         print(
             '🔍 token: ${token != null ? '(present, length=${token.length})' : 'null'}');
 
-        if (token == null ||
-            token.isEmpty ||
-            TokenUtils.isTokenExpired(token)) {
-          print('🔍 Token missing/expired, navigating to LoginScreen');
-          destination = const LoginScreen();
+        if (
+          // false
+          token != null &&
+            token.isNotEmpty &&
+            !TokenUtils.isTokenExpired(token)
+            ) {
+          // Access token still valid
+          tokenOk = true;
         } else {
-          // Check if user has a saved profile in local storage
+          // Access token missing/expired — try refresh
+          print('🔍 Access token missing/expired — checking refresh token...');
+          final refreshToken = apiService.getRefreshToken();
+          final refreshValid = refreshToken != null &&
+              refreshToken.isNotEmpty &&
+              !TokenUtils.isTokenExpired(refreshToken, isRefreshToken: true);
+
+          if (refreshValid) {
+            print('🔍 Refresh token valid — attempting token refresh...');
+            // Clear stale access token before refreshing
+            await apiService.setAuthToken('');
+            if (mounted) setState(() => _isRefreshing = true);
+            final refreshed = await apiService
+                .refreshAccessToken()
+                .timeout(const Duration(seconds: 10), onTimeout: () => false);
+            if (mounted) setState(() => _isRefreshing = false);
+            if (refreshed) {
+              print('🔍 Token refreshed successfully');
+              tokenOk = true;
+            } else {
+              print('🔍 Token refresh failed, navigating to LoginScreen');
+            }
+          } else {
+            print(
+                '🔍 Refresh token missing/expired, navigating to LoginScreen');
+          }
+        }
+
+        if (tokenOk) {
           final savedProfile = apiService.getSavedUserProfile();
           if (savedProfile == null || savedProfile.isEmpty) {
-            // Token exists but no profile — user signed in via social login
-            // but never completed profile setup. Send to login.
             print(
                 '🔍 Token valid but no saved profile, navigating to LoginScreen');
             destination = const LoginScreen();
@@ -100,8 +129,28 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   Widget build(BuildContext context) {
     print('Building SplashScreen');
     return Scaffold(
-      body: Center(
-        child: SvgPicture.asset(AppImages.dietLenzLogo),
+      body: Stack(
+        children: [
+          Center(
+            child: SvgPicture.asset(AppImages.dietLenzLogo),
+          ),
+          if (_isRefreshing)
+            Positioned(
+              bottom: 60,
+              left: 0,
+              right: 0,
+              child: Column(
+                children: const [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 12),
+                  Text(
+                    'Signing you back in…',
+                    style: TextStyle(fontSize: 13, color: Colors.white54),
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }

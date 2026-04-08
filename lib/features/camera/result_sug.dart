@@ -127,7 +127,7 @@ class SuggestResultScreen extends StatelessWidget {
                     const SizedBox(width: 15),
                     Expanded(
                       child: Text(
-                        firstSuggestion?.foodName ?? "Meal Options",
+                        firstSuggestion?.foodName ?? "Meal Optionsoo",
                         style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
@@ -211,6 +211,7 @@ class MealOptionsScreen extends StatelessWidget {
                     const Text("No suggestions available.",
                         style: TextStyle(color: Colors.grey)),
                   ...suggestions.map((suggestion) => MealPlanCard(
+                    imageFile: headerImage,
                         title: suggestion.foodName ?? "Unknown Meal",
                         kcal: suggestion.totalMacros?.calories
                                 ?.toStringAsFixed(0) ??
@@ -244,6 +245,7 @@ class MealPlanCard extends StatelessWidget {
   final String carbs;
   final String fat;
   final String imageUrl;
+  final Widget? imageFile;
   final SuggestedFoodAnalysis suggestion;
 
   const MealPlanCard({
@@ -255,6 +257,7 @@ class MealPlanCard extends StatelessWidget {
     required this.fat,
     required this.imageUrl,
     required this.suggestion,
+    this.imageFile,
   });
 
   @override
@@ -265,18 +268,18 @@ class MealPlanCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                SuggestMealDetailScreen(suggestion: suggestion),
+                SuggestMealDetailScreen(suggestion: suggestion, headerImage: imageFile),
           ),
         );
       },
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 15.0,top: 10),
+        padding: const EdgeInsets.only(bottom: 15.0, top: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: Image.network(
+              child: imageFile ?? Image.network(
                 imageUrl,
                 height: 200,
                 width: double.infinity,

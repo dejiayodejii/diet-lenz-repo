@@ -103,8 +103,10 @@ Class | Method | HTTP request | Description
 *SubscriptionControllerApi* | [**getPricing**](doc//SubscriptionControllerApi.md#getpricing) | **GET** /api/v1/subscriptions/pricing | 
 *SubscriptionControllerApi* | [**getReferralEarnings**](doc//SubscriptionControllerApi.md#getreferralearnings) | **GET** /api/v1/referrals/earnings | 
 *SubscriptionControllerApi* | [**getReferralHistory**](doc//SubscriptionControllerApi.md#getreferralhistory) | **GET** /api/v1/referrals/history | 
+*SubscriptionControllerApi* | [**simulatePurchase**](doc//SubscriptionControllerApi.md#simulatepurchase) | **POST** /api/v1/subscriptions/simulate-purchase | 
 *SubscriptionControllerApi* | [**verifyAppleSubscription**](doc//SubscriptionControllerApi.md#verifyapplesubscription) | **POST** /api/v1/subscriptions/verify/apple | 
 *SubscriptionControllerApi* | [**verifyGoogleSubscription**](doc//SubscriptionControllerApi.md#verifygooglesubscription) | **POST** /api/v1/subscriptions/verify/google | 
+*SubscriptionControllerApi* | [**verifyRevenueCatSubscription**](doc//SubscriptionControllerApi.md#verifyrevenuecatsubscription) | **POST** /api/v1/subscriptions/verify/revenuecat | 
 *UserControllerApi* | [**changePassword**](doc//UserControllerApi.md#changepassword) | **POST** /api/v1/users/password/change | 
 *UserControllerApi* | [**deleteAccount**](doc//UserControllerApi.md#deleteaccount) | **DELETE** /api/v1/users/me | 
 *UserControllerApi* | [**getUserNotifications**](doc//UserControllerApi.md#getusernotifications) | **GET** /api/v1/users/notifications/all | 
@@ -140,6 +142,7 @@ Class | Method | HTTP request | Description
  - [MacroResult](doc//MacroResult.md)
  - [MacroTargetDto](doc//MacroTargetDto.md)
  - [MealLogResponseDto](doc//MealLogResponseDto.md)
+ - [MessageResponse](doc//MessageResponse.md)
  - [PageUserNotification](doc//PageUserNotification.md)
  - [PageableObject](doc//PageableObject.md)
  - [PasswordChangedResponse](doc//PasswordChangedResponse.md)
@@ -163,6 +166,7 @@ Class | Method | HTTP request | Description
  - [UserNotification](doc//UserNotification.md)
  - [UserProfile](doc//UserProfile.md)
  - [UserSubscriptionDto](doc//UserSubscriptionDto.md)
+ - [UserSubscriptionStatusResponse](doc//UserSubscriptionStatusResponse.md)
  - [WeeklyTrendDto](doc//WeeklyTrendDto.md)
 
 

@@ -58,6 +58,7 @@ part 'model/macro_performance_dto.dart';
 part 'model/macro_result.dart';
 part 'model/macro_target_dto.dart';
 part 'model/meal_log_response_dto.dart';
+part 'model/message_response.dart';
 part 'model/page_user_notification.dart';
 part 'model/pageable_object.dart';
 part 'model/password_changed_response.dart';
@@ -81,6 +82,7 @@ part 'model/user.dart';
 part 'model/user_notification.dart';
 part 'model/user_profile.dart';
 part 'model/user_subscription_dto.dart';
+part 'model/user_subscription_status_response.dart';
 part 'model/weekly_trend_dto.dart';
 
 

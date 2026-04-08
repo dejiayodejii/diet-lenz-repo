@@ -16,12 +16,14 @@ Method | HTTP request | Description
 [**getPricing**](SubscriptionControllerApi.md#getpricing) | **GET** /api/v1/subscriptions/pricing | 
 [**getReferralEarnings**](SubscriptionControllerApi.md#getreferralearnings) | **GET** /api/v1/referrals/earnings | 
 [**getReferralHistory**](SubscriptionControllerApi.md#getreferralhistory) | **GET** /api/v1/referrals/history | 
+[**simulatePurchase**](SubscriptionControllerApi.md#simulatepurchase) | **POST** /api/v1/subscriptions/simulate-purchase | 
 [**verifyAppleSubscription**](SubscriptionControllerApi.md#verifyapplesubscription) | **POST** /api/v1/subscriptions/verify/apple | 
 [**verifyGoogleSubscription**](SubscriptionControllerApi.md#verifygooglesubscription) | **POST** /api/v1/subscriptions/verify/google | 
+[**verifyRevenueCatSubscription**](SubscriptionControllerApi.md#verifyrevenuecatsubscription) | **POST** /api/v1/subscriptions/verify/revenuecat | 
 
 
 # **applyReferral**
-> Object applyReferral(referralApplyRequest)
+> MessageResponse applyReferral(referralApplyRequest)
 
 
 
@@ -54,7 +56,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Object**](Object.md)
+[**MessageResponse**](MessageResponse.md)
 
 ### Authorization
 
@@ -68,7 +70,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **cancelSubscription**
-> Object cancelSubscription(subscriptionId)
+> MessageResponse cancelSubscription(subscriptionId)
 
 
 
@@ -101,7 +103,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Object**](Object.md)
+[**MessageResponse**](MessageResponse.md)
 
 ### Authorization
 
@@ -115,7 +117,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getMySubscription**
-> Object getMySubscription()
+> UserSubscriptionStatusResponse getMySubscription()
 
 
 
@@ -144,7 +146,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**Object**](Object.md)
+[**UserSubscriptionStatusResponse**](UserSubscriptionStatusResponse.md)
 
 ### Authorization
 
@@ -333,6 +335,49 @@ This endpoint does not need any parameter.
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **simulatePurchase**
+> MessageResponse simulatePurchase()
+
+
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+// TODO Configure HTTP Bearer authorization: bearerAuth
+// Case 1. Use String Token
+//defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
+// Case 2. Use Function which generate token.
+// String yourTokenGeneratorFunction() { ... }
+//defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken(yourTokenGeneratorFunction);
+
+final api_instance = SubscriptionControllerApi();
+
+try {
+    final result = api_instance.simulatePurchase();
+    print(result);
+} catch (e) {
+    print('Exception when calling SubscriptionControllerApi->simulatePurchase: $e\n');
+}
+```
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**MessageResponse**](MessageResponse.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **verifyAppleSubscription**
 > UserSubscriptionDto verifyAppleSubscription(appleSubscriptionVerifyRequest)
 
@@ -423,6 +468,49 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
  - **Content-Type**: application/json
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **verifyRevenueCatSubscription**
+> UserSubscriptionDto verifyRevenueCatSubscription()
+
+
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+// TODO Configure HTTP Bearer authorization: bearerAuth
+// Case 1. Use String Token
+//defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken('YOUR_ACCESS_TOKEN');
+// Case 2. Use Function which generate token.
+// String yourTokenGeneratorFunction() { ... }
+//defaultApiClient.getAuthentication<HttpBearerAuth>('bearerAuth').setAccessToken(yourTokenGeneratorFunction);
+
+final api_instance = SubscriptionControllerApi();
+
+try {
+    final result = api_instance.verifyRevenueCatSubscription();
+    print(result);
+} catch (e) {
+    print('Exception when calling SubscriptionControllerApi->verifyRevenueCatSubscription: $e\n');
+}
+```
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**UserSubscriptionDto**](UserSubscriptionDto.md)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
  - **Accept**: */*
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

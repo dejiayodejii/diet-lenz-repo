@@ -18,10 +18,13 @@ import '../../widgets/calorie_badge.dart';
 
 class SuggestMealDetailScreen extends ConsumerStatefulWidget {
   final SuggestedFoodAnalysis suggestion;
+  final Widget? headerImage;
 
   const SuggestMealDetailScreen({
     super.key,
     required this.suggestion,
+    this.headerImage,
+
   });
 
   @override
@@ -147,7 +150,7 @@ class _SuggestMealDetailScreenState
                     //         ),
                     //       )
                     //     : 
-                        Image.asset(
+                        widget.headerImage ?? Image.asset(
                             AppImages.salad,
                             scale: 2,
                             height: 350,

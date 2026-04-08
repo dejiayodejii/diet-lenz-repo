@@ -48,13 +48,7 @@ class ReferralHistoryResponse {
   ///
   String? codeUsed;
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  String? status;
+  ReferralHistoryResponseStatusEnum? status;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -86,7 +80,7 @@ class ReferralHistoryResponse {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  String? paidAt;
+  DateTime? paidAt;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -94,7 +88,7 @@ class ReferralHistoryResponse {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  String? createdAt;
+  DateTime? createdAt;
 
   @override
   bool operator ==(Object other) => identical(this, other) || other is ReferralHistoryResponse &&
@@ -162,12 +156,12 @@ class ReferralHistoryResponse {
       json[r'isPaid'] = null;
     }
     if (this.paidAt != null) {
-      json[r'paidAt'] = this.paidAt;
+      json[r'paidAt'] = this.paidAt!.toUtc().toIso8601String();
     } else {
       json[r'paidAt'] = null;
     }
     if (this.createdAt != null) {
-      json[r'createdAt'] = this.createdAt;
+      json[r'createdAt'] = this.createdAt!.toUtc().toIso8601String();
     } else {
       json[r'createdAt'] = null;
     }
@@ -196,12 +190,12 @@ class ReferralHistoryResponse {
         referralId: mapValueOfType<String>(json, r'referralId'),
         refereeEmail: mapValueOfType<String>(json, r'refereeEmail'),
         codeUsed: mapValueOfType<String>(json, r'codeUsed'),
-        status: mapValueOfType<String>(json, r'status'),
+        status: ReferralHistoryResponseStatusEnum.fromJson(json[r'status']),
         rewardAmount: mapValueOfType<double>(json, r'rewardAmount'),
         rewardCurrency: mapValueOfType<String>(json, r'rewardCurrency'),
         isPaid: mapValueOfType<bool>(json, r'isPaid'),
-        paidAt: mapValueOfType<String>(json, r'paidAt'),
-        createdAt: mapValueOfType<String>(json, r'createdAt'),
+        paidAt: mapDateTime(json, r'paidAt', r''),
+        createdAt: mapDateTime(json, r'createdAt', r''),
       );
     }
     return null;
@@ -251,4 +245,81 @@ class ReferralHistoryResponse {
   static const requiredKeys = <String>{
   };
 }
+
+
+class ReferralHistoryResponseStatusEnum {
+  /// Instantiate a new enum with the provided [value].
+  const ReferralHistoryResponseStatusEnum._(this.value);
+
+  /// The underlying value of this enum member.
+  final String value;
+
+  @override
+  String toString() => value;
+
+  String toJson() => value;
+
+  static const PENDING = ReferralHistoryResponseStatusEnum._(r'PENDING');
+  static const COMPLETED = ReferralHistoryResponseStatusEnum._(r'COMPLETED');
+  static const FRAUD = ReferralHistoryResponseStatusEnum._(r'FRAUD');
+
+  /// List of all possible values in this [enum][ReferralHistoryResponseStatusEnum].
+  static const values = <ReferralHistoryResponseStatusEnum>[
+    PENDING,
+    COMPLETED,
+    FRAUD,
+  ];
+
+  static ReferralHistoryResponseStatusEnum? fromJson(dynamic value) => ReferralHistoryResponseStatusEnumTypeTransformer().decode(value);
+
+  static List<ReferralHistoryResponseStatusEnum> listFromJson(dynamic json, {bool growable = false,}) {
+    final result = <ReferralHistoryResponseStatusEnum>[];
+    if (json is List && json.isNotEmpty) {
+      for (final row in json) {
+        final value = ReferralHistoryResponseStatusEnum.fromJson(row);
+        if (value != null) {
+          result.add(value);
+        }
+      }
+    }
+    return result.toList(growable: growable);
+  }
+}
+
+/// Transformation class that can [encode] an instance of [ReferralHistoryResponseStatusEnum] to String,
+/// and [decode] dynamic data back to [ReferralHistoryResponseStatusEnum].
+class ReferralHistoryResponseStatusEnumTypeTransformer {
+  factory ReferralHistoryResponseStatusEnumTypeTransformer() => _instance ??= const ReferralHistoryResponseStatusEnumTypeTransformer._();
+
+  const ReferralHistoryResponseStatusEnumTypeTransformer._();
+
+  String encode(ReferralHistoryResponseStatusEnum data) => data.value;
+
+  /// Decodes a [dynamic value][data] to a ReferralHistoryResponseStatusEnum.
+  ///
+  /// If [allowNull] is true and the [dynamic value][data] cannot be decoded successfully,
+  /// then null is returned. However, if [allowNull] is false and the [dynamic value][data]
+  /// cannot be decoded successfully, then an [UnimplementedError] is thrown.
+  ///
+  /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
+  /// and users are still using an old app with the old code.
+  ReferralHistoryResponseStatusEnum? decode(dynamic data, {bool allowNull = true}) {
+    if (data != null) {
+      switch (data) {
+        case r'PENDING': return ReferralHistoryResponseStatusEnum.PENDING;
+        case r'COMPLETED': return ReferralHistoryResponseStatusEnum.COMPLETED;
+        case r'FRAUD': return ReferralHistoryResponseStatusEnum.FRAUD;
+        default:
+          if (!allowNull) {
+            throw ArgumentError('Unknown enum value to decode: $data');
+          }
+      }
+    }
+    return null;
+  }
+
+  /// Singleton [ReferralHistoryResponseStatusEnumTypeTransformer] instance.
+  static ReferralHistoryResponseStatusEnumTypeTransformer? _instance;
+}
+
 

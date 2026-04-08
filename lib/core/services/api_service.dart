@@ -205,7 +205,11 @@ class ApiService {
   /// Set the authentication token for authenticated requests
   Future<void> setAuthToken(String token) async {
     await _storageRepository.saveToken(token);
-    _apiClient.addDefaultHeader('Authorization', 'Bearer $token');
+    if (token.isEmpty) {
+      _apiClient.defaultHeaderMap.remove('Authorization');
+    } else {
+      _apiClient.addDefaultHeader('Authorization', 'Bearer $token');
+    }
   }
 
   /// Get stored auth token

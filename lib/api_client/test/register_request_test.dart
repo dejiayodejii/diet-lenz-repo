@@ -36,6 +36,11 @@ void main() {
       // TODO
     });
 
+    // String referralCode
+    test('to test the property `referralCode`', () async {
+      // TODO
+    });
+
 
   });
 

@@ -17,6 +17,7 @@ class RegisterRequest {
     this.password,
     this.firstName,
     this.lastName,
+    this.referralCode,
   });
 
   ///
@@ -51,12 +52,21 @@ class RegisterRequest {
   ///
   String? lastName;
 
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  String? referralCode;
+
   @override
   bool operator ==(Object other) => identical(this, other) || other is RegisterRequest &&
     other.email == email &&
     other.password == password &&
     other.firstName == firstName &&
-    other.lastName == lastName;
+    other.lastName == lastName &&
+    other.referralCode == referralCode;
 
   @override
   int get hashCode =>
@@ -64,10 +74,11 @@ class RegisterRequest {
     (email == null ? 0 : email!.hashCode) +
     (password == null ? 0 : password!.hashCode) +
     (firstName == null ? 0 : firstName!.hashCode) +
-    (lastName == null ? 0 : lastName!.hashCode);
+    (lastName == null ? 0 : lastName!.hashCode) +
+    (referralCode == null ? 0 : referralCode!.hashCode);
 
   @override
-  String toString() => 'RegisterRequest[email=$email, password=$password, firstName=$firstName, lastName=$lastName]';
+  String toString() => 'RegisterRequest[email=$email, password=$password, firstName=$firstName, lastName=$lastName, referralCode=$referralCode]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -90,6 +101,11 @@ class RegisterRequest {
       json[r'lastName'] = this.lastName;
     } else {
       json[r'lastName'] = null;
+    }
+    if (this.referralCode != null) {
+      json[r'referralCode'] = this.referralCode;
+    } else {
+      json[r'referralCode'] = null;
     }
     return json;
   }
@@ -117,6 +133,7 @@ class RegisterRequest {
         password: mapValueOfType<String>(json, r'password'),
         firstName: mapValueOfType<String>(json, r'firstName'),
         lastName: mapValueOfType<String>(json, r'lastName'),
+        referralCode: mapValueOfType<String>(json, r'referralCode'),
       );
     }
     return null;
