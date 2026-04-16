@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/features/home/views/home.dart';
 import 'package:diet_lenz/features/home/views/progress.dart';
@@ -51,7 +53,7 @@ class _BottomNavState extends ConsumerState<BottomNavScreen> {
 
   Future<void> _navigateToScan() async {
     final isPremium = ref.read(subscriptionViewModelProvider).isPremium;
-    if (!isPremium) {
+    if (!isPremium ) {
       await ref.read(subscriptionViewModelProvider.notifier).presentPaywall();
       return;
     }

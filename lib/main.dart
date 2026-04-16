@@ -78,29 +78,29 @@ class _MyAppState extends ConsumerState<MyApp> {
   void initState() {
     super.initState();
     // Load user profile if user is authenticated
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final apiService = ref.read(apiServiceProvider);
-      final token = apiService.getAuthToken();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   final apiService = ref.read(apiServiceProvider);
+    //   final token = apiService.getAuthToken();
 
-      if (token != null && token.isNotEmpty) {
-        // User is authenticated, load their profile
-        ref.read(userProfileViewModelProvider.notifier).getUserProfile();
+    //   if (token != null && token.isNotEmpty) {
+    //     // User is authenticated, load their profile
+    //     ref.read(userProfileViewModelProvider.notifier).getUserProfile();
 
-        // Identify user with RevenueCat & check entitlement
-        final authResponse = apiService.getSavedAuthResponse();
-        if (authResponse != null && authResponse.isNotEmpty) {
-          try {
-            final userId =
-                apiService.getAuthToken(); // or parse userId from authResponse
-            if (userId != null && userId.isNotEmpty) {
-              ref
-                  .read(subscriptionViewModelProvider.notifier)
-                  .loginUser(userId);
-            }
-          } catch (_) {}
-        }
-      }
-    });
+    //     // Identify user with RevenueCat & check entitlement
+    //     final authResponse = apiService.getSavedAuthResponse();
+    //     if (authResponse != null && authResponse.isNotEmpty) {
+    //       try {
+    //         final userId =
+    //             apiService.getAuthToken(); // or parse userId from authResponse
+    //         if (userId != null && userId.isNotEmpty) {
+    //           ref
+    //               .read(subscriptionViewModelProvider.notifier)
+    //               .loginUser(userId);
+    //         }
+    //       } catch (_) {}
+    //     }
+    //   }
+    // });
   }
 
   @override

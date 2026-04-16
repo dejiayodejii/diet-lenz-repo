@@ -94,10 +94,15 @@ class PushNotificationService {
           if (apnsToken == null) {
             print(
                 '⚠️ APNS token not available yet, FCM token will be fetched on refresh');
+            // Skip getToken() — onTokenRefresh will fire once APNS is ready
+          } else {
+            _fcmToken = await _messaging.getToken();
+            print('🔔 FCM Token: $_fcmToken');
           }
+        } else {
+          _fcmToken = await _messaging.getToken();
+          print('🔔 FCM Token: $_fcmToken');
         }
-        _fcmToken = await _messaging.getToken();
-        print('🔔 FCM Token: $_fcmToken');
       } catch (e) {
         print('⚠️ Could not get FCM token: $e');
       }

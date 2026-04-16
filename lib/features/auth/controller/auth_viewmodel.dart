@@ -92,6 +92,8 @@ class AuthViewModel extends StateNotifier<AuthState> {
         isAuthenticated: true,
         authResponse: savedAuthResponse,
       );
+    }else{
+      print('No auth token found, user is not authenticated');
     }
   }
 
@@ -127,8 +129,8 @@ class AuthViewModel extends StateNotifier<AuthState> {
           platform: Platform.isIOS
               ? RegisterDeviceRequestPlatformEnum.IOS
               : RegisterDeviceRequestPlatformEnum.ANDROID,
-          deviceId: deviceId,
-          appVersion: deviceName,
+          deviceId: "zxc",
+          appVersion: "sdsds",
         ),
       );
 
@@ -255,6 +257,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
         refreshToken: refreshToken,
       );
 
+      await _apiService.setAuthToken(
+          ""); // Clear token before refreshing to avoid using expired token
+
       final response = await _apiService.authApi.refresh(refreshRequest);
 
       if (response != null && response.accessToken != null) {
@@ -280,15 +285,17 @@ class AuthViewModel extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
+      await _apiService.clearAuthToken();
+
       final socialLoginRequest = SocialLoginRequest(
         idToken: idToken,
         device: RegisterDeviceRequest(
-          pushToken: _pushService.fcmToken ?? "xyz",
+          pushToken: _pushService.fcmToken ?? "xyzoi",
           platform: Platform.isIOS
               ? RegisterDeviceRequestPlatformEnum.IOS
               : RegisterDeviceRequestPlatformEnum.ANDROID,
-          deviceId: deviceId,
-          appVersion: deviceName,
+          deviceId: "zxc",
+          appVersion: "sdsds",
         ),
       );
 
@@ -340,15 +347,17 @@ class AuthViewModel extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
+      await _apiService.clearAuthToken();
+
       final socialLoginRequest = SocialLoginRequest(
         idToken: idToken,
         device: RegisterDeviceRequest(
-          pushToken: _pushService.fcmToken ?? "",
+          pushToken: _pushService.fcmToken ?? "xzss",
           platform: Platform.isIOS
               ? RegisterDeviceRequestPlatformEnum.IOS
               : RegisterDeviceRequestPlatformEnum.ANDROID,
-          deviceId: deviceId,
-          appVersion: deviceName,
+          deviceId: "zxc",
+          appVersion: "sdsds",
         ),
       );
 

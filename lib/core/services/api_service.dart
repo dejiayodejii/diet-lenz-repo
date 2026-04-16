@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:diet_lenz/api_client/lib/api.dart';
 import 'package:diet_lenz/core/repositories/storage_repository.dart';
@@ -293,10 +294,19 @@ class ApiService {
 
       // Create refresh token request
       final request = RefreshTokenRequest(
-        refreshToken: refreshToken,
-      );
+          refreshToken: refreshToken,
+          device: RegisterDeviceRequest(
+            pushToken: "xyzoi",
+            platform: Platform.isIOS
+                ? RegisterDeviceRequestPlatformEnum.IOS
+                : RegisterDeviceRequestPlatformEnum.ANDROID,
+            deviceId: "zxc",
+            appVersion: "sdsds",
+          ));
 
       // Call refresh endpoint
+      setAuthToken(
+          ""); // Clear token to avoid using expired token during refresh
       final response = await authApi.refresh(request);
 
       if (response != null && response.accessToken != null) {

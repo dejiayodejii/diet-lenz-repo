@@ -124,11 +124,11 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
   }
 
   /// Get dashboard data for a specific date
-  Future<bool> getDashboard({DateTime? date}) async {
+  Future<bool> getDashboard({DateTime? date, bool refresh = false}) async {
     final key = _dateKey(date);
 
     // Serve from cache if available (no loading state)
-    if (_dashboardCache.containsKey(key)) {
+    if (!refresh && _dashboardCache.containsKey(key)) {
       state = state.copyWith(
         isLoading: false,
         dashboard: _dashboardCache[key],
@@ -285,11 +285,11 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
   }
 
   /// Get all user recipes
-  Future<bool> getUserRecipes({DateTime? date}) async {
+  Future<bool> getUserRecipes({DateTime? date, bool refresh = false}) async {
     final key = _dateKey(date);
 
     // Serve from cache if available (no loading state)
-    if (_recipesCache.containsKey(key)) {
+    if (!refresh && _recipesCache.containsKey(key)) {
       state = state.copyWith(
         isLoading: false,
         userRecipes: _recipesCache[key],
@@ -600,6 +600,7 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
         (recipe) => recipe.id == recipeId,
         orElse: () => RecipeResponseDto(),
       );
+      log("Found recipe $recipeId in userRecipes: ${targetRecipe.foodName}");
     }
 
     // Optimistically update userRecipes

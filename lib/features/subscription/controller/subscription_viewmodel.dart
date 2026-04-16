@@ -136,7 +136,7 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
           _iapService.customerInfoStream.listen(_onCustomerInfoUpdated);
 
       // Check current entitlement status
-      await checkPremiumStatus();
+      // await checkPremiumStatus();
     } catch (e) {
       log('RevenueCat init error: $e');
     }

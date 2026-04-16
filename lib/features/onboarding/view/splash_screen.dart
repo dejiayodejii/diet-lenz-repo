@@ -8,6 +8,8 @@ import 'package:diet_lenz/core/widgets/biometric_lock_screen.dart';
 import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
 import 'package:diet_lenz/features/auth/view/login.dart';
 import 'package:diet_lenz/features/bottom_nav/bottom.dart';
+import 'package:diet_lenz/features/subscription/controller/subscription_viewmodel.dart';
+import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -49,21 +51,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       } else {
         bool tokenOk = false;
         final token = apiService.getAuthToken();
-        print(
-            '🔍 token: ${token != null ? '(present, length=${token.length})' : 'null'}');
+        final refreshToken = apiService.getRefreshToken();
 
         if (
-          // false
-          token != null &&
-            token.isNotEmpty &&
-            !TokenUtils.isTokenExpired(token)
-            ) {
+            // false
+            token != null &&
+                token.isNotEmpty &&
+                !TokenUtils.isTokenExpired(token)
+                ) {
           // Access token still valid
           tokenOk = true;
         } else {
           // Access token missing/expired — try refresh
           print('🔍 Access token missing/expired — checking refresh token...');
-          final refreshToken = apiService.getRefreshToken();
+
           final refreshValid = refreshToken != null &&
               refreshToken.isNotEmpty &&
               !TokenUtils.isTokenExpired(refreshToken, isRefreshToken: true);
@@ -97,6 +98,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             destination = const LoginScreen();
           } else {
             log('🔍 Token valid + profile exists, navigating to BottomNavScreen');
+            fetchProfile(); // Fire-and-forget profile fetch to update any stale info
+             ref
+                  .read(subscriptionViewModelProvider.notifier)
+                  .loginUser(authState.authResponse!.email!);
             destination = const BottomNavScreen();
           }
         }
@@ -105,6 +110,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       // If biometric is enabled, wrap destination behind the lock screen
       final biometricEnabled = ref.read(biometricEnabledNotifierProvider);
       if (biometricEnabled && destination is! LoginScreen) {
+        fetchProfile(); // Fire-and-forget profile fetch to update any stale info
+        ref
+                  .read(subscriptionViewModelProvider.notifier)
+                  .loginUser(authState.authResponse!.email!);
         destination = BiometricLockScreen(destination: destination);
       }
 
@@ -123,6 +132,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         );
       }
     }
+  }
+
+  fetchProfile() async {
+    await ref.read(userProfileViewModelProvider.notifier).getUserProfile();
   }
 
   @override

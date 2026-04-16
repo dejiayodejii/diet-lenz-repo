@@ -78,8 +78,10 @@ class _FoodLogsScreenState extends ConsumerState<FoodLogsScreen> {
       case 0: // All
         if (foodLoggingState.isLoading && foodLoggingState.allRecipes == null) {
           // Show shimmer loading
-          return Column(
-            children: List.generate(3, (index) => const FoodLogShimmer()),
+          return SingleChildScrollView(
+            child: Column(
+              children: List.generate(3, (index) => const FoodLogShimmer()),
+            ),
           );
         }
 

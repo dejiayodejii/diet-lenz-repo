@@ -109,6 +109,13 @@ class _SuggestMealDetailScreenState
         ref.read(toastProvider).showSuccess(
               'Meal logged successfully!',
             );
+        final date = DateTime.now();
+                ref
+            .read(foodLoggingViewModelProvider.notifier)
+            .getUserRecipes(date: date, refresh: true);
+        ref
+            .read(foodLoggingViewModelProvider.notifier)
+            .getDashboard(date: date, refresh: true);
         NavigationService.pushAndRemoveUntil(child: const BottomNavScreen());
       }
     }

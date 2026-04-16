@@ -156,13 +156,20 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
       }
     } else {
       // Success
-      if (mounted) {
+      if (true) {
         ref.read(toastProvider).showSuccess(
               'Meal logged successfully!',
             );
         final foodLoggingVm = ref.read(foodLoggingViewModelProvider.notifier);
         foodLoggingVm.clearAllRecipes();
         foodLoggingVm.invalidateCache();
+        final date = DateTime.now();
+        ref
+            .read(foodLoggingViewModelProvider.notifier)
+            .getUserRecipes(date: date, refresh: true);
+        ref
+            .read(foodLoggingViewModelProvider.notifier)
+            .getDashboard(date: date, refresh: true);
         NavigationService.pushAndRemoveUntil(child: BottomNavScreen());
       }
     }

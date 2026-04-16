@@ -4,6 +4,7 @@ import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
+import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
 import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -82,9 +83,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       _selectedMacroTarget = profile.macroTarget?.value;
       _selectedCountry = profile.country;
       _selectedAllergies = profile.allergenExclusions.toList();
-    }
 
-    _isInitialized = true;
+      // Only mark as initialized once profile data is available
+      _isInitialized = true;
+    }
   }
 
   int? _calculateAge() {
@@ -172,9 +174,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         initialValue: _weight ?? 70,
         minValue: 20,
         maxValue: 300,
+        minLeftValue: 20,
+        maxLeftValue: 300,
+        minRightValue: 44,
+        maxRightValue: 660,
         leftUnit: 'kg',
         rightUnit: 'lbs',
         initialUnit: _weightUnit,
+        leftToRightConverter: (val) => val * 2.20462,
+        rightToLeftConverter: (val) => val / 2.20462,
         onSave: (value, unit) {
           setState(() {
             _weight = value;
@@ -215,9 +223,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         initialValue: _desiredWeight ?? 70,
         minValue: 20,
         maxValue: 300,
+        minLeftValue: 20,
+        maxLeftValue: 300,
+        minRightValue: 44,
+        maxRightValue: 660,
         leftUnit: 'kg',
         rightUnit: 'lbs',
         initialUnit: _desiredWeightUnit,
+        leftToRightConverter: (val) => val * 2.20462,
+        rightToLeftConverter: (val) => val / 2.20462,
         onSave: (value, unit) {
           setState(() {
             _desiredWeight = value;
@@ -464,6 +478,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       country: _selectedCountry,
       allergies: _selectedAllergies,
     );
+    final date = DateTime.now();
+    await ref
+        .read(foodLoggingViewModelProvider.notifier)
+        .getDashboard(date: date, refresh: true);
 
     if (mounted) {
       if (success) {
@@ -612,7 +630,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     // Gender Field
                     _ProfileField(
                       label: 'Gender',
-                      value: _selectedGender ?? 'Not set',
+                      value: _formatEnumValue(_selectedGender),
                       onTap: _showGenderPicker,
                     ),
                     const SizedBox(height: 16),

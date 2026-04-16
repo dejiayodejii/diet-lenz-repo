@@ -20,9 +20,17 @@ class SocialAuthService {
   /// Initialize Google Sign-In. Must be called once before [signInWithGoogle].
   Future<void> initializeGoogle() async {
     if (_googleInitialized) return;
+    // On iOS: only pass clientId — the token aud will be the iOS client ID,
+    // which is what the backend expects when platform=IOS.
+    // On Android: pass serverClientId — the token aud will be the server
+    // client ID, which is what the backend expects when platform=ANDROID.
     await GoogleSignIn.instance.initialize(
-      serverClientId:
-          '77989643764-gdtj161cjose6paf93m6jvkop7aqgo9i.apps.googleusercontent.com',
+      clientId: Platform.isIOS
+          ? '77989643764-r9d6s3bo54s474jli72loanuronr5fgr.apps.googleusercontent.com'
+          : null,
+      serverClientId: Platform.isIOS
+          ? null
+          : '77989643764-gdtj161cjose6paf93m6jvkop7aqgo9i.apps.googleusercontent.com',
     );
     _googleInitialized = true;
   }

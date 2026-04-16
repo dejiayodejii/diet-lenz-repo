@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:diet_lenz/api_client/lib/api.dart';
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
@@ -110,8 +112,18 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
             );
       }
     } else {
-      if (mounted) {
+      if (true) {
         ref.read(toastProvider).showSuccess('Meal logged successfully!');
+        //
+        log('✅ Meal logged successfully, refreshing dashboard and recipes');
+        final date = DateTime.now();
+               ref
+            .read(foodLoggingViewModelProvider.notifier)
+            .getUserRecipes(date: date, refresh: true);
+        ref
+            .read(foodLoggingViewModelProvider.notifier)
+            .getDashboard(date: date, refresh: true);
+             log('✅ Meal logged successfully, refreshing dashboard and recipes');
         NavigationService.pushAndRemoveUntil(child: const BottomNavScreen());
       }
     }
