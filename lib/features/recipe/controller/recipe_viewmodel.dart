@@ -329,6 +329,46 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
     }
   }
 
+  /// Re-analyze a recipe with an updated FoodAnalysisDto
+  /// Returns true if successful, false otherwise
+  Future<bool> reAnalyzeRecipe(FoodAnalysisDto foodAnalysis) async {
+    state = state.copyWith(
+        isLoading: true, errorMessage: null, analyzedRecipe: null);
+
+    try {
+      final response =
+          await _apiService.recipeApi.reAnalyzeRecipe(foodAnalysis);
+
+      if (response != null) {
+        state = state.copyWith(
+          isLoading: false,
+          analyzedRecipe: response,
+          errorMessage: null,
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to re-analyze recipe',
+        );
+        return false;
+      }
+    } on ApiException catch (e) {
+      print(e);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
   /// Clear the analyzed recipe
   void clearAnalyzedRecipe() {
     state = state.copyWith(analyzedRecipe: null);

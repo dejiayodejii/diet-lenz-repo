@@ -30,7 +30,7 @@ class _SetttingsScreenState extends ConsumerState<ReferalScreen> {
     final mySubscription =
         ref.read(subscriptionViewModelProvider).mySubscription;
     if (mySubscription is Map) {
-      return (mySubscription['referralCode'] as String?) ?? '';
+      return (mySubscription['firstPromoterReferralCode'] as String?) ?? '';
     }
     return '';
   }
@@ -53,7 +53,8 @@ class _SetttingsScreenState extends ConsumerState<ReferalScreen> {
     final referralCode = () {
       final sub = subscriptionState.mySubscription;
       if (sub is Map) {
-        return (sub['referralCode'] as String?) ?? '';
+        return (sub['firstPromoterReferralCode'] as String?) ?? "N/A";
+        // sub['referralCode'] as String? ?? '';
       }
       return '';
     }();

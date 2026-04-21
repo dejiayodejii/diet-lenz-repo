@@ -1,7 +1,7 @@
 import 'package:diet_lenz/api_client/lib/api.dart';
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
-import 'package:diet_lenz/core/constants/app_colors.dart';
+import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/core/utils/functions.dart';
@@ -9,7 +9,10 @@ import 'package:diet_lenz/core/utils/loader.dart';
 import 'package:diet_lenz/features/bottom_nav/bottom.dart';
 import 'package:diet_lenz/features/camera/edit_suggest.dart';
 import 'package:diet_lenz/features/camera/edit_recipe_steps.dart';
+import 'package:diet_lenz/component/custom_textfield.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
+import 'package:diet_lenz/features/recipe/controller/recipe_viewmodel.dart';
+import 'package:diet_lenz/widgets/pulsating_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,7 +27,6 @@ class SuggestMealDetailScreen extends ConsumerStatefulWidget {
     super.key,
     required this.suggestion,
     this.headerImage,
-
   });
 
   @override
@@ -36,6 +38,8 @@ class _SuggestMealDetailScreenState
     extends ConsumerState<SuggestMealDetailScreen> {
   late List<IngredientDto> ingredients;
   late List<String> recipeSteps;
+  FoodAnalysisDto? _reAnalyzedResult;
+  final TextEditingController _reanalyseController = TextEditingController();
 
   @override
   void initState() {
@@ -46,12 +50,30 @@ class _SuggestMealDetailScreenState
     recipeSteps = List.from(widget.suggestion.recipeSteps);
   }
 
-  double get protein => widget.suggestion.totalMacros?.protein?.value ?? 0.0;
-  double get carbs => widget.suggestion.totalMacros?.carbs?.value ?? 0.0;
-  double get fat => widget.suggestion.totalMacros?.fat?.value ?? 0.0;
-  double get fiber => widget.suggestion.totalMacros?.fiber?.value ?? 0.0;
+  @override
+  void dispose() {
+    _reanalyseController.dispose();
+    super.dispose();
+  }
 
-    LogMealRequestDtoMealTypeEnum? _selectedMealType;
+  double get protein =>
+      _reAnalyzedResult?.totalMacros?.protein?.value ??
+      widget.suggestion.totalMacros?.protein?.value ??
+      0.0;
+  double get carbs =>
+      _reAnalyzedResult?.totalMacros?.carbs?.value ??
+      widget.suggestion.totalMacros?.carbs?.value ??
+      0.0;
+  double get fat =>
+      _reAnalyzedResult?.totalMacros?.fat?.value ??
+      widget.suggestion.totalMacros?.fat?.value ??
+      0.0;
+  double get fiber =>
+      _reAnalyzedResult?.totalMacros?.fiber?.value ??
+      widget.suggestion.totalMacros?.fiber?.value ??
+      0.0;
+
+  LogMealRequestDtoMealTypeEnum? _selectedMealType;
 
   // Calculate the maximum macro value for relative comparison
   double get maxMacroValue {
@@ -76,14 +98,15 @@ class _SuggestMealDetailScreenState
       return;
     }
 
-    // Convert SuggestedFoodAnalysis to FoodAnalysisDto
-    final foodAnalysis = FoodAnalysisDto(
-      foodName: widget.suggestion.foodName,
-      description: widget.suggestion.description,
-      // ingredients: ingredients,
-      totalMacros: widget.suggestion.totalMacros,
-      // imageBase64: widget.suggestion.imageBase64,
-    );
+    // Convert SuggestedFoodAnalysis to FoodAnalysisDto (use re-analyzed result if available)
+    final foodAnalysis = _reAnalyzedResult ??
+        FoodAnalysisDto(
+          foodName: widget.suggestion.foodName,
+          description: widget.suggestion.description,
+          // ingredients: ingredients,
+          totalMacros: widget.suggestion.totalMacros,
+          // imageBase64: widget.suggestion.imageBase64,
+        );
 
     // Create log meal request
     final request = LogMealRequestDto(
@@ -110,7 +133,7 @@ class _SuggestMealDetailScreenState
               'Meal logged successfully!',
             );
         final date = DateTime.now();
-                ref
+        ref
             .read(foodLoggingViewModelProvider.notifier)
             .getUserRecipes(date: date, refresh: true);
         ref
@@ -118,6 +141,56 @@ class _SuggestMealDetailScreenState
             .getDashboard(date: date, refresh: true);
         NavigationService.pushAndRemoveUntil(child: const BottomNavScreen());
       }
+    }
+  }
+
+  Future<void> _handleReAnalyze() async {
+    final text = _reanalyseController.text.trim();
+    if (text.isEmpty) return;
+
+    final updatedAnalysis = FoodAnalysisDto(
+      foodName: _reAnalyzedResult?.foodName ?? widget.suggestion.foodName,
+      description: text,
+      totalMacros: MacroNutrientsDto(
+        calories: _reAnalyzedResult?.totalMacros?.calories ??
+            widget.suggestion.totalMacros?.calories ??
+            0.0,
+        protein: QuantityDto(
+          value: protein,
+          unit: widget.suggestion.totalMacros?.protein?.unit ?? 'g',
+        ),
+        carbs: QuantityDto(
+          value: carbs,
+          unit: widget.suggestion.totalMacros?.carbs?.unit ?? 'g',
+        ),
+        fat: QuantityDto(
+          value: fat,
+          unit: widget.suggestion.totalMacros?.fat?.unit ?? 'g',
+        ),
+        fiber: QuantityDto(
+          value: fiber,
+          unit: widget.suggestion.totalMacros?.fiber?.unit ?? 'g',
+        ),
+      ),
+    );
+
+    final recipeVM = ref.read(recipeViewModelProvider.notifier);
+    final success = await recipeVM.reAnalyzeRecipe(updatedAnalysis);
+
+    if (!mounted) return;
+
+    if (success) {
+      final result = ref.read(recipeViewModelProvider).analyzedRecipe;
+      if (result != null) {
+        setState(() {
+          _reAnalyzedResult = result;
+          _reanalyseController.clear();
+        });
+        ref.read(toastProvider).showSuccess('Analysis updated!');
+      }
+    } else {
+      final error = ref.read(recipeViewModelProvider).errorMessage;
+      ref.read(toastProvider).showError(error ?? 'Re-analysis failed');
     }
   }
 
@@ -129,263 +202,293 @@ class _SuggestMealDetailScreenState
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(foodLoggingViewModelProvider);
+    final recipeState = ref.watch(recipeViewModelProvider);
     return BlurryModalProgressHUD(
-      inAsyncCall: state.isLoading,
-      child: Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top Image Section
-                Stack(
+        inAsyncCall: state.isLoading || recipeState.isLoading,
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          body: Stack(
+            children: [
+              SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // widget.suggestion.suggestedImage != null
-                    //     ? Image.network(
-                    //         widget.suggestion.suggestedImage!,
-                    //         height: 350,
-                    //         width: double.infinity,
-                    //         fit: BoxFit.cover,
-                    //         errorBuilder: (ctx, err, st) => Image.asset(
-                    //           AppImages.salad,
-                    //           scale: 2,
-                    //           height: 350,
-                    //           width: double.infinity,
-                    //           fit: BoxFit.cover,
-                    //         ),
-                    //       )
-                    //     : 
-                        widget.headerImage ?? Image.asset(
-                            AppImages.salad,
-                            scale: 2,
-                            height: 350,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
+                    // Top Image Section
+                    Stack(
+                      children: [
+                        // widget.suggestion.suggestedImage != null
+                        //     ? Image.network(
+                        //         widget.suggestion.suggestedImage!,
+                        //         height: 350,
+                        //         width: double.infinity,
+                        //         fit: BoxFit.cover,
+                        //         errorBuilder: (ctx, err, st) => Image.asset(
+                        //           AppImages.salad,
+                        //           scale: 2,
+                        //           height: 350,
+                        //           width: double.infinity,
+                        //           fit: BoxFit.cover,
+                        //         ),
+                        //       )
+                        //     :
+                        widget.headerImage ??
+                            Image.asset(
+                              AppImages.salad,
+                              scale: 2,
+                              height: 350,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                        SafeArea(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: Colors.black45,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.arrow_back_ios_new,
+                                        color: Colors.white, size: 18),
+                                    onPressed: () => Navigator.pop(context),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                    SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: Colors.black45,
-                              child: IconButton(
-                                icon: const Icon(Icons.arrow_back_ios_new,
-                                    color: Colors.white, size: 18),
-                                onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  _reAnalyzedResult?.foodName ??
+                                      widget.suggestion.foodName ??
+                                      "Unknown Food",
+                                  style: const TextStyle(
+                                    fontFamily: AppFonts.lato,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              CalorieBadge(
+                                text: '${_calculateTotalMacros()}g',
+                              ),
+                            ],
+                          ),
+                          CalorieBadge(
+                            text:
+                                '${(_reAnalyzedResult?.totalMacros?.calories ?? widget.suggestion.totalMacros?.calories)?.toStringAsFixed(0) ?? "0"} cal',
+                          ),
+                          const SizedBox(height: 25),
+                          _buildMacroBar(
+                            "Protein",
+                            "${protein.toStringAsFixed(1)}${(_reAnalyzedResult?.totalMacros?.protein?.unit ?? widget.suggestion.totalMacros?.protein?.unit) ?? "g"}",
+                            getRelativeProgress(protein),
+                          ),
+                          const SizedBox(height: 15),
+                          _buildMacroBar(
+                            "Carbs",
+                            "${carbs.toStringAsFixed(1)}${(_reAnalyzedResult?.totalMacros?.carbs?.unit ?? widget.suggestion.totalMacros?.carbs?.unit) ?? "g"}",
+                            getRelativeProgress(carbs),
+                          ),
+                          const SizedBox(height: 15),
+                          _buildMacroBar(
+                            "Fats",
+                            "${fat.toStringAsFixed(1)}${(_reAnalyzedResult?.totalMacros?.fat?.unit ?? widget.suggestion.totalMacros?.fat?.unit) ?? "g"}",
+                            getRelativeProgress(fat),
+                          ),
+                          const SizedBox(height: 20),
+                          if ((_reAnalyzedResult?.description ??
+                                      widget.suggestion.description) !=
+                                  null &&
+                              (_reAnalyzedResult?.description ??
+                                      widget.suggestion.description)!
+                                  .isNotEmpty) ...[
+                            const Text(
+                              "Description",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              (_reAnalyzedResult?.description ??
+                                  widget.suggestion.description)!,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        PulsatingBorder(
+                        borderWidth: 3,
+                        color: AppColors.primaryColor,
+                        child: LabelTextFormField(
+                          noBorder: true,
+                          suffixIcon: GestureDetector(
+                            onTap: _handleReAnalyze,
+                            child: const Icon(Icons.send,
+                                size: 20, color: AppColors.primaryColor),
+                          ),
+                          maxLines: 2,
+                          controller: _reanalyseController,
+                          hintText:
+                              "Anything missing? (e.g., 'fried in oil' or 'large size')",
+                        ),
+                      ),
+                          const SizedBox(height: 20),
+                          if (ingredients.isNotEmpty) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  "Ingredients",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    final updatedIngredients = await Navigator
+                                        .push<List<IngredientDto>>(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            EditIngredientScreen(
+                                          suggestion: widget.suggestion,
+                                        ),
+                                      ),
+                                    );
+
+                                    // Update the ingredients list if user updated them
+                                    if (updatedIngredients != null) {
+                                      setState(() {
+                                        ingredients = updatedIngredients;
+                                      });
+                                    }
+                                  },
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: const Color(0xFFFF6B35)
+                                        .withOpacity(0.1),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "Edit",
+                                    style: TextStyle(color: Color(0xFFFF6B35)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            ...ingredients.map(
+                              (ingredient) => Padding(
+                                padding: const EdgeInsets.only(bottom: 12.0),
+                                child: _buildIngredientCard(ingredient),
                               ),
                             ),
                           ],
-                        ),
+                          if (recipeSteps.isNotEmpty) ...[
+                            const SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  "Recipe Steps",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    final updatedSteps =
+                                        await Navigator.push<List<String>>(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            EditRecipeStepsScreen(
+                                          suggestion: widget.suggestion,
+                                          recipeSteps: recipeSteps,
+                                        ),
+                                      ),
+                                    );
+
+                                    // Update the recipe steps list if user updated them
+                                    if (updatedSteps != null) {
+                                      setState(() {
+                                        recipeSteps = updatedSteps;
+                                      });
+                                    }
+                                  },
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: const Color(0xFFFF6B35)
+                                        .withOpacity(0.1),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "Edit",
+                                    style: TextStyle(color: Color(0xFFFF6B35)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            ...recipeSteps.asMap().entries.map(
+                                  (entry) => Padding(
+                                    padding:
+                                        const EdgeInsets.only(bottom: 12.0),
+                                    child: _buildRecipeStepCard(
+                                      entry.key + 1,
+                                      entry.value,
+                                    ),
+                                  ),
+                                ),
+                          ],
+                          const SizedBox(height: 20),
+                          _buildMealTypeSelector(),
+                          const SizedBox(height: 20),
+                          const SizedBox(height: 100), // Space for button
+                        ],
                       ),
                     ),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              widget.suggestion.foodName ?? "Unknown Food",
-                              style: const TextStyle(
-                                fontFamily: AppFonts.lato,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          CalorieBadge(
-                            text: '${_calculateTotalMacros()}g',
-                          ),
-                        ],
-                      ),
-                      CalorieBadge(
-                        text:
-                        '${widget.suggestion.totalMacros?.calories?.toStringAsFixed(0) ?? "0"} cal',
-                      ),
-                      const SizedBox(height: 25),
-                      _buildMacroBar(
-                        "Protein",
-                        "${protein.toStringAsFixed(1)}${widget.suggestion.totalMacros?.protein?.unit ?? "g"}",
-                        getRelativeProgress(protein),
-                      ),
-                      const SizedBox(height: 15),
-                      _buildMacroBar(
-                        "Carbs",
-                        "${carbs.toStringAsFixed(1)}${widget.suggestion.totalMacros?.carbs?.unit ?? "g"}",
-                        getRelativeProgress(carbs),
-                      ),
-                      const SizedBox(height: 15),
-                      _buildMacroBar(
-                        "Fats",
-                        "${fat.toStringAsFixed(1)}${widget.suggestion.totalMacros?.fat?.unit ?? "g"}",
-                        getRelativeProgress(fat),
-                      ),
-                      const SizedBox(height: 20),
-                      if (widget.suggestion.description != null &&
-                          widget.suggestion.description!.isNotEmpty) ...[
-                        const Text(
-                          "Description",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          widget.suggestion.description!,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
-                      if (ingredients.isNotEmpty) ...[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Ingredients",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                final updatedIngredients =
-                                    await Navigator.push<List<IngredientDto>>(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => EditIngredientScreen(
-                                      suggestion: widget.suggestion,
-                                    ),
-                                  ),
-                                );
-
-                                // Update the ingredients list if user updated them
-                                if (updatedIngredients != null) {
-                                  setState(() {
-                                    ingredients = updatedIngredients;
-                                  });
-                                }
-                              },
-                              style: TextButton.styleFrom(
-                                backgroundColor:
-                                    const Color(0xFFFF6B35).withOpacity(0.1),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                              child: const Text(
-                                "Edit",
-                                style: TextStyle(color: Color(0xFFFF6B35)),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        ...ingredients.map(
-                          (ingredient) => Padding(
-                            padding: const EdgeInsets.only(bottom: 12.0),
-                            child: _buildIngredientCard(ingredient),
-                          ),
-                        ),
-                      ],
-                      if (recipeSteps.isNotEmpty) ...[
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Recipe Steps",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                final updatedSteps =
-                                    await Navigator.push<List<String>>(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => EditRecipeStepsScreen(
-                                      suggestion: widget.suggestion,
-                                      recipeSteps: recipeSteps,
-                                    ),
-                                  ),
-                                );
-
-                                // Update the recipe steps list if user updated them
-                                if (updatedSteps != null) {
-                                  setState(() {
-                                    recipeSteps = updatedSteps;
-                                  });
-                                }
-                              },
-                              style: TextButton.styleFrom(
-                                backgroundColor:
-                                    const Color(0xFFFF6B35).withOpacity(0.1),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                              child: const Text(
-                                "Edit",
-                                style: TextStyle(color: Color(0xFFFF6B35)),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        ...recipeSteps.asMap().entries.map(
-                              (entry) => Padding(
-                                padding: const EdgeInsets.only(bottom: 12.0),
-                                child: _buildRecipeStepCard(
-                                  entry.key + 1,
-                                  entry.value,
-                                ),
-                              ),
-                            ),
-                      ],
-                       const SizedBox(height: 20),
-                      _buildMealTypeSelector(),
-                      const SizedBox(height: 20),
-                      const SizedBox(height: 100), // Space for button
-                    ],
-                  ),
+              ),
+              Positioned(
+                bottom: 20 + MediaQuery.of(context).padding.bottom,
+                left: 20,
+                right: 20,
+                child: CustomYafButton(
+                  text: "Add to Log",
+                  onPressed: _handleAddToLog,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Positioned(
-            bottom: 20,
-            left: 20,
-            right: 20,
-            child: CustomYafButton(
-              text: "Add to Log",
-              onPressed: _handleAddToLog,
-            ),
-          ),
-        ],
-      ),
-    ));
+        ));
   }
 
-    Widget _buildMealTypeSelector() {
+  Widget _buildMealTypeSelector() {
     final mealTypes = LogMealRequestDtoMealTypeEnum.values;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,14 +521,11 @@ class _SuggestMealDetailScreenState
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.primary
-                      : Colors.grey.shade900,
+                  color: isSelected ? AppColors.primaryColor : Colors.grey.shade900,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: isSelected
-                        ? AppColors.primary
-                        : Colors.grey.shade700,
+                    color:
+                        isSelected ? AppColors.primaryColor : Colors.grey.shade700,
                   ),
                 ),
                 child: Text(
@@ -473,7 +573,7 @@ class _SuggestMealDetailScreenState
           child: LinearProgressIndicator(
             value: progress,
             backgroundColor: Colors.grey[800],
-            color: AppColors.primary,
+            color: AppColors.primaryColor,
             minHeight: 6,
           ),
         ),
@@ -539,7 +639,7 @@ class _SuggestMealDetailScreenState
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: AppColors.primaryColor,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Center(

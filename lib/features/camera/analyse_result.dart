@@ -10,8 +10,10 @@ import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/core/utils/loader.dart';
 import 'package:diet_lenz/features/bottom_nav/bottom.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
+import 'package:diet_lenz/features/recipe/controller/recipe_viewmodel.dart';
 import 'package:diet_lenz/widgets/calorie_badge.dart';
 import 'package:diet_lenz/widgets/macro_progress_item.dart';
+import 'package:diet_lenz/widgets/pulsating_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -29,6 +31,8 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
 
   // Editable controllers
   late TextEditingController _foodNameController;
+
+  TextEditingController _reanalyseController = TextEditingController();
   late TextEditingController _descriptionController;
   late TextEditingController _caloriesController;
   late TextEditingController _proteinController;
@@ -64,10 +68,73 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
     _proteinController.dispose();
     _carbsController.dispose();
     _fatController.dispose();
+    _reanalyseController.dispose();
     _fiberController.dispose();
     mealTypeController.dispose();
     noteController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleReAnalyze() async {
+    final text = _reanalyseController.text.trim();
+    if (text.isEmpty) return;
+
+    // Build a FoodAnalysisDto with the user's additional description
+    final updatedAnalysis = FoodAnalysisDto(
+      foodName: _foodNameController.text.trim(),
+      description: text,
+      imageBase64: widget.analysis.imageBase64,
+      totalMacros: MacroNutrientsDto(
+        calories: double.tryParse(_caloriesController.text) ?? 0.0,
+        protein: QuantityDto(
+          value: double.tryParse(_proteinController.text) ?? 0.0,
+          unit: widget.analysis.totalMacros?.protein?.unit ?? 'g',
+        ),
+        carbs: QuantityDto(
+          value: double.tryParse(_carbsController.text) ?? 0.0,
+          unit: widget.analysis.totalMacros?.carbs?.unit ?? 'g',
+        ),
+        fat: QuantityDto(
+          value: double.tryParse(_fatController.text) ?? 0.0,
+          unit: widget.analysis.totalMacros?.fat?.unit ?? 'g',
+        ),
+        fiber: QuantityDto(
+          value: double.tryParse(_fiberController.text) ?? 0.0,
+          unit: widget.analysis.totalMacros?.fiber?.unit ?? 'g',
+        ),
+      ),
+    );
+
+    final recipeVM = ref.read(recipeViewModelProvider.notifier);
+    final success = await recipeVM.reAnalyzeRecipe(updatedAnalysis);
+
+    if (!mounted) return;
+
+    if (success) {
+      final result = ref.read(recipeViewModelProvider).analyzedRecipe;
+      if (result != null) {
+        setState(() {
+          _foodNameController.text =
+              result.foodName ?? _foodNameController.text;
+          _descriptionController.text = result.description ?? '';
+          _caloriesController.text =
+              result.totalMacros?.calories?.toStringAsFixed(0) ?? '0';
+          _proteinController.text =
+              (result.totalMacros?.protein?.value ?? 0.0).toStringAsFixed(1);
+          _carbsController.text =
+              (result.totalMacros?.carbs?.value ?? 0.0).toStringAsFixed(1);
+          _fatController.text =
+              (result.totalMacros?.fat?.value ?? 0.0).toStringAsFixed(1);
+          _fiberController.text =
+              (result.totalMacros?.fiber?.value ?? 0.0).toStringAsFixed(1);
+          _reanalyseController.clear();
+        });
+        ref.read(toastProvider).showSuccess('Analysis updated!');
+      }
+    } else {
+      final error = ref.read(recipeViewModelProvider).errorMessage;
+      ref.read(toastProvider).showError(error ?? 'Re-analysis failed');
+    }
   }
 
   double get protein => double.tryParse(_proteinController.text) ?? 0.0;
@@ -659,9 +726,10 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
 
   @override
   Widget build(BuildContext context) {
+    final recipeState = ref.watch(recipeViewModelProvider);
     final state = ref.watch(foodLoggingViewModelProvider);
     return BlurryModalProgressHUD(
-      inAsyncCall: state.isLoading,
+      inAsyncCall: state.isLoading || recipeState.isLoading,
       child: Scaffold(
         extendBody: false,
         backgroundColor: Colors.black,
@@ -796,6 +864,23 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      PulsatingBorder(
+                        borderWidth: 3,
+                        color: AppColors.primaryColor,
+                        child: LabelTextFormField(
+                          noBorder: true,
+                          suffixIcon: GestureDetector(
+                            onTap: _handleReAnalyze,
+                            child: const Icon(Icons.send,
+                                size: 20, color: AppColors.primaryColor),
+                          ),
+                          maxLines: 2,
+                          controller: _reanalyseController,
+                          hintText:
+                              "Anything missing? (e.g., 'fried in oil' or 'large size')",
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                       MacroProgressItem(
                         label: 'Protein',
                         currentValue:
@@ -839,7 +924,8 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                         text: "Add to Log",
                         onPressed: _handleAddToLog,
                       ),
-                      const SizedBox(height: 50),
+                      SizedBox(
+                          height: 30 + MediaQuery.of(context).padding.bottom),
                     ],
                   ),
                 ),

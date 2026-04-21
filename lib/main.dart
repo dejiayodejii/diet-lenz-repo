@@ -20,9 +20,9 @@ import 'constants/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([
-  DeviceOrientation.portraitUp,
-  DeviceOrientation.portraitDown,
-]);
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -33,7 +33,7 @@ void main() async {
   // Initialize push notifications
   final pushService = PushNotificationService();
   try {
-    await pushService.initialize();
+     pushService.initialize();
     // print('✅ Push notifications initialized');what
   } catch (e) {
     // print('⚠️ Push notification init failed (non-fatal): $e');

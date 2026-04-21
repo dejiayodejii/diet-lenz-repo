@@ -85,7 +85,7 @@ class SuggestResultScreen extends StatelessWidget {
           ),
           // Bottom Navigation Card
           Positioned(
-            bottom: 30,
+            bottom: 30 + MediaQuery.of(context).padding.bottom, // Add padding for safe area
             left: 20,
             right: 20,
             child: GestureDetector(
@@ -165,6 +165,8 @@ class MealOptionsScreen extends StatelessWidget {
     final headerImage = Image.file(
       imageFile!,
       fit: BoxFit.cover,
+      height: 250,
+      width: double.infinity,
     );
 
     return Scaffold(
@@ -211,7 +213,7 @@ class MealOptionsScreen extends StatelessWidget {
                     const Text("No suggestions available.",
                         style: TextStyle(color: Colors.grey)),
                   ...suggestions.map((suggestion) => MealPlanCard(
-                    imageFile: headerImage,
+                        imageFile: headerImage,
                         title: suggestion.foodName ?? "Unknown Meal",
                         kcal: suggestion.totalMacros?.calories
                                 ?.toStringAsFixed(0) ??
@@ -267,8 +269,8 @@ class MealPlanCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                SuggestMealDetailScreen(suggestion: suggestion, headerImage: imageFile),
+            builder: (context) => SuggestMealDetailScreen(
+                suggestion: suggestion, headerImage: imageFile),
           ),
         );
       },
@@ -279,19 +281,20 @@ class MealPlanCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: imageFile ?? Image.network(
-                imageUrl,
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (ctx, err, st) => Image.asset(
-                  AppImages.chicken,
-                  scale: 2,
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
+              child: imageFile ??
+                  Image.network(
+                    imageUrl,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (ctx, err, st) => Image.asset(
+                      AppImages.chicken,
+                      scale: 2,
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
             ),
             const SizedBox(height: 12),
             Text(title,

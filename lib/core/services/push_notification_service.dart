@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -77,43 +78,45 @@ class PushNotificationService {
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
 
-    // 4. Get FCM token
-    // iOS simulators do NOT support APNS, so skip FCM token retrieval there.
-    if (Platform.isIOS && !await _isRealDevice()) {
-      print(
-          '📱 Running on iOS simulator — APNS/FCM not supported. Skipping token retrieval.');
-    } else {
-      try {
-        if (Platform.isIOS) {
-          // Wait for APNS token to be available before requesting FCM token
-          String? apnsToken = await _messaging.getAPNSToken();
-          if (apnsToken == null) {
-            await Future.delayed(const Duration(seconds: 3));
-            apnsToken = await _messaging.getAPNSToken();
-          }
-          if (apnsToken == null) {
-            print(
-                '⚠️ APNS token not available yet, FCM token will be fetched on refresh');
-            // Skip getToken() — onTokenRefresh will fire once APNS is ready
-          } else {
-            _fcmToken = await _messaging.getToken();
-            print('🔔 FCM Token: $_fcmToken');
-          }
-        } else {
-          _fcmToken = await _messaging.getToken();
-          print('🔔 FCM Token: $_fcmToken');
-        }
-      } catch (e) {
-        print('⚠️ Could not get FCM token: $e');
-      }
-    }
+    // // 4. Get FCM token
+    // // iOS simulators do NOT support APNS, so skip FCM token retrieval there.
+    // if (Platform.isIOS && !await _isRealDevice()) {
+    //   print(
+    //       '📱 Running on iOS simulator — APNS/FCM not supported. Skipping token retrieval.');
+    // } else {
 
-    // 5. Listen for token refresh
+    // }
+
+    // 4. Listen for token refresh FIRST — this fires when FCM token arrives late
+    // on iOS (after APNS registration completes). Must be set up before getToken().
     _messaging.onTokenRefresh.listen((newToken) {
       _fcmToken = newToken;
-      print('🔔 FCM Token refreshed: $newToken');
+      log('🔔 FCM Token (refresh): $newToken');
       onTokenRefresh?.call(newToken);
     });
+
+    // 5. Get FCM token
+    try {
+      if (Platform.isIOS) {
+        String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+        if (apnsToken != null) {
+          _fcmToken = await FirebaseMessaging.instance.getToken();
+        } else {
+          // Retry once after a short delay (real device may need time to register with APNS)
+          await Future<void>.delayed(const Duration(seconds: 3));
+          apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+          if (apnsToken != null) {
+            _fcmToken = await FirebaseMessaging.instance.getToken();
+          }
+        }
+      } else {
+        _fcmToken = await FirebaseMessaging.instance.getToken();
+      }
+    } catch (e) {
+      log('⚠️ Could not get FCM token (will retry via onTokenRefresh): $e');
+    }
+
+    log('FCM Token: $_fcmToken');
 
     // 6. Handle foreground messages — show a local notification
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
