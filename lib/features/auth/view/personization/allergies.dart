@@ -41,107 +41,114 @@ class _LoginScreenState extends ConsumerState<AllegiesScreen> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text("Any allergies?",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  letterSpacing: 0,
-                  color: AppColors.white,
-                  fontWeight: FontWeight.w600,
-                )),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Column(
-                  children: [
-                    IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.arrow_left,
-                          color: AppColors.primaryColor.withOpacity(0.6),
-                          size: 40,
-                        )),
-                    const SizedBox(height: 30)
-                  ],
-                ),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("Any allergies?",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 28,
+                        letterSpacing: 0,
+                        color: AppColors.white,
+                        fontWeight: FontWeight.w600,
+                      )),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      ...List.generate(allergyOptions.length, (index) {
-                        final bool isSelected = selectedIndices.contains(index);
-                        final allergyOption = allergyOptions[index];
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              if (isSelected) {
-                                selectedIndices.remove(index);
-                              } else {
-                                selectedIndices.add(index);
-                              }
-                            });
-                          },
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 75,
-                                width: 75,
-                                decoration: BoxDecoration(
-                                  border: !isSelected
-                                      ? null
-                                      : Border.all(
-                                          color: AppColors.primaryColor,
-                                          width: 4),
-                                  shape: BoxShape.circle,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : AppColors.primaryColor,
+                      // Column(
+                      //   children: [
+                      //     IconButton(
+                      //         onPressed: () {},
+                      //         icon: Icon(
+                      //           Icons.arrow_left,
+                      //           color: AppColors.primaryColor.withOpacity(0.6),
+                      //           size: 40,
+                      //         )),
+                      //     const SizedBox(height: 30)
+                      //   ],
+                      // ),
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            ...List.generate(allergyOptions.length, (index) {
+                              final bool isSelected =
+                                  selectedIndices.contains(index);
+                              final allergyOption = allergyOptions[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    if (isSelected) {
+                                      selectedIndices.remove(index);
+                                    } else {
+                                      selectedIndices.add(index);
+                                    }
+                                  });
+                                },
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      height: 75,
+                                      width: 75,
+                                      decoration: BoxDecoration(
+                                        border: !isSelected
+                                            ? null
+                                            : Border.all(
+                                                color: AppColors.primaryColor,
+                                                width: 4),
+                                        shape: BoxShape.circle,
+                                        color: isSelected
+                                            ? Colors.white
+                                            : AppColors.primaryColor,
+                                      ),
+                                      child: Center(
+                                        child: Image.asset(
+                                          allergyOption.entries.first.key,
+                                          color: isSelected
+                                              ? Colors.black
+                                              : Colors.white,
+                                          scale: 2,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    SizedBox(
+                                      height: 25,
+                                      child: Text(
+                                        allergyOption.entries.first.value,
+                                        style: const TextStyle(
+                                            letterSpacing: 0,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                    )
+                                  ],
                                 ),
-                                child: Center(
-                                  child: Image.asset(
-                                    allergyOption.entries.first.key,
-                                    color: isSelected
-                                        ? Colors.black
-                                        : Colors.white,
-                                    scale: 2,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              SizedBox(
-                                height: 25,
-                                child: Text(
-                                  allergyOption.entries.first.value,
-                                  style: const TextStyle(
-                                      letterSpacing: 0,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w400),
-                                ),
-                              )
-                            ],
-                          ),
-                        );
-                      }),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                      // Column(
+                      //   children: [
+                      //     IconButton(
+                      //         onPressed: () {},
+                      //         icon: const Icon(
+                      //           Icons.arrow_right,
+                      //           color: AppColors.primaryColor,
+                      //           size: 40,
+                      //         )),
+                      //     const SizedBox(height: 30)
+                      //   ],
+                      // ),
                     ],
                   ),
-                ),
-                Column(
-                  children: [
-                    IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.arrow_right,
-                          color: AppColors.primaryColor,
-                          size: 40,
-                        )),
-                    const SizedBox(height: 30)
-                  ],
-                ),
-              ],
+                  const SizedBox(height: 5),
+                ],
+              ),
             ),
-            const SizedBox(height: 5),
             CustomYafButton(
                 iconPositionLeft: false,
                 text: "Continue",
@@ -161,6 +168,7 @@ class _LoginScreenState extends ConsumerState<AllegiesScreen> {
                   NavigationService.push(child: const CountrySelectionScreen());
                 }),
             // const SizedBox(height: 5),
+            SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
           ],
         ),
       ),

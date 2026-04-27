@@ -179,7 +179,7 @@ class _LoginScreenState extends ConsumerState<SelectMacroTargetScreen> {
                   NavigationService.push(
                       child: const SelectDietPreferencecreen());
                 }),
-            const SizedBox(height: 20),
+            SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
           ],
         ),
       ),

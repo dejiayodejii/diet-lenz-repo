@@ -23,7 +23,7 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
     // Fetch goals when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(recipeViewModelProvider.notifier).getGoals();
-        ref.read(recipeViewModelProvider.notifier).getMacroTargets();
+      ref.read(recipeViewModelProvider.notifier).getMacroTargets();
     });
   }
 
@@ -39,9 +39,10 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
   Future<void> _pickDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
+      initialDate: _selectedDate ??
+          DateTime.now().subtract(const Duration(days: 365 * 18)),
       firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
+      lastDate: DateTime.now().subtract(const Duration(days: 365 * 14)),
       builder: (context, child) {
         // Customizing the Date Picker theme to match the app
         return Theme(
@@ -86,6 +87,7 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
               icon: const Icon(Icons.arrow_back_ios_new, size: 18),
               onPressed: () {
                 // Handle back navigation
+                Navigator.pop(context);
               },
             ),
           ),
@@ -149,7 +151,6 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
                 const SizedBox(width: 12),
 
                 // Year Selector
-                
               ],
             ),
 
@@ -173,7 +174,7 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
                   }
                   NavigationService.push(child: const SelectGoalScreen());
                 }),
-            const SizedBox(height: 20),
+            SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
           ],
         ),
       ),

@@ -10,6 +10,7 @@ import 'package:diet_lenz/core/utils/loader.dart';
 import 'package:diet_lenz/core/widgets/biometric_setup_dialog.dart';
 import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
 import 'package:diet_lenz/features/auth/view/forgot_password.dart';
+import 'package:diet_lenz/features/auth/view/use_referral.dart';
 import 'package:diet_lenz/features/auth/view/widgets/social_signup.dart';
 import 'package:diet_lenz/features/bottom_nav/bottom.dart';
 import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
@@ -111,24 +112,42 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   password: passwordController.text);
 
                               if (response) {
-                                final hasProfile = await ref
-                                    .read(userProfileViewModelProvider.notifier)
-                                    .getUserProfile();
-
-                                if (hasProfile) {
-                                  // Prompt biometric setup before navigating
-                                  if (context.mounted) {
-                                    await showBiometricSetupDialog(
-                                        context, ref);
-                                  }
+                                if (ref
+                                        .read(authViewModelProvider)
+                                        .authResponse!
+                                        .emailVerified ==
+                                    false) {
+                                  ref
+                                      .read(authViewModelProvider.notifier)
+                                      .resendOtp(
+                                        email: emailController.text,
+                                      );
                                   NavigationService.push(
-                                      child: const BottomNavScreen());
+                                    child: ReferralScreen(
+                                        email: emailController.text,
+                                        isSocialLogin: false),
+                                  );
                                 } else {
-                                  final currentError = ref
-                                      .read(authViewModelProvider)
-                                      .errorMessage;
-                                  ref.read(toastProvider).showError(
-                                      "Unable to retrieve profile. Please try again.");
+                                  final hasProfile = await ref
+                                      .read(
+                                          userProfileViewModelProvider.notifier)
+                                      .getUserProfile();
+
+                                  if (hasProfile) {
+                                    // Prompt biometric setup before navigating
+                                    if (context.mounted) {
+                                      await showBiometricSetupDialog(
+                                          context, ref);
+                                    }
+                                    NavigationService.push(
+                                        child: const BottomNavScreen());
+                                  } else {
+                                    NavigationService.push(
+                                      child: ReferralScreen(
+                                          email: emailController.text,
+                                          isSocialLogin: true),
+                                    );
+                                  }
                                 }
                               } else {
                                 final currentError = ref

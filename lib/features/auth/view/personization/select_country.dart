@@ -185,6 +185,7 @@ class _CountrySelectionScreenState
                   NavigationService.push(child: const PlanFinishedScreen());
                 }),
           ),
+          SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
         ],
       ),
     );

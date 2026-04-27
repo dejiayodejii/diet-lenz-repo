@@ -176,9 +176,10 @@ class _LoginScreenState extends ConsumerState<SelectGoalScreen> {
                   ref
                       .read(onboardingProfileProvider.notifier)
                       .updateGoal(goals[selectedIndex]);
-                  NavigationService.push(child: const SelectMacroTargetScreen());
+                  NavigationService.push(
+                      child: const SelectMacroTargetScreen());
                 }),
-            const SizedBox(height: 20),
+            SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
           ],
         ),
       ),

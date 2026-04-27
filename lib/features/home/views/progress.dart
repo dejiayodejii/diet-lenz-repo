@@ -2,16 +2,11 @@ import 'dart:io';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
 import 'package:diet_lenz/features/home/controller/health_provider.dart';
-import 'package:diet_lenz/features/home/views/food_logs.dart';
-import 'package:diet_lenz/features/home/views/health_data_chart.dart';
-import 'package:diet_lenz/main6.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:diet_lenz/widgets/stat_card.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:diet_lenz/data/models/health_ui_state.dart';
-import 'package:diet_lenz/data/repositories/health_repository.dart';
 
 class ProgressScreen extends ConsumerStatefulWidget {
   const ProgressScreen({super.key});
@@ -59,7 +54,6 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
   @override
   Widget build(BuildContext context) {
     final foodLoggingState = ref.watch(foodLoggingViewModelProvider);
-    // final healthState = ref.watch(healthProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -89,56 +83,10 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               ),
               const SizedBox(height: 40),
 
+              Platform.isIOS ? showHealthWidget() : Container(),
+
               // // Health Permission Request
-              // if (healthState.needsPermissions)
-              //   _HealthPermissionCard(
-              //     onRequest: () async {
-              //       final granted = await ref
-              //           .read(healthProvider.notifier)
-              //           .requestPermissions();
-              //       if (!granted && context.mounted) {
-              //         ScaffoldMessenger.of(context).showSnackBar(
-              //           const SnackBar(
-              //             content: Text(
-              //               'Please install Health Connect from the Play Store to enable health tracking.',
-              //             ),
-              //             duration: Duration(seconds: 4),
-              //           ),
-              //         );
-              //       }
-              //     },
-              //   )
-              // // Health Data Stats
-              // else if (healthState.hasData) ...[
-              //   _HealthSourceAttribution(),
-              //   const SizedBox(height: 10),
-              //   _HealthStatsRow(healthData: healthState.healthData),
-              // ]
-              // // Loading State
-              // else if (healthState.isLoading)
-              //   _HealthStatsLoading()
-              // // Default/Placeholder
-              // else ...[
-              //   _HealthSourceAttribution(),
-              //   const SizedBox(height: 10),
-              //   _HealthStatsRow(healthData: healthState.healthData),
-              // ],
-              // const SizedBox(height: 20),
-              // const Text(
-              //   " Trends and Insights",
-              //   style: TextStyle(
-              //     fontSize: 22,
-              //     color: Colors.white,
-              //     fontWeight: FontWeight.w400,
-              //   ),
-              // ),
-              // const SizedBox(height: 20),
-              // SegmentedToggle(
-              //   options: const ['Daily', 'Weekly', 'Monthly'],
-              //   selectedIndex: selectedIndex,
-              //   onChanged: _onTimeRangeChanged,
-              // ),
-              // const SizedBox(height: 50),
+
               // // HealthChart(
               // //   timeRange: _getTimeRangeFromIndex(selectedIndex),
               // // ),
@@ -147,6 +95,64 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget showHealthWidget() {
+    final healthState = ref.watch(healthProvider);
+    return Column(
+      children: [
+        if (healthState.needsPermissions) ...[
+          _HealthPermissionCard(
+            onRequest: () async {
+              final granted =
+                  await ref.read(healthProvider.notifier).requestPermissions();
+              if (!granted && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Please install Health Connect from the Play Store to enable health tracking.',
+                    ),
+                    duration: Duration(seconds: 4),
+                  ),
+                );
+              }
+            },
+          )
+        ]
+
+        // Health Data Stats
+        else if (healthState.hasData) ...[
+          _HealthSourceAttribution(),
+          const SizedBox(height: 10),
+          _HealthStatsRow(healthData: healthState.healthData),
+        ]
+        // Loading State
+        else if (healthState.isLoading)
+          _HealthStatsLoading()
+        // Default/Placeholder
+        else ...[
+          _HealthSourceAttribution(),
+          const SizedBox(height: 10),
+          _HealthStatsRow(healthData: healthState.healthData),
+        ],
+        const SizedBox(height: 20),
+        // const Text(
+        //   " Trends and Insights",
+        //   style: TextStyle(
+        //     fontSize: 22,
+        //     color: Colors.white,
+        //     fontWeight: FontWeight.w400,
+        //   ),
+        // ),
+        // const SizedBox(height: 20),
+        // SegmentedToggle(
+        //   options: const ['Daily', 'Weekly', 'Monthly'],
+        //   selectedIndex: selectedIndex,
+        //   onChanged: _onTimeRangeChanged,
+        // ),
+        // const SizedBox(height: 50),
+      ],
     );
   }
 }

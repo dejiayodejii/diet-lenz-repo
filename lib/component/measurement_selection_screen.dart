@@ -190,6 +190,7 @@ class _MeasurementSelectionScreenState
                     ..._buildCompoundFeetInches()
                   else ...[
                     MeasurementValueDisplay(
+                      key: ValueKey('display_${currentUnit}_$selectedValue'),
                       value: selectedValue,
                       unit: currentUnit,
                     ),
@@ -225,7 +226,7 @@ class _MeasurementSelectionScreenState
                 NavigationService.push(child: widget.nextScreen);
               },
             ),
-            const SizedBox(height: 20),
+          SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
           ],
         ),
       ),

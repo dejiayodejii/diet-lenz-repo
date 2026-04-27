@@ -1,4 +1,3 @@
-import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/providers/storage_providers.dart';
 import 'package:diet_lenz/core/services/iap_service.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
@@ -6,8 +5,6 @@ import 'package:diet_lenz/core/services/push_notification_service.dart';
 import 'package:diet_lenz/core/services/storage_service.dart';
 import 'package:diet_lenz/core/widgets/restart_widget.dart';
 import 'package:diet_lenz/features/onboarding/view/splash_screen.dart';
-import 'package:diet_lenz/features/subscription/controller/subscription_viewmodel.dart';
-import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
 import 'package:diet_lenz/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -16,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oktoast/oktoast.dart';
 import 'constants/app_theme.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +31,7 @@ void main() async {
   // Initialize push notifications
   final pushService = PushNotificationService();
   try {
-     pushService.initialize();
+    pushService.initialize();
     // print('✅ Push notifications initialized');what
   } catch (e) {
     // print('⚠️ Push notification init failed (non-fatal): $e');
@@ -46,13 +44,29 @@ void main() async {
   final iapService = IAPService();
   try {
     await iapService.configure();
-    print('✅ RevenueCat initialized');
-  } catch (e) {
-    print('⚠️ RevenueCat init failed (non-fatal): $e');
+  } catch (_) {
+    // Non-fatal: app continues without RevenueCat
   }
 
-  runApp(
-    RestartWidget(
+  await SentryFlutter.init(
+    (options) {
+      options.dsn =
+          'https://47876b6e83b82001e26d5b531e2491e4@o4511177626746880.ingest.de.sentry.io/4511259656716368';
+      // Adds request headers and IP for users, for more info visit:
+      // https://docs.sentry.io/platforms/dart/guides/flutter/data-management/data-collected/
+      options.sendDefaultPii = true;
+      options.enableLogs = true;
+      // Set tracesSampleRate to 1.0 to capture 100% of transactions for tracing.
+      // We recommend adjusting this value in production.
+      options.tracesSampleRate = 1.0;
+      // The sampling rate for profiling is relative to tracesSampleRate
+      // Setting to 1.0 will profile 100% of sampled transactions:
+      options.profilesSampleRate = 1.0;
+      // Configure Session Replay
+      options.replay.sessionSampleRate = 0.1;
+      options.replay.onErrorSampleRate = 1.0;
+    },
+    appRunner: () => runApp(RestartWidget(
       overrides: [
         // Override the storage service provider with the actual instance
         storageServiceProvider.overrideWithValue(storageService),
@@ -62,7 +76,7 @@ void main() async {
         pushNotificationServiceProvider.overrideWithValue(pushService),
       ],
       child: const MyApp(),
-    ),
+    )),
   );
 }
 
@@ -77,30 +91,6 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
-    // Load user profile if user is authenticated
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   final apiService = ref.read(apiServiceProvider);
-    //   final token = apiService.getAuthToken();
-
-    //   if (token != null && token.isNotEmpty) {
-    //     // User is authenticated, load their profile
-    //     ref.read(userProfileViewModelProvider.notifier).getUserProfile();
-
-    //     // Identify user with RevenueCat & check entitlement
-    //     final authResponse = apiService.getSavedAuthResponse();
-    //     if (authResponse != null && authResponse.isNotEmpty) {
-    //       try {
-    //         final userId =
-    //             apiService.getAuthToken(); // or parse userId from authResponse
-    //         if (userId != null && userId.isNotEmpty) {
-    //           ref
-    //               .read(subscriptionViewModelProvider.notifier)
-    //               .loginUser(userId);
-    //         }
-    //       } catch (_) {}
-    //     }
-    //   }
-    // });
   }
 
   @override
@@ -114,8 +104,6 @@ class _MyAppState extends ConsumerState<MyApp> {
         theme: AppTheme.darkTheme,
         navigatorKey: NavigationService.navigationKey,
         home: const SplashScreen(),
-        // home: const MealDetailScreen(),
-        // home: const SuggestResultScreen(),
       ),
     );
   }

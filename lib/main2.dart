@@ -105,6 +105,7 @@ class RulerPicker extends StatefulWidget {
 class _RulerPickerState extends State<RulerPicker> {
   late ScrollController _scrollController;
   final double _itemWidth = 10.0;
+  bool _isSnapping = false;
 
   @override
   void initState() {
@@ -149,16 +150,21 @@ class _RulerPickerState extends State<RulerPicker> {
           // Scrollable ruler
           NotificationListener<ScrollNotification>(
             onNotification: (notification) {
-              if (notification is ScrollEndNotification) {
+              if (notification is ScrollEndNotification && !_isSnapping) {
                 // Snap to nearest value
                 final offset = _scrollController.offset;
                 final nearestStepIndex = (offset / _itemWidth).round();
                 final nearestOffset = nearestStepIndex * _itemWidth;
-                _scrollController.animateTo(
-                  nearestOffset,
-                  duration: const Duration(milliseconds: 150),
-                  curve: Curves.easeOut,
-                );
+                if ((offset - nearestOffset).abs() > 0.5) {
+                  _isSnapping = true;
+                  _scrollController
+                      .animateTo(
+                        nearestOffset,
+                        duration: const Duration(milliseconds: 150),
+                        curve: Curves.easeOut,
+                      )
+                      .whenComplete(() => _isSnapping = false);
+                }
               }
               return true;
             },

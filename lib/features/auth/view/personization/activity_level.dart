@@ -145,7 +145,7 @@ class _ActivityLevelScreenState extends ConsumerState<ActivityLevelScreen> {
                   NavigationService.push(child: const AllegiesScreen());
                 }),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
         ],
       ),
     );

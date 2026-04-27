@@ -63,7 +63,7 @@ dependencies:
   image: ^4.0.0  # For image compression
   mobile_scanner: ^7.2.0
   rename_app:
-  # health: ^13.3.0  # Health Connect & HealthKit integration
+  health: ^13.3.0  # Health Connect & HealthKit integration
   permission_handler: ^11.3.0  # Runtime permissions
   purchases_flutter: ^8.9.0  # RevenueCat - in-app subscriptions
   purchases_ui_flutter: ^8.11.0
@@ -74,6 +74,8 @@ dependencies:
   flutter_local_notifications: ^21.0.0
   share_plus: ^12.0.1
   local_auth: ^2.3.0
+  mocktail:
+  sentry_flutter:
 dev_dependencies:
   flutter_test:
     sdk: flutter

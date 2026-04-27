@@ -211,19 +211,15 @@ class _LoginScreenState extends ConsumerState<SignUpScreen> {
                                     lastName: lastNameController.text.trim(),
                                   );
                                   if (response) {
-                                    // NavigationService.push(
-                                    //     child: VerifyOTPScreen(
-                                    //         email:
-                                    //             emailController.text.trim()));
                                     NavigationService.push(
                                         child: ReferralScreen(
                                       email: emailController.text.trim(),
                                     ));
                                   } else {
                                     //show error
-                                    ref
-                                        .read(toastProvider)
-                                        .showError(authState.errorMessage);
+                                    ref.read(toastProvider).showError(ref
+                                        .read(authViewModelProvider)
+                                        .errorMessage);
                                   }
                                 }
                               }),

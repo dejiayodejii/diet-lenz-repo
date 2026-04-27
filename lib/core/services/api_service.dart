@@ -6,7 +6,9 @@ import 'dart:io';
 
 import 'package:diet_lenz/api_client/lib/api.dart';
 import 'package:diet_lenz/core/repositories/storage_repository.dart';
+import 'package:diet_lenz/core/services/sentry_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// HTTP client wrapper that logs all API requests and responses
 /// and automatically handles 401 errors with token refresh
@@ -14,12 +16,14 @@ class LoggingHttpClient extends http.BaseClient {
   final http.Client _inner;
   final bool enableLogging;
   final ApiService _apiService;
+  final SentryService? _sentryService;
 
   LoggingHttpClient(
     this._inner,
     this._apiService, {
     this.enableLogging = true,
-  });
+    SentryService? sentryService,
+  }) : _sentryService = sentryService;
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
@@ -53,6 +57,24 @@ $responseBody''');
         print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
       }
 
+      // Record breadcrumb for every request (useful for Sentry event trails)
+      _sentryService?.addBreadcrumb(
+        message: '${request.method} ${request.url} → ${response.statusCode}',
+        category: 'http',
+        type: 'http',
+        data: {
+          'url': request.url.toString(),
+          'method': request.method,
+          'status_code': response.statusCode,
+          'duration_ms': duration.inMilliseconds,
+        },
+        level: response.statusCode >= 500
+            ? SentryLevel.error
+            : response.statusCode >= 400
+                ? SentryLevel.warning
+                : SentryLevel.info,
+      );
+
       // Check for 401 Unauthorized and handle token refresh
       // Only refresh if the response body indicates a token-related issue
       final isTokenExpired401 = response.statusCode == 401 &&
@@ -82,6 +104,18 @@ $responseBody''');
         }
       }
 
+      // Capture non-success responses in Sentry (after any token-refresh
+      // handling, so already-refreshed 401s that resulted in a 2xx retry
+      // are never recorded as failures).
+      if (response.statusCode >= 400) {
+        await _sentryService?.captureApiFailure(
+          method: request.method,
+          url: request.url.toString(),
+          statusCode: response.statusCode,
+          responseBody: responseBody.length <= 2000 ? responseBody : null,
+        );
+      }
+
       // Return response with bytes
       return http.StreamedResponse(
         http.ByteStream.fromBytes(responseBytes),
@@ -93,13 +127,22 @@ $responseBody''');
         persistentConnection: response.persistentConnection,
         reasonPhrase: response.reasonPhrase,
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
       final duration = DateTime.now().difference(startTime);
 
       if (enableLogging) {
         print('❌ Error after ${duration.inMilliseconds}ms: $e');
         print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
       }
+
+      // Capture network-level failures (timeouts, no connection, etc.)
+      await _sentryService?.captureApiFailure(
+        method: request.method,
+        url: request.url.toString(),
+        statusCode: null,
+        error: e,
+        stackTrace: stackTrace,
+      );
 
       rethrow;
     }
@@ -179,9 +222,13 @@ class ApiService {
   // Callback for logout navigation
   Function()? onUnauthorized;
 
-  /// Initialize the API service with base URL, storage repository, and optional logging
+  /// Initialize the API service with base URL, storage repository, and optional logging.
+  ///
+  /// Pass a [sentryService] to enable automatic Sentry reporting for every
+  /// failed HTTP call (status >= 400 or network exceptions).
   void initialize({
     required StorageRepository storageRepository,
+    SentryService? sentryService,
     String baseUrl = 'https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app',
     bool enableLogging = true,
   }) {
@@ -191,8 +238,9 @@ class ApiService {
     // Add logging HTTP client wrapper with reference to this ApiService
     _apiClient.client = LoggingHttpClient(
       http.Client(),
-      this, // Pass ApiService instance for token refresh
+      this,
       enableLogging: enableLogging,
+      sentryService: sentryService,
     );
 
     // Initialize all API controllers

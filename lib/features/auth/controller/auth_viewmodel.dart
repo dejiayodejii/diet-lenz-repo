@@ -1,11 +1,14 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:diet_lenz/api_client/lib/api.dart';
 import 'package:diet_lenz/core/providers/api_providers.dart';
+import 'package:diet_lenz/core/providers/sentry_providers.dart';
 import 'package:diet_lenz/core/services/api_service.dart';
 import 'package:diet_lenz/core/services/iap_service.dart';
 import 'package:diet_lenz/core/services/push_notification_service.dart';
+import 'package:diet_lenz/core/services/sentry_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Extension to extract error message from ApiException
@@ -27,6 +30,13 @@ extension ApiExceptionExtension on ApiException {
   }
 }
 
+/// Sentinel wrapper that lets [AuthState.copyWith] distinguish between
+/// "caller wants to set this field to null" and "caller didn't touch this field".
+class _Nullable<T> {
+  const _Nullable(this.value);
+  final T? value;
+}
+
 /// Auth state to track loading, success, error states
 class AuthState {
   final bool isLoading;
@@ -43,14 +53,16 @@ class AuthState {
 
   AuthState copyWith({
     bool? isLoading,
-    AuthResponse? authResponse,
-    String? errorMessage,
+    _Nullable<AuthResponse>? authResponse,
+    _Nullable<String>? errorMessage,
     bool? isAuthenticated,
   }) {
     return AuthState(
       isLoading: isLoading ?? this.isLoading,
-      authResponse: authResponse ?? this.authResponse,
-      errorMessage: errorMessage,
+      authResponse:
+          authResponse != null ? authResponse.value : this.authResponse,
+      errorMessage:
+          errorMessage != null ? errorMessage.value : this.errorMessage,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
     );
   }
@@ -62,22 +74,29 @@ final authViewModelProvider =
   final apiService = ref.watch(apiServiceProvider);
   final iapService = ref.watch(iapServiceProvider);
   final pushService = ref.watch(pushNotificationServiceProvider);
-  return AuthViewModel(apiService, iapService, pushService);
+  final sentryService = ref.read(sentryServiceProvider);
+  return AuthViewModel(apiService, iapService, pushService, sentryService);
 });
 
 /// Auth ViewModel with all authentication methods
 class AuthViewModel extends StateNotifier<AuthState> {
-  AuthViewModel(this._apiService, this._iapService, this._pushService)
-      : super(AuthState()) {
+  AuthViewModel(
+    this._apiService,
+    this._iapService,
+    this._pushService,
+    this._sentryService,
+  ) : super(AuthState()) {
     _checkAuthStatus();
   }
 
   final ApiService _apiService;
   final IAPService _iapService;
   final PushNotificationService _pushService;
+  final SentryService _sentryService;
 
   /// Check if user is already authenticated on app start
   void _checkAuthStatus() {
+    log('Checking authentication status...');
     final token = _apiService.getAuthToken();
     if (token != null && token.isNotEmpty) {
       // Restore saved auth response from local storage
@@ -86,14 +105,31 @@ class AuthViewModel extends StateNotifier<AuthState> {
       if (savedAuthJson != null && savedAuthJson.isNotEmpty) {
         try {
           savedAuthResponse = AuthResponse.fromJson(json.decode(savedAuthJson));
-        } catch (_) {}
+        } catch (_) {
+          log("Failed to parse saved auth response");
+        }
       }
+      log("auth response is $savedAuthResponse");
       state = state.copyWith(
         isAuthenticated: true,
-        authResponse: savedAuthResponse,
+        authResponse: _Nullable(savedAuthResponse),
       );
-    }else{
-      print('No auth token found, user is not authenticated');
+      // Restore Sentry user context for the active session.
+      _sentryService.setUser(
+        id: savedAuthResponse?.userId ?? 'unknown',
+        email: savedAuthResponse?.email,
+        name: [
+          savedAuthResponse?.firstName,
+          savedAuthResponse?.lastName,
+        ].whereType<String>().join(' ').trim().isEmpty
+            ? null
+            : [
+                savedAuthResponse?.firstName,
+                savedAuthResponse?.lastName,
+              ].whereType<String>().join(' ').trim(),
+      );
+    } else {
+      log('No auth token found, user is not authenticated');
     }
   }
 
@@ -110,7 +146,8 @@ class AuthViewModel extends StateNotifier<AuthState> {
     String? deviceId,
     String? deviceName,
   }) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state =
+        state.copyWith(isLoading: true, errorMessage: const _Nullable(null));
 
     try {
       // Create login request
@@ -150,34 +187,47 @@ class AuthViewModel extends StateNotifier<AuthState> {
         // Identify user with RevenueCat
         await _identifyWithRevenueCat(response.email);
 
+        // Identify user in Sentry
+        await _sentryService.setUser(
+          id: response.userId ?? response.email ?? 'unknown',
+          email: response.email,
+          name: [response.firstName, response.lastName]
+                  .whereType<String>()
+                  .join(' ')
+                  .trim()
+                  .isEmpty
+              ? null
+              : [response.firstName, response.lastName]
+                  .whereType<String>()
+                  .join(' ')
+                  .trim(),
+        );
+
         state = state.copyWith(
           isLoading: false,
-          authResponse: response,
+          authResponse: _Nullable(response),
           isAuthenticated: true,
-          errorMessage: null,
+          errorMessage: const _Nullable(null),
         );
         return true;
       } else {
         state = state.copyWith(
           isLoading: false,
-          errorMessage: 'Login failed: No token received',
+          errorMessage: const _Nullable('Login failed: No token received'),
         );
         return false;
       }
     } on ApiException catch (e) {
-      print("eee ${e.toString()}");
-      // API returned an error response (400, 401, 500, etc.)
       state = state.copyWith(
         isLoading: false,
-        errorMessage: _parseApiError(e),
+        errorMessage: _Nullable(_parseApiError(e)),
       );
       return false;
     } catch (e) {
-      print(e.toString());
-      // Network error, parsing error, or other unexpected errors
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+        errorMessage:
+            _Nullable('An unexpected error occurred: ${e.toString()}'),
       );
       return false;
     }
@@ -190,7 +240,8 @@ class AuthViewModel extends StateNotifier<AuthState> {
     required String firstName,
     required String lastName,
   }) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state =
+        state.copyWith(isLoading: true, errorMessage: const _Nullable(null));
 
     try {
       await _apiService.clearAuthToken();
@@ -215,30 +266,47 @@ class AuthViewModel extends StateNotifier<AuthState> {
         // Identify user with RevenueCat
         await _identifyWithRevenueCat(response.email);
 
+        // Identify user in Sentry
+        await _sentryService.setUser(
+          id: response.userId ?? response.email ?? 'unknown',
+          email: response.email,
+          name: [response.firstName, response.lastName]
+                  .whereType<String>()
+                  .join(' ')
+                  .trim()
+                  .isEmpty
+              ? null
+              : [response.firstName, response.lastName]
+                  .whereType<String>()
+                  .join(' ')
+                  .trim(),
+        );
+
         state = state.copyWith(
           isLoading: false,
-          authResponse: response,
+          authResponse: _Nullable(response),
           isAuthenticated: true,
-          errorMessage: null,
+          errorMessage: const _Nullable(null),
         );
         return true;
       } else {
         state = state.copyWith(
           isLoading: false,
-          errorMessage: 'Registration failed',
+          errorMessage: const _Nullable('Registration failed'),
         );
         return false;
       }
     } on ApiException catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: _parseApiError(e),
+        errorMessage: _Nullable(_parseApiError(e)),
       );
       return false;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+        errorMessage:
+            _Nullable('An unexpected error occurred: ${e.toString()}'),
       );
       return false;
     }
@@ -282,7 +350,8 @@ class AuthViewModel extends StateNotifier<AuthState> {
     String? deviceId,
     String? deviceName,
   }) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state =
+        state.copyWith(isLoading: true, errorMessage: const _Nullable(null));
 
     try {
       await _apiService.clearAuthToken();
@@ -314,11 +383,17 @@ class AuthViewModel extends StateNotifier<AuthState> {
         // Identify user with RevenueCat
         await _identifyWithRevenueCat(response.email);
 
+        // Identify user in Sentry
+        await _sentryService.setUser(
+          id: response.userId ?? response.email ?? 'unknown',
+          email: response.email,
+        );
+
         state = state.copyWith(
           isLoading: false,
-          authResponse: response,
+          authResponse: _Nullable(response),
           isAuthenticated: true,
-          errorMessage: null,
+          errorMessage: const _Nullable(null),
         );
         return true;
       }
@@ -326,13 +401,13 @@ class AuthViewModel extends StateNotifier<AuthState> {
     } on ApiException catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: _parseApiError(e),
+        errorMessage: _Nullable(_parseApiError(e)),
       );
       return false;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Google login failed: ${e.toString()}',
+        errorMessage: _Nullable('Google login failed: ${e.toString()}'),
       );
       return false;
     }
@@ -344,7 +419,8 @@ class AuthViewModel extends StateNotifier<AuthState> {
     String? deviceId,
     String? deviceName,
   }) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state =
+        state.copyWith(isLoading: true, errorMessage: const _Nullable(null));
 
     try {
       await _apiService.clearAuthToken();
@@ -375,11 +451,17 @@ class AuthViewModel extends StateNotifier<AuthState> {
         // Identify user with RevenueCat
         await _identifyWithRevenueCat(response.email);
 
+        // Identify user in Sentry
+        await _sentryService.setUser(
+          id: response.userId ?? response.email ?? 'unknown',
+          email: response.email,
+        );
+
         state = state.copyWith(
           isLoading: false,
-          authResponse: response,
+          authResponse: _Nullable(response),
           isAuthenticated: true,
-          errorMessage: null,
+          errorMessage: const _Nullable(null),
         );
         return true;
       }
@@ -387,13 +469,13 @@ class AuthViewModel extends StateNotifier<AuthState> {
     } on ApiException catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: _parseApiError(e),
+        errorMessage: _Nullable(_parseApiError(e)),
       );
       return false;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Apple login failed: ${e.toString()}',
+        errorMessage: _Nullable('Apple login failed: ${e.toString()}'),
       );
       return false;
     }
@@ -404,26 +486,27 @@ class AuthViewModel extends StateNotifier<AuthState> {
     required String email,
     required String otp,
   }) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state =
+        state.copyWith(isLoading: true, errorMessage: const _Nullable(null));
 
     try {
       await _apiService.authApi.verifyEmail(email, otp);
 
       state = state.copyWith(
         isLoading: false,
-        errorMessage: null,
+        errorMessage: const _Nullable(null),
       );
       return true;
     } on ApiException catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: _parseApiError(e),
+        errorMessage: _Nullable(_parseApiError(e)),
       );
       return false;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Verification failed: ${e.toString()}',
+        errorMessage: _Nullable('Verification failed: ${e.toString()}'),
       );
       return false;
     }
@@ -433,7 +516,8 @@ class AuthViewModel extends StateNotifier<AuthState> {
   Future<bool> resendOtp({
     required String email,
   }) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state =
+        state.copyWith(isLoading: true, errorMessage: const _Nullable(null));
 
     try {
       final request = ForgotPasswordRequest(email: email);
@@ -441,19 +525,19 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
       state = state.copyWith(
         isLoading: false,
-        errorMessage: null,
+        errorMessage: const _Nullable(null),
       );
       return true;
     } on ApiException catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: _parseApiError(e),
+        errorMessage: _Nullable(_parseApiError(e)),
       );
       return false;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Resend failed: ${e.toString()}',
+        errorMessage: _Nullable('Resend failed: ${e.toString()}'),
       );
       return false;
     }
@@ -461,13 +545,16 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
   /// Logout user
   Future<void> logout() async {
+    // Clear Sentry user context
+    await _sentryService.clearUser();
+
     // Log out from RevenueCat (creates anonymous user)
     try {
       if (_iapService.isConfigured) {
         await _iapService.logout();
       }
-    } catch (e) {
-      print('⚠️ RevenueCat logout error (non-fatal): $e');
+    } catch (_) {
+      // Non-fatal
     }
 
     await _apiService.clearAuthToken();
@@ -477,22 +564,16 @@ class AuthViewModel extends StateNotifier<AuthState> {
   /// Identify the user with RevenueCat after authentication.
   Future<void> _identifyWithRevenueCat(String? userId) async {
     if (userId == null || userId.isEmpty) return;
-    // Fire-and-forget: do not block the login flow waiting for RevenueCat
-    _iapService.login(userId).then((result) {
-      print('RevenueCat login result: $result');
-    }).catchError((Object e) {
-      print('⚠️ RevenueCat login error (non-fatal): $e');
-    });
+    try {
+      await _iapService.login(userId);
+    } catch (_) {
+      // Non-fatal — RevenueCat failure should never break authentication.
+    }
   }
 
   /// Parse API error messages
   String _parseApiError(ApiException e) {
     final errorMessage = e.extractMessage;
-
-    print("extracted message is $errorMessage");
-
-    print("Api exception is $e and  API Error: $errorMessage");
-
     switch (e.code) {
       case 400:
         return errorMessage ?? 'Invalid request';
@@ -526,12 +607,12 @@ class AuthViewModel extends StateNotifier<AuthState> {
         emailVerified: current.emailVerified,
         profilePhoto: photoUrl,
       );
-      state = state.copyWith(authResponse: updatedResponse);
+      state = state.copyWith(authResponse: _Nullable(updatedResponse));
     }
   }
 
   /// Clear error message
   void clearError() {
-    state = state.copyWith(errorMessage: null);
+    state = state.copyWith(errorMessage: const _Nullable(null));
   }
 }

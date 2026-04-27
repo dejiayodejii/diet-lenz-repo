@@ -1,3 +1,4 @@
+import 'package:diet_lenz/core/providers/sentry_providers.dart';
 import 'package:diet_lenz/core/providers/storage_providers.dart';
 import 'package:diet_lenz/core/services/api_service.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
@@ -7,10 +8,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final apiServiceProvider = Provider<ApiService>((ref) {
   final storageRepository = ref.watch(storageRepositoryProvider);
+  final sentryService = ref.read(sentryServiceProvider);
   final apiService = ApiService();
 
   apiService.initialize(
     storageRepository: storageRepository,
+    sentryService: sentryService,
     enableLogging: kDebugMode,
   );
 

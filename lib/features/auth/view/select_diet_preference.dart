@@ -177,7 +177,7 @@ class _LoginScreenState extends ConsumerState<SelectDietPreferencecreen> {
                       .updateDietaryPreference(goals[selectedIndex]);
                   NavigationService.push(child: const DesiredWeightScreen());
                 }),
-            const SizedBox(height: 20),
+            SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
           ],
         ),
       ),

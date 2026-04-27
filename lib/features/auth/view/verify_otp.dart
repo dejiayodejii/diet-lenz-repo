@@ -59,7 +59,7 @@ class _VerifyOTPScreenState extends ConsumerState<VerifyOTPScreen> {
   @override
   void dispose() {
     _resendTimer?.cancel();
-    // otpController.dispose();
+    otpController.dispose();
     super.dispose();
   }
 
@@ -82,114 +82,118 @@ class _VerifyOTPScreenState extends ConsumerState<VerifyOTPScreen> {
                     child: SvgPicture.asset(AppImages.backButton)),
               ],
             )),
-        body: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    //
-                    const SizedBox(height: 40),
-                    Text(
-                      "Enter the code sent to \n${widget.email}",
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          letterSpacing: 0,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: AppFonts.spaceGrotesk),
-                    ),
-                    const SizedBox(height: 60),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                      child: CustomPinBoxes(
-                        isOtpCorrect:
-                            true, // This logic might need refinement based on validation
-                        controller: otpController,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      "Didn’t receive code?",
-                      style: TextStyle(
-                          letterSpacing: 0,
-                          fontFamily: AppFonts.spaceGrotesk,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 17,
-                          color: AppColors.white),
-                    ),
-                    if (!_canResend)
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Column(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      //
+                      const SizedBox(height: 40),
                       Text(
-                        "Resend code in ${_resendCountdown}s",
+                        "Enter the code sent to \n${widget.email}",
+                        textAlign: TextAlign.center,
                         style: const TextStyle(
+                            letterSpacing: 0,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w400,
+                            fontFamily: AppFonts.spaceGrotesk),
+                      ),
+                      const SizedBox(height: 60),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                        child: CustomPinBoxes(
+                          isOtpCorrect:
+                              true, // This logic might need refinement based on validation
+                          controller: otpController,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        "Didn’t receive code?",
+                        style: TextStyle(
                             letterSpacing: 0,
                             fontFamily: AppFonts.spaceGrotesk,
                             fontWeight: FontWeight.w400,
                             fontSize: 17,
-                            color: AppColors.primaryColor),
-                      )
-                    else
-                      GestureDetector(
-                        onTap: () async {
-                          final success = await ref
-                              .read(authViewModelProvider.notifier)
-                              .resendOtp(email: widget.email);
-                          if (success) {
-                            _startResendTimer();
-                            ref
-                                .read(toastProvider)
-                                .showSuccess("OTP resent successfully.");
-                          } else {
-                            ref.read(toastProvider).showError(
-                                "Failed to resend OTP. Please try again.");
-                          }
-                        },
-                        child: const Text(
-                          "Resend code",
-                          style: TextStyle(
+                            color: AppColors.white),
+                      ),
+                      if (!_canResend)
+                        Text(
+                          "Resend code in ${_resendCountdown}s",
+                          style: const TextStyle(
                               letterSpacing: 0,
                               fontFamily: AppFonts.spaceGrotesk,
-                              decoration: TextDecoration.underline,
-                              decorationColor: AppColors.primaryColor,
                               fontWeight: FontWeight.w400,
                               fontSize: 17,
                               color: AppColors.primaryColor),
+                        )
+                      else
+                        GestureDetector(
+                          onTap: () async {
+                            final success = await ref
+                                .read(authViewModelProvider.notifier)
+                                .resendOtp(email: widget.email);
+                            if (success) {
+                              _startResendTimer();
+                              ref
+                                  .read(toastProvider)
+                                  .showSuccess("OTP resent successfully.");
+                            } else {
+                              ref.read(toastProvider).showError(
+                                  "Failed to resend OTP. Please try again.");
+                            }
+                          },
+                          child: const Text(
+                            "Resend code",
+                            style: TextStyle(
+                                letterSpacing: 0,
+                                fontFamily: AppFonts.spaceGrotesk,
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColors.primaryColor,
+                                fontWeight: FontWeight.w400,
+                                fontSize: 17,
+                                color: AppColors.primaryColor),
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              CustomYafButton(
-                  isDisabled:
-                      authState.isLoading || otpController.text.length < 6,
-                  fontSize: 16,
-                  weight: FontWeight.w600,
-                  text: "Verify",
-                  onPressed: () async {
-                    if (otpController.text.length < 6) {
-                       ref.read(toastProvider).showError(
-                         "Please enter the 6-digit OTP code.");
-                      return;
-                    }
+                CustomYafButton(
+                    isDisabled:
+                        authState.isLoading || otpController.text.length < 6,
+                    fontSize: 16,
+                    weight: FontWeight.w600,
+                    text: "Verify",
+                    onPressed: () async {
+                      if (otpController.text.length < 6) {
+                        ref
+                            .read(toastProvider)
+                            .showError("Please enter the 6-digit OTP code.");
+                        return;
+                      }
 
-                    final success = await ref
-                        .read(authViewModelProvider.notifier)
-                        .verifyEmail(
-                          email: widget.email,
-                          otp: otpController.text,
-                        );
+                      final success = await ref
+                          .read(authViewModelProvider.notifier)
+                          .verifyEmail(
+                            email: widget.email,
+                            otp: otpController.text,
+                          );
 
-                    if (success) {
-                      NavigationService.push(child: const PlanSetUpScreen());
-                    } else {
-                      ref.read(toastProvider).showError(
-                          authState.errorMessage ?? "OTP verification failed.");
-                    }
-                  }),
-              const SizedBox(height: 40),
-            ],
+                      if (success) {
+                        NavigationService.push(child: const PlanSetUpScreen());
+                      } else {
+                        ref.read(toastProvider).showError(
+                            ref.read(authViewModelProvider).errorMessage ??
+                                "OTP verification failed.");
+                      }
+                    }),
+                const SizedBox(height: 40),
+              ],
+            ),
           ),
         ),
       ),
