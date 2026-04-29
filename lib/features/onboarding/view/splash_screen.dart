@@ -56,7 +56,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         case SplashStatus.navigateToBiometricLock:
           _prefetchUserData();
           _navigateTo(
-              BiometricLockScreen(destination: const BottomNavScreen()));
+              const BiometricLockScreen(destination: BottomNavScreen())
+              );
         default:
           break;
       }

@@ -95,6 +95,8 @@ class SentryService {
     required String method,
     required String url,
     int? statusCode,
+    String? requestBody,
+    Map<String, String>? requestHeaders,
     String? responseBody,
     Object? error,
     StackTrace? stackTrace,
@@ -106,6 +108,10 @@ class SentryService {
       'http.method': method,
       'http.url': url,
       if (statusCode != null) 'http.status_code': statusCode,
+      if (requestBody != null && requestBody.length <= 2000)
+        'http.request_body': requestBody,
+      if (requestHeaders != null && requestHeaders.isNotEmpty)
+        'http.request_headers': _sanitizeHeaders(requestHeaders),
       if (responseBody != null && responseBody.length <= 2000)
         'http.response_body': responseBody,
     };
@@ -123,5 +129,23 @@ class SentryService {
         extras: extras,
       );
     }
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  static const _redactedHeaders = {
+    'authorization',
+    'cookie',
+    'set-cookie',
+    'x-api-key',
+  };
+
+  Map<String, String> _sanitizeHeaders(Map<String, String> headers) {
+    return {
+      for (final entry in headers.entries)
+        entry.key: _redactedHeaders.contains(entry.key.toLowerCase())
+            ? '[redacted]'
+            : entry.value,
+    };
   }
 }

@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:diet_lenz/core/repositories/storage_repository.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/core/services/sentry_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/data/network/api_endpoints.dart';
+import 'package:diet_lenz/data/network/app_exception.dart';
+import 'package:diet_lenz/features/auth/view/login.dart';
 import 'package:dio/dio.dart';
 
 // import 'package:http/http.dart' as http;
@@ -12,9 +16,10 @@ import 'package:dio/dio.dart';
 class TokenInterceptor extends Interceptor {
   final Dio _dio;
   final StorageRepository _storageRepository;
+  final SentryService _sentryService;
   int consecutive401Count = 0;
 
-  TokenInterceptor(this._dio, this._storageRepository);
+  TokenInterceptor(this._dio, this._storageRepository, this._sentryService);
 
   @override
   Future<void> onError(e, ErrorInterceptorHandler handler) async {
@@ -24,18 +29,24 @@ class TokenInterceptor extends Interceptor {
         if (newAccessToken != null) {
           final request = e.requestOptions;
           request.headers['Authorization'] = 'Bearer $newAccessToken';
-          final retryResponse = await _dio.request(
-            request.path,
-            data: request.data,
-            queryParameters: request.queryParameters,
-            options: Options(
-              method: request.method,
-              headers: request.headers,
-              sendTimeout: request.sendTimeout,
-              receiveTimeout: request.receiveTimeout,
-            ),
-          );
-          return handler.resolve(retryResponse);
+          try {
+            final retryResponse = await _dio.request(
+              request.path,
+              data: request.data,
+              queryParameters: request.queryParameters,
+              options: Options(
+                method: request.method,
+                headers: request.headers,
+                sendTimeout: request.sendTimeout,
+                receiveTimeout: request.receiveTimeout,
+              ),
+            );
+            return handler.resolve(retryResponse);
+          } on DioException catch (retryError) {
+            return handler.reject(retryError);
+          } catch (_) {
+            return handler.reject(e);
+          }
         } else {
           consecutive401Count++;
           return handler.next(e);
@@ -70,14 +81,29 @@ class TokenInterceptor extends Interceptor {
           await _storageRepository.saveToken(newAccessToken);
           return newAccessToken;
         } else {
-          // NavigationService.push(child: const WelcomeBackScreen());
+          final refreshUrl = (AppEndpoint.isLive
+                  ? AppEndpoint.baseUrl
+                  : AppEndpoint.stageUrl) +
+              AppEndpoint.refreshAccessToken;
+          unawaited(_sentryService.captureApiFailure(
+            method: 'POST',
+            url: refreshUrl,
+            statusCode: refreshResponse.statusCode,
+            responseBody: refreshResponse.data?.toString(),
+          ));
+          _storageRepository.clearStorage();
+          NavigationService.pushAndRemoveUntil(child: const LoginScreen());
           ToastService().showError("Session expired, kindly login again.");
         }
       }
       return null;
-    } catch (e) {
-      //i need this tracked
-      // NavigationService.push(child: const WelcomeBackScreen());
+    } catch (e, stackTrace) {
+      unawaited(_sentryService.captureException(
+        e,
+        stackTrace: stackTrace,
+        extras: {'context': 'token_refresh_failed'},
+      ));
+      NavigationService.pushAndRemoveUntil(child: const LoginScreen());
       ToastService().showError("Session expired, kindly login again.");
       return null;
     }

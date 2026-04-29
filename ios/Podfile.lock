@@ -133,7 +133,7 @@ PODS:
   - RevenueCatUI (5.32.0):
     - RevenueCat (= 5.32.0)
   - Sentry/HybridSDK (8.58.1)
-  - sentry_flutter (9.18.0):
+  - sentry_flutter (9.19.0):
     - Flutter
     - FlutterMacOS
     - Sentry/HybridSDK (= 8.58.1)
@@ -282,7 +282,7 @@ SPEC CHECKSUMS:
   RevenueCat: 7e1d0768fb287c9983173c9b28e39ccbeeb828a9
   RevenueCatUI: 61ddba6f94803f9b79c470ffe1e8b81d807c11ce
   Sentry: 958d9619ceccf6abb8c4736003fa336dac1a80a7
-  sentry_flutter: 8c688f0657eef5c6faf4985c57ca0f48ffb2b7b5
+  sentry_flutter: bdfd7a7b8931c4ecefa37fde9e44a15cd0af30b1
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
   sign_in_with_apple: c5dcc141574c8c54d5ac99dd2163c0c72ad22418

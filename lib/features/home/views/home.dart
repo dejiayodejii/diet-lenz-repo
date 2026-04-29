@@ -956,7 +956,7 @@ class HomeHeader extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Welcome Back,",
+                "Welcome,",
                 style: TextStyle(
                     fontFamily: AppFonts.lato,
                     fontSize: 14,

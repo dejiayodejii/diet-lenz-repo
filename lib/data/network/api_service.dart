@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:diet_lenz/core/providers/storage_providers.dart';
 import 'package:diet_lenz/core/repositories/storage_repository.dart';
+import 'package:diet_lenz/core/services/sentry_service.dart';
 import 'package:diet_lenz/data/network/api_endpoints.dart';
 import 'package:diet_lenz/data/network/api_error_handler.dart';
 import 'package:diet_lenz/data/network/app_exception.dart';
@@ -85,7 +86,7 @@ class NetworkProviderImp extends NetworkProvider {
         ],
       ),
       CurlLoggerDioInterceptor(printOnSuccess: false),
-      TokenInterceptor(dio, _storageRepository),
+      TokenInterceptor(dio, _storageRepository, SentryService()),
     ]);
 
     return dio;
@@ -133,10 +134,8 @@ class NetworkProviderImp extends NetworkProvider {
 
       return _handleResponse(response);
     } catch (e) {
-      if(e is DioException){
+      if (e is DioException) {}
 
-      }
-      
       return ApiErrorHandler.handleError(e);
     }
   }
@@ -168,21 +167,16 @@ class NetworkProviderImp extends NetworkProvider {
   }
 
   dynamic _handleResponse(Response response) {
-
     if (response.data == null) {
-
       return ApiError(
         errorCode: 'null_response',
         errorMessage: 'No data received from server',
       );
     }
 
-
     if (ApiErrorHandler.isSuccessful(response.statusCode)) {
-
       return response.data;
     }
-
 
     return ApiError(
       errorCode: 'server_error',

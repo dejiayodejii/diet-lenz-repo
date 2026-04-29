@@ -78,9 +78,9 @@ $responseBody''');
       // Check for 401 Unauthorized and handle token refresh
       // Only refresh if the response body indicates a token-related issue
       final isTokenExpired401 = response.statusCode == 401 &&
-          // !request.url.path.contains('/auth/refresh') &&
-          // !request.url.path.contains('/auth/login') &&
-          // !request.url.path.contains('/auth/register') &&
+          !request.url.path.contains('/auth/refresh') &&
+          !request.url.path.contains('/auth/login') &&
+          !request.url.path.contains('/auth/register') &&
           _isTokenRelatedError(responseBody);
 
       if (isTokenExpired401) {
@@ -353,8 +353,8 @@ class ApiService {
           ));
 
       // Call refresh endpoint
-      setAuthToken(
-          ""); // Clear token to avoid using expired token during refresh
+      // Clear token to avoid using expired token during refresh
+      await setAuthToken("");
       final response = await authApi.refresh(request);
 
       if (response != null && response.accessToken != null) {
