@@ -88,7 +88,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
       if (_isDisposed || !mounted) return;
       final camera = widget.camera ?? cameras.first;
       final controller =
-          CameraController(camera, ResolutionPreset.medium, enableAudio: false);
+          CameraController(camera, ResolutionPreset.ultraHigh, enableAudio: false);
       await controller.initialize();
       if (_isDisposed || !mounted) {
         controller.dispose();
