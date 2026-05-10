@@ -139,7 +139,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       await showBiometricSetupDialog(
                                           context, ref);
                                     }
-                                    NavigationService.push(
+                                    NavigationService.pushAndRemoveUntil(
                                         child: const BottomNavScreen());
                                   } else {
                                     NavigationService.push(

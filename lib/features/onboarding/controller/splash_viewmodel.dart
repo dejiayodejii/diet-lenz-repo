@@ -137,6 +137,8 @@ class SplashViewModel extends StateNotifier<SplashState> {
     }
 
     final refreshToken = _apiService.getRefreshToken();
+
+    log("Existing access token invalid or missing. Attempting refresh with token: $refreshToken");
     final refreshValid = refreshToken != null &&
         refreshToken.isNotEmpty &&
         !TokenUtils.isTokenExpired(refreshToken, isRefreshToken: true);

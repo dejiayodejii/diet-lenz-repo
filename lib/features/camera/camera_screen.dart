@@ -87,8 +87,8 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
       final cameras = await availableCameras();
       if (_isDisposed || !mounted) return;
       final camera = widget.camera ?? cameras.first;
-      final controller =
-          CameraController(camera, ResolutionPreset.ultraHigh, enableAudio: false);
+      final controller = CameraController(camera, ResolutionPreset.ultraHigh,
+          enableAudio: false);
       await controller.initialize();
       if (_isDisposed || !mounted) {
         controller.dispose();
@@ -162,8 +162,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
   Future<String?> _scanBarcodeFromImage(String imagePath) async {
     final controller = MobileScannerController();
     try {
-      final BarcodeCapture? result =
-          await controller.analyzeImage(imagePath);
+      final BarcodeCapture? result = await controller.analyzeImage(imagePath);
       if (result != null && result.barcodes.isNotEmpty) {
         final value = result.barcodes.first.rawValue;
         print('Barcode: $value');

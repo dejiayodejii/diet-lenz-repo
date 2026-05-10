@@ -77,6 +77,7 @@ dependencies:
   mocktail:
   sentry_flutter:
 dev_dependencies:
+  sentry_dart_plugin: ^3.3.0
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: ^0.14.4
@@ -196,3 +197,9 @@ flutter:
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+sentry:
+  upload_debug_symbols: true
+  upload_source_maps: true
+  project: flutter
+  org: dietlenz-n2
