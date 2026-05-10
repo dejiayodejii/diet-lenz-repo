@@ -1,6 +1,6 @@
 class StorageKeys {
-  static const String token = 'token';
-  static const String refreshToken = 'refreshToken';
+  static const String token = 'token_1';
+  static const String refreshToken = 'refreshToken_1';
   static const String userId = 'userId';
   static const String userData = 'userData';
   static const String userEmail = 'userEmail';

@@ -1,3 +1,4 @@
+import 'package:diet_lenz/component/custom_textfield.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:diet_lenz/component/custom_button.dart';
@@ -29,6 +30,8 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
 
   // Variable to store the selected date
   DateTime? _selectedDate;
+
+  final TextEditingController dobController = TextEditingController();
 
   // Helper to format numbers (e.g., turn 5 into 05)
   String _formatNumber(int number) {
@@ -63,6 +66,8 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
+        dobController.text =
+            "${_formatNumber(picked.month)}/${_formatNumber(picked.day)}/${picked.year}";
       });
     }
   }
@@ -115,44 +120,55 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
             const Spacer(),
 
             // -- Date Selectors (MM, DD, YYYY) --
-            Row(
-              children: [
-                // Month Selector
-                Expanded(
-                  flex: 3,
-                  child: _DateSelectorBox(
-                    label: _selectedDate == null
-                        ? "YYYY"
-                        : _selectedDate!.year.toString(),
-                    onTap: _pickDate,
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: _DateSelectorBox(
-                    label: _selectedDate == null
-                        ? "MM"
-                        : _formatNumber(_selectedDate!.month),
-                    onTap: _pickDate,
-                  ),
-                ),
-                const SizedBox(width: 12),
 
-                // Day Selector
-                Expanded(
-                  flex: 2,
-                  child: _DateSelectorBox(
-                    label: _selectedDate == null
-                        ? "DD"
-                        : _formatNumber(_selectedDate!.day),
-                    onTap: _pickDate,
-                  ),
-                ),
-                const SizedBox(width: 12),
-
-                // Year Selector
-              ],
+            LabelTextFormField(
+              onTap: _pickDate,
+              hintText: "Select your date of birth",
+              readOnly: true,
+              controller: dobController,
+              suffixIcon: Icon(
+                Icons.calendar_month,
+                color: Colors.grey,
+              ),
             ),
+            // Row(
+            //   children: [
+            //     // Month Selector
+            //     Expanded(
+            //       flex: 3,
+            //       child: _DateSelectorBox(
+            //         label: _selectedDate == null
+            //             ? "YYYY"
+            //             : _selectedDate!.year.toString(),
+            //         onTap: _pickDate,
+            //       ),
+            //     ),
+            //     Expanded(
+            //       flex: 2,
+            //       child: _DateSelectorBox(
+            //         label: _selectedDate == null
+            //             ? "MM"
+            //             : _formatNumber(_selectedDate!.month),
+            //         onTap: _pickDate,
+            //       ),
+            //     ),
+            //     const SizedBox(width: 12),
+
+            //     // Day Selector
+            //     Expanded(
+            //       flex: 2,
+            //       child: _DateSelectorBox(
+            //         label: _selectedDate == null
+            //             ? "DD"
+            //             : _formatNumber(_selectedDate!.day),
+            //         onTap: _pickDate,
+            //       ),
+            //     ),
+            //     const SizedBox(width: 12),
+
+            //     // Year Selector
+            //   ],
+            // ),
 
             const Spacer(),
             const Spacer(),
@@ -160,6 +176,7 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
             // -- Continue Button --
 
             CustomYafButton(
+                isDisabled: _selectedDate == null,
                 fontSize: 16,
                 weight: FontWeight.w600,
                 iconPositionLeft: false,
@@ -171,8 +188,16 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
                     ref
                         .read(onboardingProfileProvider.notifier)
                         .updateDateOfBirth(_selectedDate!);
+                    NavigationService.push(child: const SelectGoalScreen());
+                  } else {
+                    // Show error if no date is selected
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Please select your date of birth"),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
                   }
-                  NavigationService.push(child: const SelectGoalScreen());
                 }),
             SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
           ],

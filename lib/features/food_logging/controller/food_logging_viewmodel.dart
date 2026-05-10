@@ -590,37 +590,52 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
     }
   }
 
-  /// Toggle favorite status locally for a recipe in userRecipes and favorites
+  /// Toggle favorite status locally for a recipe in userRecipes, allRecipes and favorites
   Future<bool> toggleFavoriteLocally(String recipeId) async {
     RecipeResponseDto? targetRecipe;
 
-    // Find the recipe in userRecipes
+    // Find the recipe in userRecipes first, then fall back to allRecipes
     if (state.userRecipes != null) {
-      targetRecipe = state.userRecipes!.firstWhere(
+      final found = state.userRecipes!.firstWhere(
         (recipe) => recipe.id == recipeId,
         orElse: () => RecipeResponseDto(),
       );
-      log("Found recipe $recipeId in userRecipes: ${targetRecipe.foodName}");
+      if (found.id != null) targetRecipe = found;
     }
+    if (targetRecipe == null && state.allRecipes != null) {
+      final found = state.allRecipes!.firstWhere(
+        (recipe) => recipe.id == recipeId,
+        orElse: () => RecipeResponseDto(),
+      );
+      if (found.id != null) targetRecipe = found;
+    }
+    log("Found recipe $recipeId: ${targetRecipe?.foodName}");
+
+    RecipeResponseDto _toggled(RecipeResponseDto recipe) => RecipeResponseDto(
+          id: recipe.id,
+          foodName: recipe.foodName,
+          description: recipe.description,
+          macros: recipe.macros,
+          imageUrl: recipe.imageUrl,
+          usageCount: recipe.usageCount,
+          isFavorite: !(recipe.isFavorite ?? false),
+          createdAt: recipe.createdAt,
+        );
 
     // Optimistically update userRecipes
-    List<RecipeResponseDto>? updatedRecipes;
+    List<RecipeResponseDto>? updatedUserRecipes;
     if (state.userRecipes != null) {
-      updatedRecipes = state.userRecipes!.map((recipe) {
-        if (recipe.id == recipeId) {
-          return RecipeResponseDto(
-            id: recipe.id,
-            foodName: recipe.foodName,
-            description: recipe.description,
-            macros: recipe.macros,
-            imageUrl: recipe.imageUrl,
-            usageCount: recipe.usageCount,
-            isFavorite: !(recipe.isFavorite ?? false),
-            createdAt: recipe.createdAt,
-          );
-        }
-        return recipe;
-      }).toList();
+      updatedUserRecipes = state.userRecipes!
+          .map((r) => r.id == recipeId ? _toggled(r) : r)
+          .toList();
+    }
+
+    // Optimistically update allRecipes
+    List<RecipeResponseDto>? updatedAllRecipes;
+    if (state.allRecipes != null) {
+      updatedAllRecipes = state.allRecipes!
+          .map((r) => r.id == recipeId ? _toggled(r) : r)
+          .toList();
     }
 
     // Optimistically update favorites list
@@ -646,7 +661,8 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
     }
 
     state = state.copyWith(
-      userRecipes: updatedRecipes,
+      userRecipes: updatedUserRecipes,
+      allRecipes: updatedAllRecipes,
       favorites: updatedFavorites,
     );
 
@@ -655,24 +671,19 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
       await _apiService.foodLoggingApi.toggleFavorite(recipeId);
       return true;
     } catch (e) {
-      // Revert both updates on error
-      List<RecipeResponseDto>? revertedRecipes;
+      // Revert all updates on error
+      List<RecipeResponseDto>? revertedUserRecipes;
       if (state.userRecipes != null) {
-        revertedRecipes = state.userRecipes!.map((recipe) {
-          if (recipe.id == recipeId) {
-            return RecipeResponseDto(
-              id: recipe.id,
-              foodName: recipe.foodName,
-              description: recipe.description,
-              macros: recipe.macros,
-              imageUrl: recipe.imageUrl,
-              usageCount: recipe.usageCount,
-              isFavorite: !(recipe.isFavorite ?? false),
-              createdAt: recipe.createdAt,
-            );
-          }
-          return recipe;
-        }).toList();
+        revertedUserRecipes = state.userRecipes!
+            .map((r) => r.id == recipeId ? _toggled(r) : r)
+            .toList();
+      }
+
+      List<RecipeResponseDto>? revertedAllRecipes;
+      if (state.allRecipes != null) {
+        revertedAllRecipes = state.allRecipes!
+            .map((r) => r.id == recipeId ? _toggled(r) : r)
+            .toList();
       }
 
       // Revert favorites list
@@ -696,7 +707,8 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
       }
 
       state = state.copyWith(
-        userRecipes: revertedRecipes,
+        userRecipes: revertedUserRecipes,
+        allRecipes: revertedAllRecipes,
         favorites: revertedFavorites,
       );
       return false;

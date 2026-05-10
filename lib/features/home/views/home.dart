@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:diet_lenz/api_client/lib/api.dart';
+import 'package:diet_lenz/component/update_dialog.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/core/services/update_service.dart';
 import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
 import 'package:diet_lenz/features/home/views/food_log_detail.dart';
@@ -145,79 +147,82 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final weekDays = _generateWeekDays(); // Regenerate based on current state
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 5),
-              const HomeHeader(),
-              const SizedBox(height: 25),
-              WeekProgressRow(
-                weekDays: weekDays,
-                selectedDate: _selectedDate,
-                onDaySelected: _onDaySelected,
-              ),
-              const SizedBox(height: 25),
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: _refreshData,
-                  color: AppColors.primaryColor,
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Count Your Daily Calories",
-                          style: TextStyle(
-                            fontFamily: AppFonts.lato,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600,
+    return AppUpdateAlert(
+      upgrader: AppUpdateService().upgrader,
+      child: Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 5),
+                const HomeHeader(),
+                const SizedBox(height: 25),
+                WeekProgressRow(
+                  weekDays: weekDays,
+                  selectedDate: _selectedDate,
+                  onDaySelected: _onDaySelected,
+                ),
+                const SizedBox(height: 25),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _refreshData,
+                    color: AppColors.primaryColor,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Count Your Daily Calories",
+                            style: TextStyle(
+                              fontFamily: AppFonts.lato,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 25),
-                        _buildCalorieCard(),
-                        const SizedBox(height: 25),
-                        _buildMacroRow(),
-                        const SizedBox(height: 25),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Food Log",
-                              style: TextStyle(
-                                fontFamily: AppFonts.lato,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                NavigationService.push(
-                                    child: const FoodLogsScreen());
-                              },
-                              child: const Text(
-                                "See All",
+                          const SizedBox(height: 25),
+                          _buildCalorieCard(),
+                          const SizedBox(height: 25),
+                          _buildMacroRow(),
+                          const SizedBox(height: 25),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Food Log",
                                 style: TextStyle(
-                                    fontFamily: AppFonts.workSans,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.primaryColor),
+                                  fontFamily: AppFonts.lato,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 15),
-                        _buildFoodLogsList(),
-                      ],
+                              GestureDetector(
+                                onTap: () {
+                                  NavigationService.push(
+                                      child: const FoodLogsScreen());
+                                },
+                                child: const Text(
+                                  "See All",
+                                  style: TextStyle(
+                                      fontFamily: AppFonts.workSans,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.primaryColor),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 15),
+                          _buildFoodLogsList(),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

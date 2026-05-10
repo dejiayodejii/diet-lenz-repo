@@ -10,6 +10,9 @@ import 'package:diet_lenz/core/services/iap_service.dart';
 import 'package:diet_lenz/core/services/push_notification_service.dart';
 import 'package:diet_lenz/core/services/sentry_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 /// Extension to extract error message from ApiException
 extension ApiExceptionExtension on ApiException {
@@ -139,6 +142,24 @@ class AuthViewModel extends StateNotifier<AuthState> {
     await _apiService.saveAuthResponse(jsonStr);
   }
 
+  /// Retrieve real app version and device ID
+  Future<({String appVersion, String deviceId})> _getDeviceInfo() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    final appVersion = packageInfo.version;
+
+    final deviceInfoPlugin = DeviceInfoPlugin();
+    String deviceId;
+    if (Platform.isIOS) {
+      final iosInfo = await deviceInfoPlugin.iosInfo;
+      deviceId = iosInfo.identifierForVendor ?? 'unknown';
+    } else {
+      final androidInfo = await deviceInfoPlugin.androidInfo;
+      deviceId = androidInfo.id;
+    }
+
+    return (appVersion: appVersion, deviceId: deviceId);
+  }
+
   /// Login with email and password
   Future<bool> login({
     required String email,
@@ -158,6 +179,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
       await _apiService.clearAuthToken();
 
+      final timeZone = await FlutterTimezone.getLocalTimezone();
+      final deviceInfo = await _getDeviceInfo();
+
       // Create device request (if you need device info)
       final loginWithDeviceRequest = LoginWithDeviceRequest(
         login: loginRequest,
@@ -166,8 +190,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
           platform: Platform.isIOS
               ? RegisterDeviceRequestPlatformEnum.IOS
               : RegisterDeviceRequestPlatformEnum.ANDROID,
-          deviceId: "zxc",
-          appVersion: "sdsds",
+          deviceId: deviceInfo.deviceId,
+          appVersion: deviceInfo.appVersion,
+          timeZone: timeZone,
         ),
       );
 
@@ -356,6 +381,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
     try {
       await _apiService.clearAuthToken();
 
+      final timeZone = await FlutterTimezone.getLocalTimezone();
+      final deviceInfo = await _getDeviceInfo();
+
       final socialLoginRequest = SocialLoginRequest(
         idToken: idToken,
         device: RegisterDeviceRequest(
@@ -363,8 +391,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
           platform: Platform.isIOS
               ? RegisterDeviceRequestPlatformEnum.IOS
               : RegisterDeviceRequestPlatformEnum.ANDROID,
-          deviceId: "zxc",
-          appVersion: "sdsds",
+          deviceId: deviceInfo.deviceId,
+          appVersion: deviceInfo.appVersion,
+          timeZone: timeZone,
         ),
       );
 
@@ -425,6 +454,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
     try {
       await _apiService.clearAuthToken();
 
+      final timeZone = await FlutterTimezone.getLocalTimezone();
+      final deviceInfo = await _getDeviceInfo();
+
       final socialLoginRequest = SocialLoginRequest(
         idToken: idToken,
         device: RegisterDeviceRequest(
@@ -432,8 +464,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
           platform: Platform.isIOS
               ? RegisterDeviceRequestPlatformEnum.IOS
               : RegisterDeviceRequestPlatformEnum.ANDROID,
-          deviceId: "zxc",
-          appVersion: "sdsds",
+          deviceId: deviceInfo.deviceId,
+          appVersion: deviceInfo.appVersion,
+          timeZone: timeZone,
         ),
       );
 

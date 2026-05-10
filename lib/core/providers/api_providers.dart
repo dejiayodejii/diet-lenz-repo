@@ -14,6 +14,8 @@ final apiServiceProvider = Provider<ApiService>((ref) {
   apiService.initialize(
     storageRepository: storageRepository,
     sentryService: sentryService,
+    baseUrl: kProdBaseUrl,
+    // baseUrl:  kStagingBaseUrl,
     enableLogging: kDebugMode,
   );
 

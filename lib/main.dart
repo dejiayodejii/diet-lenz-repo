@@ -31,7 +31,7 @@ void main() async {
   // Initialize push notifications
   final pushService = PushNotificationService();
   try {
-    pushService.initialize();
+    pushService.initialize();    
     // print('✅ Push notifications initialized');what
   } catch (e) {
     // print('⚠️ Push notification init failed (non-fatal): $e');

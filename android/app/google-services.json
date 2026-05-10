@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "77989643764-30qrojoo5hn6ej8n0varqonjfh70a54s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dietlenz.diet",
+            "certificate_hash": "7d25d1b05302dcb6001c0c7c3bf0fab9f7338a6f"
+          }
+        },
+        {
           "client_id": "77989643764-hvisasnrfgfmnll40vm43b6qo363od7j.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

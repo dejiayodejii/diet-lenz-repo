@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:diet_lenz/core/services/store_front_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
@@ -34,7 +35,7 @@ class IAPService {
   // ──────────────────────────────────────────────────────────────────────────
   static const String _appleApiKey = 'appl_CHxerGtrvqAYCLTBTiInqsCIoGt';
 
-   static const String _googleApiKey = 'goog_vgwWbhHXpWYiIJzbiMctwTHQmqB';
+  static const String _googleApiKey = 'goog_vgwWbhHXpWYiIJzbiMctwTHQmqB';
 
   // /// The entitlement ID configured in the RevenueCat dashboard.
   static const String entitlementId = 'pro';
@@ -56,8 +57,8 @@ class IAPService {
 
     await Purchases.setLogLevel(LogLevel.debug);
 
-    final configuration = PurchasesConfiguration(
-        Platform.isIOS ? _appleApiKey : _googleApiKey);
+    final configuration =
+        PurchasesConfiguration(Platform.isIOS ? _appleApiKey : _googleApiKey);
     if (appUserId != null && appUserId.isNotEmpty) {
       configuration.appUserID = appUserId;
     }
@@ -157,6 +158,15 @@ class IAPService {
     }
   }
 
+  Future<String> getUserCountryCode() async {
+    if (Platform.isIOS) {
+      final code = await StorefrontService.getCountryCode();
+      return code ?? 'US';
+    }
+
+    return 'NG';
+  }
+
   /// Get the full customer info (entitlements, active subscriptions, etc.)
   Future<CustomerInfo?> getCustomerInfo() async {
     try {
@@ -184,20 +194,38 @@ class IAPService {
   }
 
   // ──────────────────────────────────────────────────────────────────────────
-  // RevenueCat Paywall (purchases_ui_flutter)
+  // Offering resolution
   // ──────────────────────────────────────────────────────────────────────────
 
-  /// Present the RevenueCat-hosted paywall as a full-screen modal.
+  static const String _standardOfferingId = 'standard_offering';
+
+  /// Resolves the correct [Offering] to display based on platform and country.
   ///
-  /// Returns the [PaywallResult] indicating what happened (purchased,
-  /// cancelled, restored, or error).
+  /// Rules:
+  /// - iOS + country == 'NG' → `standard_offering` (falls back to default on error)
+  /// - Everything else       → default (`offerings.current`)
   ///
-  /// Pre-checks that offerings exist to avoid RevenueCat Error 23
-  /// (configuration error) dialog.
-  Future<PaywallResult> presentPaywall() async {
-    // Pre-check: ensure offerings are available before presenting
-    final offerings = await getOfferings();
-    if (offerings == null || offerings.current == null) {
+  /// Throws [PlatformException] if no offering is available at all.
+  Future<Offering> _resolveOffering(Offerings offerings) async {
+    if (Platform.isIOS) {
+      try {
+        final countryCode = await StorefrontService.getCountryCode();
+        if (countryCode?.toUpperCase() == 'NG') {
+          final standard = offerings.all[_standardOfferingId];
+          if (standard != null) {
+            print('✅ Using standard_offering for iOS NG user');
+            return standard;
+          }
+          print('⚠️ standard_offering not found, falling back to default');
+        }
+      } catch (e) {
+        print(
+            '⚠️ Could not determine country code, falling back to default: $e');
+      }
+    }
+
+    final defaultOffering = offerings.current;
+    if (defaultOffering == null) {
       throw PlatformException(
         code: 'NO_OFFERINGS',
         message: 'No subscription offerings are currently available. '
@@ -208,25 +236,57 @@ class IAPService {
             '4. Verify the API key matches your platform (appl_ for iOS, goog_ for Android)',
       );
     }
+    return defaultOffering;
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // RevenueCat Paywall (purchases_ui_flutter)
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /// Present the RevenueCat-hosted paywall as a full-screen modal.
+  ///
+  /// Returns the [PaywallResult] indicating what happened (purchased,
+  /// cancelled, restored, or error).
+  ///
+  /// Automatically selects `standard_offering` for iOS users in Nigeria,
+  /// otherwise presents the default offering.
+  Future<PaywallResult> presentPaywall() async {
+    final offerings = await getOfferings();
+    if (offerings == null) {
+      throw PlatformException(
+        code: 'NO_OFFERINGS',
+        message: 'No subscription offerings are currently available. '
+            'Please check your RevenueCat dashboard configuration:\n'
+            '1. Ensure products are created in App Store Connect / Google Play Console\n'
+            '2. Ensure an Offering is configured in the RevenueCat dashboard\n'
+            '3. Ensure a Paywall is attached to the current Offering\n'
+            '4. Verify the API key matches your platform (appl_ for iOS, goog_ for Android)',
+      );
+    }
+    final offering = await _resolveOffering(offerings);
     return await RevenueCatUI.presentPaywall(
-      offering: offerings.current!,
+      offering: offering,
       displayCloseButton: true,
     );
   }
 
   /// Present the paywall only if the user does not have the entitlement.
+  ///
+  /// Automatically selects `standard_offering` for iOS users in Nigeria,
+  /// otherwise presents the default offering.
   Future<PaywallResult> presentPaywallIfNeeded() async {
     final offerings = await getOfferings();
-    if (offerings == null || offerings.current == null) {
+    if (offerings == null) {
       throw PlatformException(
         code: 'NO_OFFERINGS',
         message: 'No subscription offerings are currently available. '
             'Please check your RevenueCat dashboard configuration.',
       );
     }
+    final offering = await _resolveOffering(offerings);
     return await RevenueCatUI.presentPaywallIfNeeded(
       entitlementId,
-      offering: offerings.current!,
+      offering: offering,
       displayCloseButton: true,
     );
   }
