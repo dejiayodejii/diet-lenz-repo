@@ -39,6 +39,17 @@ platform :ios do
       readonly: is_ci,
     )
 
+    # Force manual signing — overrides Flutter's automatic signing behaviour
+    # which would fail on CI where no Apple Developer session is available.
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "ios/Runner.xcodeproj",
+      targets: ["Runner"],
+      bundle_identifier: "com.dietlenz.diet.staging",
+      profile_name: "match AdHoc com.dietlenz.diet.staging",
+      code_sign_identity: "iPhone Distribution",
+    )
+
     build_number = ENV["BUILD_NUMBER"] || number_of_commits
 
     # Use flutter build so --dart-define values reach String.fromEnvironment()
