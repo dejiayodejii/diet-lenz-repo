@@ -9,9 +9,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-and-distribute:
-    name: Test & Distribute Staging
-    runs-on: macos-latest
+  # ── Job 1: Unit tests (fast, ubuntu) ────────────────────────────────────────
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+          cache-key: flutter-sdk-${{ runner.os }}-3.41.6
+
+      - name: Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: pub-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-${{ runner.os }}-
+          save-always: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run unit tests
+        run: flutter test test/unit/
+
+  # ── Job 2: Android distribution (parallel with iOS) ─────────────────────────
+  distribute-android:
+    name: Distribute Android (Staging)
+    runs-on: ubuntu-latest
+    needs: test
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -48,6 +80,68 @@ jobs:
           restore-keys: gradle-${{ runner.os }}-
           save-always: true
 
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Decode Android keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > android/app/release.keystore
+          cat <<EOF > android/key.properties
+          storeFile=release.keystore
+          storePassword=${{ secrets.STORE_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          EOF
+
+      - name: Install Fastlane
+        run: bundle install
+
+      - name: Distribute staging Android
+        run: bundle exec fastlane android distribute_staging_android
+        env:
+          FIREBASE_ANDROID_APP_ID: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Clean up keystore
+        if: always()
+        run: rm -f android/app/release.keystore android/key.properties
+
+      - name: Notify Slack — Android failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "❌ Staging Android distribution failed\nBranch: ${{ github.ref_name }}\nSee: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # ── Job 3: iOS distribution (parallel with Android) ─────────────────────────
+  distribute-ios:
+    name: Distribute iOS (Staging)
+    runs-on: macos-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+          cache-key: flutter-sdk-${{ runner.os }}-3.41.6
+
+      - name: Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: pub-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-${{ runner.os }}-
+          save-always: true
+
       - name: Cache CocoaPods
         uses: actions/cache@v4
         with:
@@ -62,33 +156,7 @@ jobs:
       - name: Install CocoaPods
         run: cd ios && pod install --repo-update
 
-      - name: Run unit tests
-        run: flutter test test/unit/
-
-      # ── Android ─────────────────────────────────────────────────────────────
-
-      - name: Decode Android keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > android/app/release.keystore
-          cat <<EOF > android/key.properties
-          storeFile=release.keystore
-          storePassword=${{ secrets.STORE_PASSWORD }}
-          keyAlias=${{ secrets.KEY_ALIAS }}
-          keyPassword=${{ secrets.KEY_PASSWORD }}
-          EOF
-
-      - name: Setup Fastlane (Android)
-        run: bundle install
-
-      - name: Distribute staging Android
-        run: bundle exec fastlane android distribute_staging_android
-        env:
-          FIREBASE_ANDROID_APP_ID: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-
-      # ── iOS ──────────────────────────────────────────────────────────────────
-
-      - name: Setup Fastlane (iOS)
+      - name: Install Fastlane
         run: bundle install
 
       - name: Distribute staging iOS
@@ -96,36 +164,33 @@ jobs:
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
           FIREBASE_IOS_APP_ID: ${{ secrets.FIREBASE_IOS_APP_ID }}
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
-      # ── Notify ───────────────────────────────────────────────────────────────
-
-      - name: Notify Slack — success
-        if: success()
-        uses: slackapi/slack-github-action@v1
-        with:
-          payload: |
-            {
-              "text": "✅ Staging build distributed successfully\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-      - name: Notify Slack — failure
+      - name: Notify Slack — iOS failure
         if: failure()
         uses: slackapi/slack-github-action@v1
         with:
           payload: |
             {
-              "text": "❌ Staging distribution failed\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nSee: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              "text": "❌ Staging iOS distribution failed\nBranch: ${{ github.ref_name }}\nSee: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-      - name: Clean up keystore
-        if: always()
-        run: rm -f android/app/release.keystore android/key.properties
+  # ── Job 4: Notify success when both platforms pass ───────────────────────────
+  notify-success:
+    name: Notify Success
+    runs-on: ubuntu-latest
+    needs: [distribute-android, distribute-ios]
+    if: success()
+    steps:
+      - name: Notify Slack — success
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "✅ Staging distributed to Android + iOS\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
