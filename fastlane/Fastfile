@@ -57,8 +57,11 @@ platform :ios do
     # a second pod install (which hits the CDN and hangs on CI).
     sh "cd ../ios && bundle exec pod install --no-repo-update"
 
-    # Use flutter build so --dart-define values reach String.fromEnvironment()
-    sh "flutter build ipa " \
+    # --no-pub: skip flutter pub get inside the build command.
+    # We already ran it in the CI step so Generated.xcconfig / .flutter-plugins
+    # are current. With --no-pub Flutter won't regenerate those artifacts, so
+    # its own pod-install check sees Manifest.lock == Podfile.lock and skips.
+    sh "flutter build ipa --no-pub " \
        "--flavor staging " \
        "--dart-define=ENVIRONMENT=staging " \
        "--dart-define=API_URL=https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app " \

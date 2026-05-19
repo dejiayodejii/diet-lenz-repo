@@ -170,6 +170,11 @@ jobs:
       - name: Remove stale CocoaPods master spec repo
         run: rm -rf ~/.cocoapods/repos/master || true
 
+      - name: Initialize CocoaPods CDN trunk
+        run: bundle exec pod repo add-cdn trunk https://cdn.cocoapods.org/ 2>/dev/null || true
+        env:
+          COCOAPODS_DISABLE_STATS: 1
+
       - name: Install CocoaPods
         run: cd ios && bundle exec pod install --no-repo-update
         env:
