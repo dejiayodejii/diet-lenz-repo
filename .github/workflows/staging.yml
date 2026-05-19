@@ -156,11 +156,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Install CocoaPods
-        run: cd ios && pod install --repo-update
-
       - name: Install Fastlane
         run: bundle install
+
+      - name: Install CocoaPods
+        run: cd ios && bundle exec pod install --repo-update
 
       - name: Distribute staging iOS
         run: bundle exec fastlane ios distribute_staging_ios
