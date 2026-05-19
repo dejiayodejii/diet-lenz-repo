@@ -1,3 +1,4 @@
+import 'package:diet_lenz/core/config/app_config.dart';
 import 'package:diet_lenz/core/providers/sentry_providers.dart';
 import 'package:diet_lenz/core/providers/storage_providers.dart';
 import 'package:diet_lenz/core/services/api_service.dart';
@@ -14,8 +15,7 @@ final apiServiceProvider = Provider<ApiService>((ref) {
   apiService.initialize(
     storageRepository: storageRepository,
     sentryService: sentryService,
-    baseUrl: kProdBaseUrl,
-    // baseUrl:  kStagingBaseUrl,
+    baseUrl: AppConfig.apiUrl,
     enableLogging: kDebugMode,
   );
 

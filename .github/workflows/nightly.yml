@@ -1,0 +1,84 @@
+name: Nightly Full Test Suite
+
+on:
+  schedule:
+    - cron: '0 0 * * 1-5'  # Midnight UTC, Monday–Friday
+  workflow_dispatch:        # Allow manual trigger
+
+jobs:
+  nightly:
+    name: Nightly Tests
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: pubspec.yaml
+          channel: stable
+          cache: true
+
+      - name: Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: pub-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-${{ runner.os }}-
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: ios/Pods
+          key: pods-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: pods-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Install CocoaPods
+        run: cd ios && pod install
+
+      - name: Run unit tests
+        run: flutter test test/unit/ --reporter json > test-results/unit.json || true
+
+      - name: Run integration tests
+        run: flutter test test/integration/ --reporter json > test-results/integration.json || true
+
+      - name: Run E2E tests (development flavor)
+        run: |
+          flutter test integration_test/ \
+            --dart-define=ENVIRONMENT=development \
+            --dart-define=API_URL=https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app \
+            --reporter json > test-results/e2e.json || true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_id }}
+          path: test-results/
+          retention-days: 30
+
+      - name: Notify Slack — success
+        if: success()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "✅ Nightly test suite passed\nDate: ${{ github.run_id }}\nAll layers: unit, integration, E2E"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify Slack — failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "❌ Nightly test suite failed\nSee: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

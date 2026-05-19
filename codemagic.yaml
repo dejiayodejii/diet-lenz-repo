@@ -1,0 +1,241 @@
+workflows:
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Staging Android
+  # ──────────────────────────────────────────────────────────────────────────
+
+  staging-android:
+    name: Staging Android
+    max_build_duration: 60
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: develop
+          include: true
+    environment:
+      flutter: stable
+      java: 17
+      groups:
+        - firebase_credentials    # FIREBASE_ANDROID_APP_ID, FIREBASE_TOKEN
+        - android_signing         # KEYSTORE_FILE, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+    cache:
+      cache_paths:
+        - ~/.pub-cache
+        - ~/.gradle/caches
+    scripts:
+      - name: Get packages
+        script: flutter pub get
+      - name: Run unit tests
+        script: flutter test test/unit/
+      - name: Decode keystore
+        script: |
+          echo "$KEYSTORE_FILE" | base64 --decode > android/app/release.keystore
+          cat <<EOF > android/key.properties
+          storeFile=release.keystore
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+      - name: Build staging APK
+        script: |
+          BUILD_NUMBER=$(git rev-list --count HEAD)
+          flutter build apk \
+            --flavor staging \
+            --dart-define=ENVIRONMENT=staging \
+            --dart-define=API_URL=https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app \
+            --build-number=$BUILD_NUMBER
+      - name: Distribute to Firebase
+        script: |
+          firebase appdistribution:distribute \
+            build/app/outputs/flutter-apk/app-staging-release.apk \
+            --app $FIREBASE_ANDROID_APP_ID \
+            --groups "qa-team" \
+            --release-notes "Staging build $BUILD_NUMBER from Codemagic"
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
+    publishing:
+      email:
+        recipients:
+          - $CM_SUBMITTER_EMAIL
+        notify:
+          success: false
+          failure: true
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Staging iOS
+  # ──────────────────────────────────────────────────────────────────────────
+
+  staging-ios:
+    name: Staging iOS
+    max_build_duration: 90
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: develop
+          include: true
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      groups:
+        - firebase_credentials    # FIREBASE_IOS_APP_ID, FIREBASE_TOKEN
+        - app_store_connect       # APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_PRIVATE_KEY
+        - certificate_credentials # CERTIFICATE_PRIVATE_KEY
+    cache:
+      cache_paths:
+        - ~/.pub-cache
+        - ios/Pods
+    scripts:
+      - name: Get packages
+        script: flutter pub get
+      - name: Install pods
+        script: cd ios && pod install
+      - name: Run unit tests
+        script: flutter test test/unit/
+      - name: Set build number
+        script: echo "BUILD_NUMBER=$(git rev-list --count HEAD)" >> $CM_ENV
+      - name: Build staging IPA
+        script: |
+          flutter build ipa \
+            --flavor staging \
+            --dart-define=ENVIRONMENT=staging \
+            --dart-define=API_URL=https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app \
+            --build-number=$BUILD_NUMBER \
+            --export-options-plist=/Users/builder/export_options.plist
+      - name: Distribute to Firebase
+        script: |
+          firebase appdistribution:distribute \
+            build/ios/ipa/*.ipa \
+            --app $FIREBASE_IOS_APP_ID \
+            --groups "qa-team" \
+            --release-notes "Staging build $BUILD_NUMBER from Codemagic"
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      email:
+        recipients:
+          - $CM_SUBMITTER_EMAIL
+        notify:
+          success: false
+          failure: true
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Production Android
+  # ──────────────────────────────────────────────────────────────────────────
+
+  production-android:
+    name: Production Android
+    max_build_duration: 90
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+    environment:
+      flutter: stable
+      java: 17
+      groups:
+        - android_signing
+        - google_play             # GOOGLE_PLAY_JSON_KEY (base64)
+    cache:
+      cache_paths:
+        - ~/.pub-cache
+        - ~/.gradle/caches
+    scripts:
+      - name: Get packages
+        script: flutter pub get
+      - name: Run unit tests
+        script: flutter test test/unit/
+      - name: Run integration tests
+        script: flutter test test/integration/
+      - name: Decode keystore
+        script: |
+          echo "$KEYSTORE_FILE" | base64 --decode > android/app/release.keystore
+          cat <<EOF > android/key.properties
+          storeFile=release.keystore
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+      - name: Build production AAB
+        script: |
+          BUILD_NUMBER=$(git rev-list --count HEAD)
+          flutter build appbundle \
+            --flavor production \
+            --dart-define=ENVIRONMENT=production \
+            --dart-define=API_URL=https://dietlenz-prod-api-9mcsl.ondigitalocean.app \
+            --build-number=$BUILD_NUMBER
+    artifacts:
+      - build/app/outputs/bundle/productionRelease/*.aab
+    publishing:
+      google_play:
+        credentials: $GOOGLE_PLAY_JSON_KEY
+        track: internal
+        submit_as_draft: true
+      email:
+        recipients:
+          - $CM_SUBMITTER_EMAIL
+        notify:
+          success: true
+          failure: true
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Production iOS
+  # ──────────────────────────────────────────────────────────────────────────
+
+  production-ios:
+    name: Production iOS
+    max_build_duration: 120
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      groups:
+        - app_store_connect
+        - certificate_credentials
+    cache:
+      cache_paths:
+        - ~/.pub-cache
+        - ios/Pods
+    scripts:
+      - name: Get packages
+        script: flutter pub get
+      - name: Install pods
+        script: cd ios && pod install
+      - name: Run unit tests
+        script: flutter test test/unit/
+      - name: Run integration tests
+        script: flutter test test/integration/
+      - name: Build production IPA
+        script: |
+          BUILD_NUMBER=$(git rev-list --count HEAD)
+          flutter build ipa \
+            --flavor production \
+            --dart-define=ENVIRONMENT=production \
+            --dart-define=API_URL=https://dietlenz-prod-api-9mcsl.ondigitalocean.app \
+            --build-number=$BUILD_NUMBER
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        submit_to_testflight: true
+        beta_groups:
+          - Internal Testers
+      email:
+        recipients:
+          - $CM_SUBMITTER_EMAIL
+        notify:
+          success: true
+          failure: true

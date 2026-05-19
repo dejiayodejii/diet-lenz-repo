@@ -1,0 +1,20 @@
+git_url("https://github.com/dejiayodejii/diet-lenz-cert.git")
+
+storage_mode("git")
+
+type("development") # The default type, can be: appstore, adhoc, enterprise or development
+
+app_identifier([
+  "com.dietlenz.diet.staging",
+  "com.dietlenz.diet"
+])
+
+username("dejiayodeji1@gmail.com")
+
+team_id("33N342RB99")
+
+skip_set_partition_list(true)
+generate_apple_certs(false)
+
+# For all available options run `fastlane match --help`
+# The docs are available on https://docs.fastlane.tools/actions/match

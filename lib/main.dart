@@ -1,3 +1,4 @@
+import 'package:diet_lenz/core/config/app_config.dart';
 import 'package:diet_lenz/core/providers/storage_providers.dart';
 import 'package:diet_lenz/core/services/iap_service.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
@@ -31,7 +32,7 @@ void main() async {
   // Initialize push notifications
   final pushService = PushNotificationService();
   try {
-    pushService.initialize();    
+    pushService.initialize();
     // print('✅ Push notifications initialized');what
   } catch (e) {
     // print('⚠️ Push notification init failed (non-fatal): $e');
@@ -50,20 +51,13 @@ void main() async {
 
   await SentryFlutter.init(
     (options) {
-      options.dsn =
-          'https://47876b6e83b82001e26d5b531e2491e4@o4511177626746880.ingest.de.sentry.io/4511259656716368';
-      // Adds request headers and IP for users, for more info visit:
-      // https://docs.sentry.io/platforms/dart/guides/flutter/data-management/data-collected/
+      options.dsn = AppConfig.sentryDsn;
       options.sendDefaultPii = true;
       options.enableLogs = true;
-      // Set tracesSampleRate to 1.0 to capture 100% of transactions for tracing.
-      // We recommend adjusting this value in production.
-      options.tracesSampleRate = 1.0;
-      // The sampling rate for profiling is relative to tracesSampleRate
-      // Setting to 1.0 will profile 100% of sampled transactions:
-      options.profilesSampleRate = 1.0;
-      // Configure Session Replay
-      options.replay.sessionSampleRate = 0.1;
+      options.tracesSampleRate = AppConfig.sentryTracesSampleRate;
+      options.profilesSampleRate = AppConfig.sentryProfilesSampleRate;
+      options.replay.sessionSampleRate =
+          AppConfig.sentryReplaySessionSampleRate;
       options.replay.onErrorSampleRate = 1.0;
     },
     appRunner: () => runApp(RestartWidget(

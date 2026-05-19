@@ -1,0 +1,70 @@
+{
+  "project_info": {
+    "project_number": "77989643764",
+    "project_id": "dietlenz-38869",
+    "storage_bucket": "dietlenz-38869.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:77989643764:android:534426c0050ee2ceeca5a1",
+        "android_client_info": {
+          "package_name": "com.dietlenz.diet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "77989643764-2e8sr27tkt0a8qtdblj9kcj6u0182m92.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dietlenz.diet",
+            "certificate_hash": "741b1f61039b3fd62e414c47cf3afe45caeafc22"
+          }
+        },
+        {
+          "client_id": "77989643764-30qrojoo5hn6ej8n0varqonjfh70a54s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dietlenz.diet",
+            "certificate_hash": "7d25d1b05302dcb6001c0c7c3bf0fab9f7338a6f"
+          }
+        },
+        {
+          "client_id": "77989643764-hvisasnrfgfmnll40vm43b6qo363od7j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dietlenz.diet",
+            "certificate_hash": "35e107311d5a7656a4f2b213f1ebe73423cfbed0"
+          }
+        },
+        {
+          "client_id": "77989643764-gdtj161cjose6paf93m6jvkop7aqgo9i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFhFRgvIXY72MI4EeHR2a_iFSPdKktsag"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "77989643764-gdtj161cjose6paf93m6jvkop7aqgo9i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "77989643764-r9d6s3bo54s474jli72loanuronr5fgr.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.dietlenz.diet"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

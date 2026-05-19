@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "216085939410",
+    "project_id": "diet-lenz-staging",
+    "storage_bucket": "diet-lenz-staging.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:216085939410:android:925e570fd1679b6498190b",
+        "android_client_info": {
+          "package_name": "com.dietlenz.diet.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWjc35NV2mPAdGsKkoljc3pUsbI5GcCtw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:216085939410:android:cdad083510ac05bf98190b",
+        "android_client_info": {
+          "package_name": "com.dietlenz.diet.staging"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWjc35NV2mPAdGsKkoljc3pUsbI5GcCtw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

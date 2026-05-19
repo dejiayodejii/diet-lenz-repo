@@ -1,0 +1,7 @@
+#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release-development.xcconfig"
+#include "Generated.xcconfig"
+EXCLUDED_ARCHS[sdk=iphonesimulator*]=
+BUNDLE_ID_SUFFIX=.dev
+APP_DISPLAY_NAME=Diet Lenz DEV
+ENVIRONMENT=development
+API_URL=https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app
