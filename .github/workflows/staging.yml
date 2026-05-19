@@ -93,8 +93,11 @@ jobs:
           keyPassword=${{ secrets.KEY_PASSWORD }}
           EOF
 
-      - name: Install Fastlane
-        run: bundle install
+      - name: Setup Ruby & Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
 
       - name: Distribute staging Android
         run: bundle exec fastlane android distribute_staging_android
@@ -156,8 +159,11 @@ jobs:
       - name: Install CocoaPods
         run: cd ios && pod install --repo-update
 
-      - name: Install Fastlane
-        run: bundle install
+      - name: Setup Ruby & Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
 
       - name: Distribute staging iOS
         run: bundle exec fastlane ios distribute_staging_ios

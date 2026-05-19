@@ -47,7 +47,7 @@ platform :ios do
        "--dart-define=ENVIRONMENT=staging " \
        "--dart-define=API_URL=https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app " \
        "--build-number=#{build_number} " \
-       "--export-options-plist=ios/ExportOptions-AdHoc.plist"
+       "--export-options-plist=../ios/ExportOptions-AdHoc.plist"
   end
 
   desc "Build a production iOS IPA using App Store signing"
@@ -69,7 +69,7 @@ platform :ios do
        "--dart-define=ENVIRONMENT=production " \
        "--dart-define=API_URL=https://dietlenz-prod-api-9mcsl.ondigitalocean.app " \
        "--build-number=#{build_number} " \
-       "--export-options-plist=ios/ExportOptions-AppStore.plist"
+       "--export-options-plist=../ios/ExportOptions-AppStore.plist"
   end
 
   desc "Build staging and distribute to Firebase App Distribution"
