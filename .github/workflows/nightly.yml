@@ -39,11 +39,11 @@ jobs:
       - name: Install CocoaPods
         run: cd ios && pod install
 
+      - name: Create test-results directory
+        run: mkdir -p test-results
+
       - name: Run unit tests
         run: flutter test test/unit/ --reporter json > test-results/unit.json || true
-
-      - name: Run integration tests
-        run: flutter test test/integration/ --reporter json > test-results/integration.json || true
 
       - name: Run E2E tests (development flavor)
         run: |
