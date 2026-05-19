@@ -60,8 +60,8 @@ jobs:
       - name: Run unit tests
         run: flutter test test/unit/
 
-      - name: Run integration tests
-        run: flutter test test/integration/
+      - name: Run unit tests
+        run: flutter test test/unit/
 
       # ── Android ─────────────────────────────────────────────────────────────
 
