@@ -78,7 +78,7 @@ jobs:
           echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > android/app/release.keystore
           cat <<EOF > android/key.properties
           storeFile=release.keystore
-          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          storePassword=${{ secrets.STORE_PASSWORD }}
           keyAlias=${{ secrets.KEY_ALIAS }}
           keyPassword=${{ secrets.KEY_PASSWORD }}
           EOF
