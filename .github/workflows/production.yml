@@ -38,6 +38,7 @@ jobs:
           path: ~/.pub-cache
           key: pub-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
           restore-keys: pub-${{ runner.os }}-
+          save-always: true
 
       - name: Cache Gradle
         uses: actions/cache@v4
@@ -45,8 +46,9 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties') }}
+          key: gradle-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', '**/*.gradle*') }}
           restore-keys: gradle-${{ runner.os }}-
+          save-always: true
 
       - name: Cache CocoaPods
         uses: actions/cache@v4
@@ -54,6 +56,7 @@ jobs:
           path: ios/Pods
           key: pods-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock') }}
           restore-keys: pods-${{ runner.os }}-
+          save-always: true
 
       - name: Install dependencies
         run: flutter pub get
@@ -66,9 +69,6 @@ jobs:
         run: echo "BUILD_NUMBER=$(git rev-list --count HEAD)" >> $GITHUB_OUTPUT
 
       # ── Full test suite ───────────────────────────────────────────────────
-
-      - name: Run unit tests
-        run: flutter test test/unit/
 
       - name: Run unit tests
         run: flutter test test/unit/
