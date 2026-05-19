@@ -159,11 +159,8 @@ jobs:
       - name: Install CocoaPods
         run: cd ios && pod install --repo-update
 
-      - name: Setup Ruby & Fastlane
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.3'
-          bundler-cache: true
+      - name: Install Fastlane
+        run: bundle install
 
       - name: Distribute staging iOS
         run: bundle exec fastlane ios distribute_staging_ios
