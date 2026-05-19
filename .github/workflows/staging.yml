@@ -167,6 +167,9 @@ jobs:
       - name: Install Fastlane
         run: bundle install
 
+      - name: Remove stale CocoaPods master spec repo
+        run: rm -rf ~/.cocoapods/repos/master || true
+
       - name: Install CocoaPods
         run: cd ios && bundle exec pod install --no-repo-update
         env:

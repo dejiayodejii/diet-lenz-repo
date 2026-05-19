@@ -1,3 +1,6 @@
+# Use CocoaPods CDN — prevents falling back to the huge 'master' spec repo
+source 'https://cdn.cocoapods.org/'
+
 # Uncomment this line to define a global platform for your project
 platform :ios, '16.0'
 

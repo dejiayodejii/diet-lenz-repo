@@ -52,6 +52,11 @@ platform :ios do
 
     build_number = ENV["BUILD_NUMBER"] || number_of_commits
 
+    # Re-run pod install so Pods/Manifest.lock is in sync with Flutter's newly
+    # generated Generated.xcconfig — prevents flutter build ipa from spawning
+    # a second pod install (which hits the CDN and hangs on CI).
+    sh "cd ../ios && bundle exec pod install --no-repo-update"
+
     # Use flutter build so --dart-define values reach String.fromEnvironment()
     sh "flutter build ipa " \
        "--flavor staging " \
