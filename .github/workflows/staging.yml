@@ -145,7 +145,15 @@ jobs:
           restore-keys: pub-${{ runner.os }}-
           save-always: true
 
-      - name: Cache CocoaPods
+      - name: Cache CocoaPods spec repos
+        uses: actions/cache@v4
+        with:
+          path: ~/.cocoapods/repos
+          key: cocoapods-repos-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: cocoapods-repos-${{ runner.os }}-
+          save-always: true
+
+      - name: Cache CocoaPods Pods dir
         uses: actions/cache@v4
         with:
           path: ios/Pods
@@ -160,7 +168,9 @@ jobs:
         run: bundle install
 
       - name: Install CocoaPods
-        run: cd ios && bundle exec pod install --repo-update
+        run: cd ios && bundle exec pod install --no-repo-update
+        env:
+          COCOAPODS_DISABLE_STATS: 1
 
       - name: Distribute staging iOS
         run: bundle exec fastlane ios distribute_staging_ios
@@ -169,6 +179,7 @@ jobs:
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
           FIREBASE_IOS_APP_ID: ${{ secrets.FIREBASE_IOS_APP_ID }}
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          COCOAPODS_DISABLE_STATS: 1
 
       - name: Notify Slack — iOS failure
         if: failure()
