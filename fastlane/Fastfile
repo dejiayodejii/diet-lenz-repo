@@ -149,7 +149,7 @@ platform :android do
       release_notes: "Staging build from CI — branch: #{git_branch}, commit: #{last_git_commit[:abbreviated_commit_hash]}",
       firebase_cli_token: ENV["FIREBASE_TOKEN"],
       android_artifact_type: "APK",
-      android_artifact_path: "android/app/build/outputs/apk/staging/release/app-staging-release.apk",
+      android_artifact_path: "build/app/outputs/flutter-apk/app-staging-release.apk",
     )
   end
 
