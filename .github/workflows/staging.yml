@@ -79,7 +79,7 @@ jobs:
         run: bundle install
 
       - name: Distribute staging Android
-        run: bundle exec fastlane distribute_staging_android
+        run: bundle exec fastlane android distribute_staging_android
         env:
           FIREBASE_ANDROID_APP_ID: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
@@ -90,7 +90,7 @@ jobs:
         run: bundle install
 
       - name: Distribute staging iOS
-        run: bundle exec fastlane distribute_staging_ios
+        run: bundle exec fastlane ios distribute_staging_ios
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}

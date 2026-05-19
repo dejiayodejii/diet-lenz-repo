@@ -87,7 +87,7 @@ jobs:
         run: bundle install
 
       - name: Upload to Play Store internal track
-        run: bundle exec fastlane upload_play_store_internal
+        run: bundle exec fastlane android upload_play_store_internal
         env:
           BUILD_NUMBER: ${{ steps.build_number.outputs.BUILD_NUMBER }}
 
@@ -97,7 +97,7 @@ jobs:
         run: bundle install
 
       - name: Upload to TestFlight
-        run: bundle exec fastlane upload_testflight
+        run: bundle exec fastlane ios upload_testflight
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
