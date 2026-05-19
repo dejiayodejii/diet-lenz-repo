@@ -76,10 +76,10 @@ jobs:
           EOF
 
       - name: Setup Fastlane (Android)
-        run: cd android && bundle install
+        run: bundle install
 
       - name: Distribute staging Android
-        run: cd android && bundle exec fastlane distribute_staging_android
+        run: bundle exec fastlane distribute_staging_android
         env:
           FIREBASE_ANDROID_APP_ID: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

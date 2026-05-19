@@ -84,10 +84,10 @@ jobs:
           EOF
 
       - name: Setup Fastlane (Android)
-        run: cd android && bundle install
+        run: bundle install
 
       - name: Upload to Play Store internal track
-        run: cd android && bundle exec fastlane upload_play_store_internal
+        run: bundle exec fastlane upload_play_store_internal
         env:
           BUILD_NUMBER: ${{ steps.build_number.outputs.BUILD_NUMBER }}
 
