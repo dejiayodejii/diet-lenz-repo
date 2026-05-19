@@ -19,8 +19,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version-file: pubspec.yaml
-          channel: stable
+          flutter-version: '3.41.6'
           cache: true
 
       - name: Cache pub dependencies
