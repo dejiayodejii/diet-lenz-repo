@@ -215,28 +215,29 @@ jobs:
 
       - name: Replace bundled pod with no-op wrapper
         # Pods are now correctly installed (step above). Replace the actual
-        # cocoapods gem binary with a no-op that exits 0 for 'pod install'.
-        # This is the definitive fix: it intercepts ALL subsequent pod calls
-        # regardless of how pod is resolved — via PATH, via bundle exec
-        # (which prepends gem bin dir), or via absolute path from ProcessManager.
+        # cocoapods gem binary with a Ruby no-op that exits 0 for 'pod install'.
+        # MUST be Ruby (not bash): bundle exec uses Ruby's `load` to execute the
+        # gem binary — a bash shebang causes a Ruby SyntaxError at load time.
         # The real pod is preserved as pod.real for non-install commands.
         run: |
           cd fastlane
-          # Use Ruby gem spec to find pod's exact path (immune to PATH manipulation)
           BUNDLE_POD=$(bundle exec ruby -e \
             "require 'rubygems'; spec = Gem::Specification.find_by_name('cocoapods'); puts File.join(spec.bin_dir, 'pod')")
           echo "Bundled pod path: $BUNDLE_POD"
           [[ -f "$BUNDLE_POD" ]] || { echo "ERROR: pod not found at $BUNDLE_POD"; exit 1; }
           cp "$BUNDLE_POD" "${BUNDLE_POD}.real"
-          printf '#!/bin/bash\n'                                                                                  > "$BUNDLE_POD"
-          printf 'echo "[POD-NOOP] called from $PWD: $*" >> /tmp/pod_wrapper.log\n'                             >> "$BUNDLE_POD"
-          printf 'if [[ "$1" == "install" ]]; then\n'                                                            >> "$BUNDLE_POD"
-          printf '  [[ -f "Podfile.lock" ]] && [[ -d "Pods" ]] && cp "Podfile.lock" "Pods/Manifest.lock"\n'    >> "$BUNDLE_POD"
-          printf '  echo "[POD-NOOP] install intercepted, exit 0" >> /tmp/pod_wrapper.log\n'                    >> "$BUNDLE_POD"
-          printf '  exit 0\n'                                                                                    >> "$BUNDLE_POD"
-          printf 'fi\n'                                                                                          >> "$BUNDLE_POD"
-          printf 'exec "%s" "$@"\n' "${BUNDLE_POD}.real"                                                        >> "$BUNDLE_POD"
-          chmod +x "$BUNDLE_POD"
+          printf '#!/usr/bin/env ruby\n'                                                                                          > "$BUNDLE_POD"
+          printf "require 'fileutils'\n"                                                                                         >> "$BUNDLE_POD"
+          printf "log = '/tmp/pod_wrapper.log'\n"                                                                                >> "$BUNDLE_POD"
+          printf "File.open(log,'a'){|f| f.puts \"[POD-NOOP] from #{Dir.pwd}: #{ARGV.inspect}\"}\n"                             >> "$BUNDLE_POD"
+          printf "if ARGV[0] == 'install'\n"                                                                                     >> "$BUNDLE_POD"
+          printf "  pl = File.join(Dir.pwd, 'Podfile.lock')\n"                                                                  >> "$BUNDLE_POD"
+          printf "  pd = File.join(Dir.pwd, 'Pods')\n"                                                                          >> "$BUNDLE_POD"
+          printf "  (FileUtils.cp(pl, File.join(pd,'Manifest.lock')) rescue nil) if File.exist?(pl) && Dir.exist?(pd)\n"       >> "$BUNDLE_POD"
+          printf "  File.open(log,'a'){|f| f.puts '[POD-NOOP] install intercepted, exit 0'}\n"                                 >> "$BUNDLE_POD"
+          printf "  exit 0\n"                                                                                                    >> "$BUNDLE_POD"
+          printf "end\n"                                                                                                         >> "$BUNDLE_POD"
+          printf 'load "#{__FILE__}.real"\n'                                                                                    >> "$BUNDLE_POD"
           echo "--- wrapper ---" && cat "$BUNDLE_POD"
 
       - name: Distribute staging iOS
