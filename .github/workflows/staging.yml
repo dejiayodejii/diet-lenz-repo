@@ -175,6 +175,20 @@ jobs:
         env:
           COCOAPODS_DISABLE_STATS: 1
 
+      - name: Patch bundled pod binary to force --no-repo-update
+        # Flutter calls `pod install` internally without --no-repo-update.
+        # That triggers CDN spec-repo fetches which hang on GitHub Actions.
+        # We replace the bundled pod binary with a thin wrapper that strips
+        # any --repo-update arg and injects --no-repo-update before exec.
+        run: |
+          POD_BIN=$(bundle exec bash -c 'which pod')
+          echo "Patching: $POD_BIN"
+          cp "$POD_BIN" "${POD_BIN}.real"
+          printf '#!/bin/bash\nARGS=()\nfor a in "$@"; do [[ "$a" != "--repo-update" ]] && ARGS+=("$a"); done\nARGS+=("--no-repo-update")\nexec "%s.real" "${ARGS[@]}"\n' "$POD_BIN" > "$POD_BIN"
+          chmod +x "$POD_BIN"
+          echo "Wrapper installed. Contents:"
+          cat "$POD_BIN"
+
       - name: Install CocoaPods
         run: cd ios && bundle exec pod install --no-repo-update
         env:
