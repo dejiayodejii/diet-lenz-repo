@@ -57,27 +57,28 @@ platform :ios do
     # a second pod install (which hits the CDN and hangs on CI).
     sh "cd ../ios && bundle exec pod install --no-repo-update"
 
-    # Flutter's `flutter build ipa` unconditionally calls `pod install` without
-    # --no-repo-update, causing CDN spec-repo HTTPS fetches that hang on CI.
-    # Fix: prepend a thin wrapper script to PATH so every child process
-    # (Flutter → Dart → pod) picks it up. ENV changes in Ruby are inherited
-    # by all subprocesses spawned from this point onward.
-    real_pod = `which pod`.strip
-    pod_bin  = File.expand_path("~/pod-wrapper-bin")
+    # ~/bin/pod wrapper is installed by the CI workflow step via $GITHUB_ENV
+    # so PATH already has it first for all processes including Flutter's Dart
+    # runtime. Belt-and-suspenders: also set ENV["PATH"] here so any future
+    # non-CI use still has the wrapper. Use system Homebrew pod (not the
+    # bundled vendor gem path returned by 'which pod' inside bundle exec).
+    system_pod = ["/opt/homebrew/bin/pod", "/usr/local/bin/pod"].find { |p| File.executable?(p) }
+    system_pod ||= "/opt/homebrew/bin/pod"
+    pod_bin = File.expand_path("~/pod-wrapper-bin")
     system("mkdir", "-p", pod_bin)
     File.write(
       "#{pod_bin}/pod",
       "#!/bin/bash\n" \
-      "echo \"[WRAPPER] pod called: $@\" >&2\n" \
+      "echo \"[WRAPPER-FB] pod called: $@\" >&2\n" \
       "A=()\nfor x in \"$@\"; do\n" \
       "  [[ \"$x\" != \"--repo-update\" ]] && A+=(\"$x\")\n" \
       "done\n" \
       "A+=(\"--no-repo-update\")\n" \
-      "exec \"#{real_pod}\" \"${A[@]}\"\n"
+      "exec \"#{system_pod}\" \"${A[@]}\"\n"
     )
     File.chmod(0755, "#{pod_bin}/pod")
     ENV["PATH"] = "#{pod_bin}:#{ENV["PATH"]}"
-    UI.message("Pod wrapper: #{pod_bin}/pod -> #{real_pod}")
+    UI.message("Pod wrapper (Fastfile): #{pod_bin}/pod -> #{system_pod}")
 
     sh "flutter build ipa --no-pub " \
        "--flavor staging " \

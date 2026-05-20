@@ -175,6 +175,31 @@ jobs:
         env:
           COCOAPODS_DISABLE_STATS: 1
 
+      - name: Install pod wrapper (force --no-repo-update)
+        # Create ~/bin/pod wrapper that injects --no-repo-update into every
+        # pod call. Export via $GITHUB_ENV so PATH is set for ALL subsequent
+        # steps — including processes deep inside Flutter's Dart runtime.
+        # Uses /opt/homebrew/bin/pod (system pod) so the wrapper runs with
+        # a proper gem environment, not the bundled vendor gem path.
+        run: |
+          REAL_POD=/opt/homebrew/bin/pod
+          echo "System pod: $REAL_POD ($($REAL_POD --version))"
+          mkdir -p "$HOME/bin"
+          {
+            echo '#!/bin/bash'
+            echo 'echo "[WRAPPER] pod called: $@" >&2'
+            echo 'A=()'
+            echo 'for x in "$@"; do'
+            echo '  [[ "$x" != "--repo-update" ]] && A+=("$x")'
+            echo 'done'
+            echo 'A+=("--no-repo-update")'
+            echo "exec \"$REAL_POD\" \"\${A[@]}\""
+          } > "$HOME/bin/pod"
+          chmod +x "$HOME/bin/pod"
+          echo "--- wrapper content ---"
+          cat "$HOME/bin/pod"
+          echo "PATH=$HOME/bin:$PATH" >> "$GITHUB_ENV"
+
       - name: Install CocoaPods
         run: cd ios && bundle exec pod install --no-repo-update
         env:
