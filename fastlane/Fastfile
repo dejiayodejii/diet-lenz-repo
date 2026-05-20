@@ -57,17 +57,11 @@ platform :ios do
     # a second pod install (which hits the CDN and hangs on CI).
     sh "cd ../ios && bundle exec pod install --no-repo-update"
 
-    # bundle exec fastlane prepends vendor/bundle/.../bin to PATH, which puts
-    # the real bundled pod gem BEFORE ~/bin/pod (our no-op wrapper from $GITHUB_ENV).
-    # Flutter resolves 'pod' via PATH, so it finds the real pod and hangs on CDN.
-    # Fix: re-prepend ~/bin here so our wrapper wins, regardless of what Bundler did.
-    # bundle exec pod (above) is unaffected — it resolves pod from the gem manifest,
-    # not from PATH.
-    home_bin = File.expand_path("~/bin")
-    if File.executable?("#{home_bin}/pod")
-      ENV["PATH"] = "#{home_bin}:#{ENV["PATH"]}"
-      UI.message("Re-prepended #{home_bin} to PATH — pod wrapper is active for Flutter")
-    end
+    # The bundled pod binary is replaced with a no-op wrapper by the CI workflow
+    # step 'Replace bundled pod with no-op wrapper' (runs before Fastlane starts).
+    # Any subsequent 'pod install' call — via bundle exec OR Flutter's ProcessManager
+    # — hits the wrapper and exits 0 immediately (no CDN). Non-install commands
+    # (e.g. pod --version) fall through to pod.real.
 
     sh "flutter build ipa --no-pub " \
        "--flavor staging " \
