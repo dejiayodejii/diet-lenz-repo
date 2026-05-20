@@ -57,28 +57,11 @@ platform :ios do
     # a second pod install (which hits the CDN and hangs on CI).
     sh "cd ../ios && bundle exec pod install --no-repo-update"
 
-    # ~/bin/pod wrapper is installed by the CI workflow step via $GITHUB_ENV
-    # so PATH already has it first for all processes including Flutter's Dart
-    # runtime. Belt-and-suspenders: also set ENV["PATH"] here so any future
-    # non-CI use still has the wrapper. Use system Homebrew pod (not the
-    # bundled vendor gem path returned by 'which pod' inside bundle exec).
-    system_pod = ["/opt/homebrew/bin/pod", "/usr/local/bin/pod"].find { |p| File.executable?(p) }
-    system_pod ||= "/opt/homebrew/bin/pod"
-    pod_bin = File.expand_path("~/pod-wrapper-bin")
-    system("mkdir", "-p", pod_bin)
-    File.write(
-      "#{pod_bin}/pod",
-      "#!/bin/bash\n" \
-      "echo \"[WRAPPER-FB] pod called: $@\" >&2\n" \
-      "A=()\nfor x in \"$@\"; do\n" \
-      "  [[ \"$x\" != \"--repo-update\" ]] && A+=(\"$x\")\n" \
-      "done\n" \
-      "A+=(\"--no-repo-update\")\n" \
-      "exec \"#{system_pod}\" \"${A[@]}\"\n"
-    )
-    File.chmod(0755, "#{pod_bin}/pod")
-    ENV["PATH"] = "#{pod_bin}:#{ENV["PATH"]}"
-    UI.message("Pod wrapper (Fastfile): #{pod_bin}/pod -> #{system_pod}")
+    # The CI workflow installs ~/bin/pod (via $GITHUB_ENV PATH) — a smart wrapper
+    # that intercepts Flutter's implicit `pod install` call (triggered after
+    # xcodebuild detects Manifest.lock != Podfile.lock) and makes it a no-op:
+    # just syncs the lock files and exits 0. No CDN. `bundle exec pod` above
+    # uses the bundled gem directly and is unaffected by the PATH wrapper.
 
     sh "flutter build ipa --no-pub " \
        "--flavor staging " \
