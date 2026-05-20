@@ -228,18 +228,14 @@ jobs:
           echo "Bundled pod path: $BUNDLE_POD"
           [[ -f "$BUNDLE_POD" ]] || { echo "ERROR: pod not found at $BUNDLE_POD"; exit 1; }
           cp "$BUNDLE_POD" "${BUNDLE_POD}.real"
-          cat > "$BUNDLE_POD" << 'NOOP'
-#!/bin/bash
-echo "[POD-NOOP] called from $PWD: $*" >> /tmp/pod_wrapper.log
-if [[ "$1" == "install" ]]; then
-  [[ -f "Podfile.lock" ]] && [[ -d "Pods" ]] && cp "Podfile.lock" "Pods/Manifest.lock"
-  echo "[POD-NOOP] install intercepted, exit 0" >> /tmp/pod_wrapper.log
-  exit 0
-fi
-exec REAL_PATH "$@"
-NOOP
-          # Embed the real pod path (use | delimiter to avoid escaping /)
-          sed -i '' "s|REAL_PATH|${BUNDLE_POD}.real|g" "$BUNDLE_POD"
+          printf '#!/bin/bash\n'                                                                                  > "$BUNDLE_POD"
+          printf 'echo "[POD-NOOP] called from $PWD: $*" >> /tmp/pod_wrapper.log\n'                             >> "$BUNDLE_POD"
+          printf 'if [[ "$1" == "install" ]]; then\n'                                                            >> "$BUNDLE_POD"
+          printf '  [[ -f "Podfile.lock" ]] && [[ -d "Pods" ]] && cp "Podfile.lock" "Pods/Manifest.lock"\n'    >> "$BUNDLE_POD"
+          printf '  echo "[POD-NOOP] install intercepted, exit 0" >> /tmp/pod_wrapper.log\n'                    >> "$BUNDLE_POD"
+          printf '  exit 0\n'                                                                                    >> "$BUNDLE_POD"
+          printf 'fi\n'                                                                                          >> "$BUNDLE_POD"
+          printf 'exec "%s" "$@"\n' "${BUNDLE_POD}.real"                                                        >> "$BUNDLE_POD"
           chmod +x "$BUNDLE_POD"
           echo "--- wrapper ---" && cat "$BUNDLE_POD"
 
