@@ -175,31 +175,35 @@ jobs:
         env:
           COCOAPODS_DISABLE_STATS: 1
 
-      - name: Install pod wrapper (smart no-op for Flutter's implicit pod install)
-        # Flutter's `flutter build ipa` triggers `pod install` DURING xcodebuild
-        # because [CP] Check Pods Manifest.lock detects a mismatch after Flutter
-        # regenerates Release xcconfig. Calling the real pod hangs on CDN.
+      - name: Install pod wrapper (unconditional no-op for pod install)
+        # Flutter's `flutter build ipa` calls `pod install` mid-archive when
+        # [CP] Check Pods Manifest.lock detects a mismatch. Calling the real
+        # pod (even with --no-repo-update) hangs because CDN fetches individual
+        # .podspec.json files lazily and those HTTPS requests hang on GHA runners.
         #
-        # Solution: when Pods/ is already installed, wrapper just copies
-        # Podfile.lock -> Pods/Manifest.lock (they're identical by spec) and
-        # exits 0. No network. bundle exec pod bypasses PATH so the explicit
-        # Install CocoaPods step below is unaffected.
+        # Safe to unconditionally exit 0 because ALL our explicit pod install
+        # calls use `bundle exec pod` which resolves pod from the bundled gem
+        # path (vendor/bundle/.../bin/pod) and BYPASSES this PATH wrapper.
+        # So: real pod always runs first (bundle exec), wrapper only catches
+        # Flutter's implicit call and makes it a no-op.
+        #
+        # Logs to /tmp/pod_wrapper.log so diagnostics step can read it even
+        # if the build step hangs/is cancelled.
         run: |
           REAL_POD=$([[ -x /opt/homebrew/bin/pod ]] && echo /opt/homebrew/bin/pod || echo /usr/local/bin/pod)
           echo "Real pod: $REAL_POD ($($REAL_POD --version))"
           mkdir -p "$HOME/bin"
-          # Write wrapper using printf (avoids heredoc quoting issues)
-          printf '#!/bin/bash\n' > "$HOME/bin/pod"
-          printf 'echo "[WRAPPER] pod from $PWD: $@" >&2\n' >> "$HOME/bin/pod"
-          printf 'if [[ "$1" == "install" ]] && [[ -f "Pods/Manifest.lock" ]]; then\n' >> "$HOME/bin/pod"
-          printf '  cp "Podfile.lock" "Pods/Manifest.lock"\n' >> "$HOME/bin/pod"
-          printf '  echo "[WRAPPER] synced lock files, no CDN needed" >&2\n' >> "$HOME/bin/pod"
-          printf '  exit 0\n' >> "$HOME/bin/pod"
-          printf 'fi\n' >> "$HOME/bin/pod"
-          printf 'A=()\n' >> "$HOME/bin/pod"
-          printf 'for x in "$@"; do [[ "$x" != "--repo-update" ]] && A+=("$x"); done\n' >> "$HOME/bin/pod"
-          printf 'A+=("--no-repo-update")\n' >> "$HOME/bin/pod"
-          printf 'exec "%s" "${A[@]}"\n' "$REAL_POD" >> "$HOME/bin/pod"
+          printf '#!/bin/bash\n'                                                                        > "$HOME/bin/pod"
+          printf 'echo "[WRAPPER] called from PWD=%s args=%s" "$PWD" "$*" >> /tmp/pod_wrapper.log\n'  >> "$HOME/bin/pod"
+          printf 'if [[ "$1" == "install" ]]; then\n'                                                  >> "$HOME/bin/pod"
+          printf '  echo "[WRAPPER] intercepted pod install - exiting 0 (no CDN)" >> /tmp/pod_wrapper.log\n' >> "$HOME/bin/pod"
+          printf '  [[ -f "Podfile.lock" ]] && [[ -d "Pods" ]] && cp "Podfile.lock" "Pods/Manifest.lock"\n'  >> "$HOME/bin/pod"
+          printf '  exit 0\n'                                                                          >> "$HOME/bin/pod"
+          printf 'fi\n'                                                                                >> "$HOME/bin/pod"
+          printf 'A=()\n'                                                                              >> "$HOME/bin/pod"
+          printf 'for x in "$@"; do [[ "$x" != "--repo-update" ]] && A+=("$x"); done\n'               >> "$HOME/bin/pod"
+          printf 'A+=("--no-repo-update")\n'                                                          >> "$HOME/bin/pod"
+          printf 'exec "%s" "${A[@]}"\n' "$REAL_POD"                                                  >> "$HOME/bin/pod"
           chmod +x "$HOME/bin/pod"
           echo "--- wrapper ---" && cat "$HOME/bin/pod"
           echo "PATH=$HOME/bin:$PATH" >> "$GITHUB_ENV"
@@ -210,6 +214,7 @@ jobs:
           COCOAPODS_DISABLE_STATS: 1
 
       - name: Distribute staging iOS
+        timeout-minutes: 30
         run: bundle exec fastlane ios distribute_staging_ios
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -217,6 +222,14 @@ jobs:
           FIREBASE_IOS_APP_ID: ${{ secrets.FIREBASE_IOS_APP_ID }}
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           COCOAPODS_DISABLE_STATS: 1
+
+      - name: Pod wrapper diagnostics
+        if: always()
+        run: |
+          echo "=== Pod wrapper call log ==="
+          cat /tmp/pod_wrapper.log 2>/dev/null || echo "(wrapper was never called — pod resolved outside PATH)"
+          echo "=== ~/bin/pod ==="
+          cat "$HOME/bin/pod" 2>/dev/null || echo "(wrapper not found)"
 
       - name: Notify Slack — iOS failure
         if: failure()
