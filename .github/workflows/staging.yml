@@ -175,44 +175,6 @@ jobs:
         env:
           COCOAPODS_DISABLE_STATS: 1
 
-      - name: Patch pod binaries to force --no-repo-update
-        # Flutter's Dart process calls 'pod install' (no --no-repo-update) which
-        # triggers CDN spec-repo update HTTPS calls that hang on GitHub Actions.
-        # We patch every pod binary we can find with a thin bash wrapper.
-        # Debug prefix "[WRAPPER]" in CI log confirms which binary Flutter calls.
-        run: |
-          patch_pod() {
-            local target="$1" use_sudo="$2"
-            [[ -f "$target" ]] || { echo "SKIP (not found): $target"; return; }
-            local real="${target}.real"
-            local wrapper
-            wrapper=$(printf '#!/bin/bash\necho "[WRAPPER] pod called: $@" >&2\nA=()\nfor x in "$@"; do [[ "$x" != "--repo-update" ]] && A+=("$x"); done\nA+=("--no-repo-update")\nexec "%s" "${A[@]}"\n' "$real")
-            echo "=== Patching: $target ==="
-            if [[ "$use_sudo" == "sudo" ]]; then
-              sudo cp "$target" "$real"
-              echo "$wrapper" | sudo tee "$target" > /dev/null
-              sudo chmod +x "$target"
-            else
-              cp "$target" "$real"
-              echo "$wrapper" > "$target"
-              chmod +x "$target"
-            fi
-            echo "Wrapper at $target -> $real"
-            head -3 "$target"
-          }
-
-          # 1. Bundled pod via Gem.bindir (immune to PATH ambiguity)
-          GEM_BINDIR=$(bundle exec ruby -e 'require "rubygems"; print Gem.bindir')
-          echo "GEM_BINDIR=$GEM_BINDIR"
-          patch_pod "$GEM_BINDIR/pod"
-
-          # 2. System pod locations Flutter may resolve when PATH differs
-          patch_pod /opt/homebrew/bin/pod sudo
-          patch_pod /usr/local/bin/pod  sudo
-
-          echo "=== which pod: $(which pod 2>/dev/null) ==="
-          echo "=== bundle exec pod: $(bundle exec bash -c 'which pod' 2>/dev/null) ==="
-
       - name: Install CocoaPods
         run: cd ios && bundle exec pod install --no-repo-update
         env:

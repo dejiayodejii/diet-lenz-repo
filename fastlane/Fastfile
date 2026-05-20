@@ -57,10 +57,28 @@ platform :ios do
     # a second pod install (which hits the CDN and hangs on CI).
     sh "cd ../ios && bundle exec pod install --no-repo-update"
 
-    # --no-pub: skip flutter pub get inside the build command.
-    # We already ran it in the CI step so Generated.xcconfig / .flutter-plugins
-    # are current. With --no-pub Flutter won't regenerate those artifacts, so
-    # its own pod-install check sees Manifest.lock == Podfile.lock and skips.
+    # Flutter's `flutter build ipa` unconditionally calls `pod install` without
+    # --no-repo-update, causing CDN spec-repo HTTPS fetches that hang on CI.
+    # Fix: prepend a thin wrapper script to PATH so every child process
+    # (Flutter → Dart → pod) picks it up. ENV changes in Ruby are inherited
+    # by all subprocesses spawned from this point onward.
+    real_pod = `which pod`.strip
+    pod_bin  = File.expand_path("~/pod-wrapper-bin")
+    system("mkdir", "-p", pod_bin)
+    File.write(
+      "#{pod_bin}/pod",
+      "#!/bin/bash\n" \
+      "echo \"[WRAPPER] pod called: $@\" >&2\n" \
+      "A=()\nfor x in \"$@\"; do\n" \
+      "  [[ \"$x\" != \"--repo-update\" ]] && A+=(\"$x\")\n" \
+      "done\n" \
+      "A+=(\"--no-repo-update\")\n" \
+      "exec \"#{real_pod}\" \"${A[@]}\"\n"
+    )
+    File.chmod(0755, "#{pod_bin}/pod")
+    ENV["PATH"] = "#{pod_bin}:#{ENV["PATH"]}"
+    UI.message("Pod wrapper: #{pod_bin}/pod -> #{real_pod}")
+
     sh "flutter build ipa --no-pub " \
        "--flavor staging " \
        "--dart-define=ENVIRONMENT=staging " \
