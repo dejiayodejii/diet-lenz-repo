@@ -251,7 +251,7 @@ jobs:
           echo "--- wrapper ---" && cat "$BUNDLE_POD"
 
       - name: Distribute staging iOS
-        timeout-minutes: 90
+        timeout-minutes: 40
         run: bundle exec fastlane ios distribute_staging_ios
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}

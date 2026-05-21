@@ -63,7 +63,7 @@ platform :ios do
     # — hits the wrapper and exits 0 immediately (no CDN). Non-install commands
     # (e.g. pod --version) fall through to pod.real.
 
-    sh "flutter build ipa --no-pub " \
+    sh "flutter build ipa --no-pub --verbose " \
        "--flavor staging " \
        "--dart-define=ENVIRONMENT=staging " \
        "--dart-define=API_URL=https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app " \
