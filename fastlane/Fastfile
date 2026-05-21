@@ -57,18 +57,30 @@ platform :ios do
     # a second pod install (which hits the CDN and hangs on CI).
     sh "cd ../ios && bundle exec pod install --no-repo-update"
 
-    # The bundled pod binary is replaced with a no-op wrapper by the CI workflow
-    # step 'Replace bundled pod with no-op wrapper' (runs before Fastlane starts).
-    # Any subsequent 'pod install' call — via bundle exec OR Flutter's ProcessManager
-    # — hits the wrapper and exits 0 immediately (no CDN). Non-install commands
-    # (e.g. pod --version) fall through to pod.real.
-
-    sh "flutter build ipa --no-pub --verbose " \
+    # flutter build ios --no-codesign compiles Dart + Xcode WITHOUT passing
+    # -allowProvisioningUpdates to xcodebuild. flutter build ipa hardcodes that
+    # flag which causes xcodebuild to contact Apple servers and hang on CI.
+    sh "flutter build ios --no-pub --no-codesign " \
+       "--release " \
        "--flavor staging " \
        "--dart-define=ENVIRONMENT=staging " \
        "--dart-define=API_URL=https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app " \
-       "--build-number=#{build_number} " \
-       "--export-options-plist=../ios/ExportOptions-AdHoc.plist"
+       "--build-number=#{build_number}"
+
+    # Archive and sign using gym (build_app). Does NOT pass
+    # -allowProvisioningUpdates so no Apple server contact. Reuses DerivedData
+    # compiled above so link+archive is fast.
+    build_app(
+      workspace: "ios/Runner.xcworkspace",
+      scheme: "Staging",
+      configuration: "Release-staging",
+      clean: false,
+      export_method: "ad-hoc",
+      export_options: "ios/ExportOptions-AdHoc.plist",
+      output_directory: "build/ios/ipa",
+      output_name: "DietLenz-Staging.ipa",
+      include_bitcode: false,
+    )
   end
 
   desc "Build a production iOS IPA using App Store signing"
