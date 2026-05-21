@@ -57,30 +57,15 @@ platform :ios do
     # a second pod install (which hits the CDN and hangs on CI).
     sh "cd ../ios && bundle exec pod install --no-repo-update"
 
-    # flutter build ios --no-codesign compiles Dart + Xcode WITHOUT passing
-    # -allowProvisioningUpdates to xcodebuild. flutter build ipa hardcodes that
-    # flag which causes xcodebuild to contact Apple servers and hang on CI.
-    sh "flutter build ios --no-pub --no-codesign " \
-       "--release " \
+    # flutter build ipa passes -allowProvisioningUpdates to xcodebuild archive.
+    # The xcrun wrapper installed by CI strips that flag so xcodebuild does not
+    # contact Apple servers. Single compilation pass (archive + export in one).
+    sh "flutter build ipa --no-pub " \
        "--flavor staging " \
        "--dart-define=ENVIRONMENT=staging " \
        "--dart-define=API_URL=https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app " \
-       "--build-number=#{build_number}"
-
-    # Archive and sign using gym (build_app). Does NOT pass
-    # -allowProvisioningUpdates so no Apple server contact. Reuses DerivedData
-    # compiled above so link+archive is fast.
-    build_app(
-      workspace: "ios/Runner.xcworkspace",
-      scheme: "Staging",
-      configuration: "Release-staging",
-      clean: false,
-      export_method: "ad-hoc",
-      export_options: "ios/ExportOptions-AdHoc.plist",
-      output_directory: "build/ios/ipa",
-      output_name: "DietLenz-Staging.ipa",
-      include_bitcode: false,
-    )
+       "--build-number=#{build_number} " \
+       "--export-options-plist=../ios/ExportOptions-AdHoc.plist"
   end
 
   desc "Build a production iOS IPA using App Store signing"

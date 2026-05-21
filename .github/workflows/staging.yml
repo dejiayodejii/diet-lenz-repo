@@ -171,6 +171,14 @@ jobs:
           restore-keys: deriveddata-${{ runner.os }}-
           save-always: true
 
+      - name: Cache Flutter iOS build (Dart AOT)
+        uses: actions/cache@v4
+        with:
+          path: build/ios
+          key: flutter-build-ios-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
+          restore-keys: flutter-build-ios-${{ runner.os }}-
+          save-always: true
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -218,6 +226,34 @@ jobs:
           echo "--- wrapper ---" && cat "$HOME/bin/pod"
           echo "PATH=$HOME/bin:$PATH" >> "$GITHUB_ENV"
 
+      - name: Install xcrun wrapper (strips -allowProvisioningUpdates)
+        # flutter build ipa hardcodes -allowProvisioningUpdates and
+        # -allowProvisioningDeviceRegistration in its xcodebuild archive call.
+        # These cause xcodebuild to contact Apple's Developer Portal and hang
+        # indefinitely on CI where no Apple session exists.
+        # Fix: wrap xcrun (Flutter calls `/usr/bin/arch -arm64e xcrun xcodebuild`;
+        # arch uses PATH to resolve xcrun so ~/bin/xcrun is found first).
+        # Our wrapper strips the two problematic flags and passes everything else
+        # through to /usr/bin/xcrun unchanged.
+        run: |
+          cat > "$HOME/bin/xcrun" << 'XCRUN_WRAPPER'
+          #!/bin/bash
+          ARGS=()
+          for arg in "$@"; do
+            case "$arg" in
+              -allowProvisioningUpdates|-allowProvisioningDeviceRegistration)
+                echo "[XCRUN-WRAPPER] stripped: $arg" >> /tmp/xcrun_wrapper.log
+                ;;
+              *)
+                ARGS+=("$arg")
+                ;;
+            esac
+          done
+          exec /usr/bin/xcrun "${ARGS[@]}"
+          XCRUN_WRAPPER
+          chmod +x "$HOME/bin/xcrun"
+          echo "--- xcrun wrapper ---" && cat "$HOME/bin/xcrun"
+
       - name: Install CocoaPods
         run: cd ios && bundle exec pod install --no-repo-update
         env:
@@ -251,7 +287,7 @@ jobs:
           echo "--- wrapper ---" && cat "$BUNDLE_POD"
 
       - name: Distribute staging iOS
-        timeout-minutes: 90
+        timeout-minutes: 120
         run: bundle exec fastlane ios distribute_staging_ios
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
