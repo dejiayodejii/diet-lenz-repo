@@ -163,6 +163,14 @@ jobs:
           restore-keys: pods-${{ runner.os }}-
           save-always: true
 
+      - name: Cache Xcode DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock', 'pubspec.lock') }}
+          restore-keys: deriveddata-${{ runner.os }}-
+          save-always: true
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -243,7 +251,7 @@ jobs:
           echo "--- wrapper ---" && cat "$BUNDLE_POD"
 
       - name: Distribute staging iOS
-        timeout-minutes: 60
+        timeout-minutes: 90
         run: bundle exec fastlane ios distribute_staging_ios
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
