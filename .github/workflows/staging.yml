@@ -254,6 +254,32 @@ jobs:
           chmod +x "$HOME/bin/xcrun"
           echo "--- xcrun wrapper ---" && cat "$HOME/bin/xcrun"
 
+      - name: Replace xcodebuild binary with flag-stripping wrapper
+        # The xcrun wrapper above may not intercept if /usr/bin/arch resolves
+        # xcrun from the system path rather than $PATH. Belt-and-suspenders:
+        # replace the ACTUAL xcodebuild binary in the Xcode toolchain so xcrun
+        # resolves directly to our wrapper regardless of PATH lookup.
+        run: |
+          XCODEBUILD=$(xcrun --find xcodebuild)
+          echo "xcodebuild: $XCODEBUILD"
+          sudo cp "$XCODEBUILD" "${XCODEBUILD}.real"
+          REAL="${XCODEBUILD}.real"
+          printf '#!/bin/bash\n'                                                                          | sudo tee    "$XCODEBUILD" > /dev/null
+          printf 'ARGS=()\n'                                                                              | sudo tee -a "$XCODEBUILD" > /dev/null
+          printf 'for arg in "$@"; do\n'                                                                 | sudo tee -a "$XCODEBUILD" > /dev/null
+          printf '  case "$arg" in\n'                                                                     | sudo tee -a "$XCODEBUILD" > /dev/null
+          printf '    -allowProvisioningUpdates|-allowProvisioningDeviceRegistration)\n'                  | sudo tee -a "$XCODEBUILD" > /dev/null
+          printf '      echo "[XCODEBUILD-WRAP] stripped: $arg" >> /tmp/xcodebuild_wrapper.log\n'       | sudo tee -a "$XCODEBUILD" > /dev/null
+          printf '      ;;\n'                                                                              | sudo tee -a "$XCODEBUILD" > /dev/null
+          printf '    *)\n'                                                                               | sudo tee -a "$XCODEBUILD" > /dev/null
+          printf '      ARGS+=("$arg")\n'                                                                 | sudo tee -a "$XCODEBUILD" > /dev/null
+          printf '      ;;\n'                                                                              | sudo tee -a "$XCODEBUILD" > /dev/null
+          printf '  esac\n'                                                                               | sudo tee -a "$XCODEBUILD" > /dev/null
+          printf 'done\n'                                                                                 | sudo tee -a "$XCODEBUILD" > /dev/null
+          printf 'exec "%s" "${ARGS[@]}"\n' "$REAL"                                                      | sudo tee -a "$XCODEBUILD" > /dev/null
+          sudo chmod +x "$XCODEBUILD"
+          echo "--- xcodebuild wrapper ---" && cat "$XCODEBUILD"
+
       - name: Install CocoaPods
         run: cd ios && bundle exec pod install --no-repo-update
         env:
@@ -287,7 +313,7 @@ jobs:
           echo "--- wrapper ---" && cat "$BUNDLE_POD"
 
       - name: Distribute staging iOS
-        timeout-minutes: 120
+        timeout-minutes: 150
         run: bundle exec fastlane ios distribute_staging_ios
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -301,6 +327,8 @@ jobs:
         run: |
           echo "=== Pod wrapper call log ==="
           cat /tmp/pod_wrapper.log 2>/dev/null || echo "(wrapper was never called — pod resolved outside PATH)"
+          echo "=== xcodebuild wrapper call log ==="
+          cat /tmp/xcodebuild_wrapper.log 2>/dev/null || echo "(xcodebuild wrapper was never called)"
           echo "=== ~/bin/pod ==="
           cat "$HOME/bin/pod" 2>/dev/null || echo "(wrapper not found)"
 

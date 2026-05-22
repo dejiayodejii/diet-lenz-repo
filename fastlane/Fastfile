@@ -60,7 +60,7 @@ platform :ios do
     # flutter build ipa passes -allowProvisioningUpdates to xcodebuild archive.
     # The xcrun wrapper installed by CI strips that flag so xcodebuild does not
     # contact Apple servers. Single compilation pass (archive + export in one).
-    sh "flutter build ipa --no-pub " \
+    sh "flutter build ipa --no-pub --verbose " \
        "--flavor staging " \
        "--dart-define=ENVIRONMENT=staging " \
        "--dart-define=API_URL=https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app " \
