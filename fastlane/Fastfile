@@ -73,14 +73,7 @@ platform :ios do
       export_options: "ios/ExportOptions-AdHoc.plist",
       output_directory: "build/ios/ipa",
       output_name: "DietLenz-staging.ipa",
-      skip_profile_detection: true,
-      xcargs: [
-        "CODE_SIGN_STYLE=Manual",
-        "DEVELOPMENT_TEAM=33N342RB99",
-        "PROVISIONING_PROFILE_SPECIFIER='match AdHoc com.dietlenz.diet.staging'",
-        "CODE_SIGN_IDENTITY='iPhone Distribution'",
-        "PRODUCT_BUNDLE_IDENTIFIER=com.dietlenz.diet.staging"
-      ].join(" ")
+      skip_profile_detection: true
     )
   end
 
