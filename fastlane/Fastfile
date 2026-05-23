@@ -62,7 +62,7 @@ platform :ios do
        "--dart-define=API_URL=https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app " \
        "--build-number=#{build_number}"
 
-    sh "cd ios && bundle exec pod install --no-repo-update"
+    sh "cd ../ios && bundle exec pod install --no-repo-update"
 
     build_app(
       workspace: "ios/Runner.xcworkspace",
