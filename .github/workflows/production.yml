@@ -6,17 +6,55 @@ on:
 
 concurrency:
   group: production-${{ github.ref }}
-  cancel-in-progress: false  # Never cancel an in-flight production release
+  cancel-in-progress: false
 
 jobs:
-  release:
-    name: Production Release
-    runs-on: macos-latest
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    outputs:
+      build_number: ${{ steps.build_number.outputs.BUILD_NUMBER }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history needed for build number calculation
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+          cache-key: flutter-sdk-${{ runner.os }}-3.41.6
+
+      - name: Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: pub-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-${{ runner.os }}-
+          save-always: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Calculate build number
+        id: build_number
+        run: echo "BUILD_NUMBER=$(git rev-list --count HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Run unit tests
+        run: flutter test test/unit/
+
+  release-android:
+    name: Release Android (Production)
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -31,6 +69,12 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+
+      - name: Setup Ruby & Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
 
       - name: Cache pub dependencies
         uses: actions/cache@v4
@@ -50,30 +94,8 @@ jobs:
           restore-keys: gradle-${{ runner.os }}-
           save-always: true
 
-      - name: Cache CocoaPods
-        uses: actions/cache@v4
-        with:
-          path: ios/Pods
-          key: pods-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock') }}
-          restore-keys: pods-${{ runner.os }}-
-          save-always: true
-
       - name: Install dependencies
         run: flutter pub get
-
-      - name: Install CocoaPods
-        run: cd ios && pod install --repo-update
-
-      - name: Calculate build number
-        id: build_number
-        run: echo "BUILD_NUMBER=$(git rev-list --count HEAD)" >> $GITHUB_OUTPUT
-
-      # ── Full test suite ───────────────────────────────────────────────────
-
-      - name: Run unit tests
-        run: flutter test test/unit/
-
-      # ── Android production ────────────────────────────────────────────────
 
       - name: Decode Android keystore
         run: |
@@ -85,20 +107,100 @@ jobs:
           keyPassword=${{ secrets.KEY_PASSWORD }}
           EOF
 
-      - name: Setup Fastlane (Android)
-        run: bundle install
+      - name: Create Google Play service account key
+        run: |
+          cat > google-play-key.json <<'EOF'
+          ${{ secrets.GOOGLE_PLAY_JSON_KEY }}
+          EOF
 
       - name: Upload to Play Store internal track
         run: bundle exec fastlane android upload_play_store_internal
         env:
-          BUILD_NUMBER: ${{ steps.build_number.outputs.BUILD_NUMBER }}
+          BUILD_NUMBER: ${{ needs.test.outputs.build_number }}
+          GOOGLE_PLAY_JSON_KEY: ${{ github.workspace }}/google-play-key.json
 
-      # ── iOS production ────────────────────────────────────────────────────
+      - name: Clean up Android credentials
+        if: always()
+        run: rm -f android/app/release.keystore android/key.properties google-play-key.json
 
-      - name: Setup Fastlane (iOS)
-        run: bundle install
+      - name: Notify Slack - Android failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "Production Android release failed\nBuild: ${{ needs.test.outputs.build_number }}\nSee: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  release-ios:
+    name: Release iOS (TestFlight)
+    runs-on: macos-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+          cache-key: flutter-sdk-${{ runner.os }}-3.41.6
+
+      - name: Setup Ruby & Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: pub-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
+          restore-keys: pub-${{ runner.os }}-
+          save-always: true
+
+      - name: Cache CocoaPods spec repos
+        uses: actions/cache@v4
+        with:
+          path: ~/.cocoapods/repos
+          key: cocoapods-repos-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: cocoapods-repos-${{ runner.os }}-
+          save-always: true
+
+      - name: Cache CocoaPods Pods dir
+        uses: actions/cache@v4
+        with:
+          path: ios/Pods
+          key: pods-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: pods-${{ runner.os }}-
+          save-always: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Remove stale CocoaPods master spec repo
+        run: rm -rf ~/.cocoapods/repos/master || true
+
+      - name: Initialize CocoaPods CDN trunk
+        run: bundle exec pod repo add-cdn trunk https://cdn.cocoapods.org/ 2>/dev/null || true
+        env:
+          COCOAPODS_DISABLE_STATS: 1
+
+      - name: Install CocoaPods
+        timeout-minutes: 20
+        run: cd ios && bundle exec pod install --no-repo-update
+        env:
+          COCOAPODS_DISABLE_STATS: 1
 
       - name: Upload to TestFlight
+        timeout-minutes: 90
         run: bundle exec fastlane ios upload_testflight
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -106,32 +208,32 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
-          BUILD_NUMBER: ${{ steps.build_number.outputs.BUILD_NUMBER }}
+          BUILD_NUMBER: ${{ needs.test.outputs.build_number }}
+          COCOAPODS_DISABLE_STATS: 1
 
-      # ── Notify ────────────────────────────────────────────────────────────
-
-      - name: Notify Slack — success
-        if: success()
-        uses: slackapi/slack-github-action@v1
-        with:
-          payload: |
-            {
-              "text": "🚀 Production release complete\nBuild: ${{ steps.build_number.outputs.BUILD_NUMBER }}\nCommit: ${{ github.sha }}\nAndroid: Play Store internal track\niOS: TestFlight"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-      - name: Notify Slack — failure
+      - name: Notify Slack - iOS failure
         if: failure()
         uses: slackapi/slack-github-action@v1
         with:
           payload: |
             {
-              "text": "❌ Production release failed\nBuild: ${{ steps.build_number.outputs.BUILD_NUMBER }}\nSee: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              "text": "Production iOS TestFlight upload failed\nBuild: ${{ needs.test.outputs.build_number }}\nSee: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-      - name: Clean up keystore
-        if: always()
-        run: rm -f android/app/release.keystore android/key.properties
+  notify-success:
+    name: Notify Success
+    runs-on: ubuntu-latest
+    needs: [test, release-android, release-ios]
+    if: success()
+    steps:
+      - name: Notify Slack - success
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "Production release complete\nBuild: ${{ needs.test.outputs.build_number }}\nCommit: ${{ github.sha }}\nAndroid: Play Store internal track\niOS: TestFlight"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
