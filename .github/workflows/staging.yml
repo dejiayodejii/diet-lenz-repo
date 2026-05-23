@@ -163,27 +163,14 @@ jobs:
           restore-keys: pods-${{ runner.os }}-
           save-always: true
 
-      - name: Cache Xcode DerivedData
-        uses: actions/cache@v4
-        with:
-          path: ~/Library/Developer/Xcode/DerivedData
-          key: deriveddata-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock', 'pubspec.lock') }}
-          restore-keys: deriveddata-${{ runner.os }}-
-          save-always: true
-
-      - name: Cache Flutter iOS build (Dart AOT)
-        uses: actions/cache@v4
-        with:
-          path: build/ios
-          key: flutter-build-ios-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
-          restore-keys: flutter-build-ios-${{ runner.os }}-
-          save-always: true
-
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Install Fastlane
-        run: bundle install
+      - name: Setup Ruby & Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
 
       - name: Remove stale CocoaPods master spec repo
         run: rm -rf ~/.cocoapods/repos/master || true
@@ -193,127 +180,14 @@ jobs:
         env:
           COCOAPODS_DISABLE_STATS: 1
 
-      - name: Install pod wrapper (unconditional no-op for pod install)
-        # Flutter's `flutter build ipa` calls `pod install` mid-archive when
-        # [CP] Check Pods Manifest.lock detects a mismatch. Calling the real
-        # pod (even with --no-repo-update) hangs because CDN fetches individual
-        # .podspec.json files lazily and those HTTPS requests hang on GHA runners.
-        #
-        # Safe to unconditionally exit 0 because ALL our explicit pod install
-        # calls use `bundle exec pod` which resolves pod from the bundled gem
-        # path (vendor/bundle/.../bin/pod) and BYPASSES this PATH wrapper.
-        # So: real pod always runs first (bundle exec), wrapper only catches
-        # Flutter's implicit call and makes it a no-op.
-        #
-        # Logs to /tmp/pod_wrapper.log so diagnostics step can read it even
-        # if the build step hangs/is cancelled.
-        run: |
-          REAL_POD=$([[ -x /opt/homebrew/bin/pod ]] && echo /opt/homebrew/bin/pod || echo /usr/local/bin/pod)
-          echo "Real pod: $REAL_POD ($($REAL_POD --version))"
-          mkdir -p "$HOME/bin"
-          printf '#!/bin/bash\n'                                                                        > "$HOME/bin/pod"
-          printf 'echo "[WRAPPER] called from PWD=%s args=%s" "$PWD" "$*" >> /tmp/pod_wrapper.log\n'  >> "$HOME/bin/pod"
-          printf 'if [[ "$1" == "install" ]]; then\n'                                                  >> "$HOME/bin/pod"
-          printf '  echo "[WRAPPER] intercepted pod install - exiting 0 (no CDN)" >> /tmp/pod_wrapper.log\n' >> "$HOME/bin/pod"
-          printf '  [[ -f "Podfile.lock" ]] && [[ -d "Pods" ]] && cp "Podfile.lock" "Pods/Manifest.lock"\n'  >> "$HOME/bin/pod"
-          printf '  exit 0\n'                                                                          >> "$HOME/bin/pod"
-          printf 'fi\n'                                                                                >> "$HOME/bin/pod"
-          printf 'A=()\n'                                                                              >> "$HOME/bin/pod"
-          printf 'for x in "$@"; do [[ "$x" != "--repo-update" ]] && A+=("$x"); done\n'               >> "$HOME/bin/pod"
-          printf 'A+=("--no-repo-update")\n'                                                          >> "$HOME/bin/pod"
-          printf 'exec "%s" "${A[@]}"\n' "$REAL_POD"                                                  >> "$HOME/bin/pod"
-          chmod +x "$HOME/bin/pod"
-          echo "--- wrapper ---" && cat "$HOME/bin/pod"
-          echo "PATH=$HOME/bin:$PATH" >> "$GITHUB_ENV"
-
-      - name: Install xcrun wrapper (strips -allowProvisioningUpdates)
-        # flutter build ipa hardcodes -allowProvisioningUpdates and
-        # -allowProvisioningDeviceRegistration in its xcodebuild archive call.
-        # These cause xcodebuild to contact Apple's Developer Portal and hang
-        # indefinitely on CI where no Apple session exists.
-        # Fix: wrap xcrun (Flutter calls `/usr/bin/arch -arm64e xcrun xcodebuild`;
-        # arch uses PATH to resolve xcrun so ~/bin/xcrun is found first).
-        # Our wrapper strips the two problematic flags and passes everything else
-        # through to /usr/bin/xcrun unchanged.
-        run: |
-          cat > "$HOME/bin/xcrun" << 'XCRUN_WRAPPER'
-          #!/bin/bash
-          ARGS=()
-          for arg in "$@"; do
-            case "$arg" in
-              -allowProvisioningUpdates|-allowProvisioningDeviceRegistration)
-                echo "[XCRUN-WRAPPER] stripped: $arg" >> /tmp/xcrun_wrapper.log
-                ;;
-              *)
-                ARGS+=("$arg")
-                ;;
-            esac
-          done
-          exec /usr/bin/xcrun "${ARGS[@]}"
-          XCRUN_WRAPPER
-          chmod +x "$HOME/bin/xcrun"
-          echo "--- xcrun wrapper ---" && cat "$HOME/bin/xcrun"
-
-      - name: Replace xcodebuild binary with flag-stripping wrapper
-        # The xcrun wrapper above may not intercept if /usr/bin/arch resolves
-        # xcrun from the system path rather than $PATH. Belt-and-suspenders:
-        # replace the ACTUAL xcodebuild binary in the Xcode toolchain so xcrun
-        # resolves directly to our wrapper regardless of PATH lookup.
-        run: |
-          XCODEBUILD=$(xcrun --find xcodebuild)
-          echo "xcodebuild: $XCODEBUILD"
-          sudo cp "$XCODEBUILD" "${XCODEBUILD}.real"
-          REAL="${XCODEBUILD}.real"
-          printf '#!/bin/bash\n'                                                                          | sudo tee    "$XCODEBUILD" > /dev/null
-          printf 'ARGS=()\n'                                                                              | sudo tee -a "$XCODEBUILD" > /dev/null
-          printf 'for arg in "$@"; do\n'                                                                 | sudo tee -a "$XCODEBUILD" > /dev/null
-          printf '  case "$arg" in\n'                                                                     | sudo tee -a "$XCODEBUILD" > /dev/null
-          printf '    -allowProvisioningUpdates|-allowProvisioningDeviceRegistration)\n'                  | sudo tee -a "$XCODEBUILD" > /dev/null
-          printf '      echo "[XCODEBUILD-WRAP] stripped: $arg" >> /tmp/xcodebuild_wrapper.log\n'       | sudo tee -a "$XCODEBUILD" > /dev/null
-          printf '      ;;\n'                                                                              | sudo tee -a "$XCODEBUILD" > /dev/null
-          printf '    *)\n'                                                                               | sudo tee -a "$XCODEBUILD" > /dev/null
-          printf '      ARGS+=("$arg")\n'                                                                 | sudo tee -a "$XCODEBUILD" > /dev/null
-          printf '      ;;\n'                                                                              | sudo tee -a "$XCODEBUILD" > /dev/null
-          printf '  esac\n'                                                                               | sudo tee -a "$XCODEBUILD" > /dev/null
-          printf 'done\n'                                                                                 | sudo tee -a "$XCODEBUILD" > /dev/null
-          printf 'exec "%s" "${ARGS[@]}"\n' "$REAL"                                                      | sudo tee -a "$XCODEBUILD" > /dev/null
-          sudo chmod +x "$XCODEBUILD"
-          echo "--- xcodebuild wrapper ---" && cat "$XCODEBUILD"
-
       - name: Install CocoaPods
+        timeout-minutes: 20
         run: cd ios && bundle exec pod install --no-repo-update
         env:
           COCOAPODS_DISABLE_STATS: 1
 
-      - name: Replace bundled pod with no-op wrapper
-        # Pods are now correctly installed (step above). Replace the actual
-        # cocoapods gem binary with a Ruby no-op that exits 0 for 'pod install'.
-        # MUST be Ruby (not bash): bundle exec uses Ruby's `load` to execute the
-        # gem binary — a bash shebang causes a Ruby SyntaxError at load time.
-        # The real pod is preserved as pod.real for non-install commands.
-        run: |
-          cd fastlane
-          BUNDLE_POD=$(bundle exec ruby -e \
-            "require 'rubygems'; spec = Gem::Specification.find_by_name('cocoapods'); puts File.join(spec.bin_dir, 'pod')")
-          echo "Bundled pod path: $BUNDLE_POD"
-          [[ -f "$BUNDLE_POD" ]] || { echo "ERROR: pod not found at $BUNDLE_POD"; exit 1; }
-          cp "$BUNDLE_POD" "${BUNDLE_POD}.real"
-          printf '#!/usr/bin/env ruby\n'                                                                                          > "$BUNDLE_POD"
-          printf "require 'fileutils'\n"                                                                                         >> "$BUNDLE_POD"
-          printf "log = '/tmp/pod_wrapper.log'\n"                                                                                >> "$BUNDLE_POD"
-          printf "File.open(log,'a'){|f| f.puts \"[POD-NOOP] from #{Dir.pwd}: #{ARGV.inspect}\"}\n"                             >> "$BUNDLE_POD"
-          printf "if ARGV[0] == 'install'\n"                                                                                     >> "$BUNDLE_POD"
-          printf "  pl = File.join(Dir.pwd, 'Podfile.lock')\n"                                                                  >> "$BUNDLE_POD"
-          printf "  pd = File.join(Dir.pwd, 'Pods')\n"                                                                          >> "$BUNDLE_POD"
-          printf "  (FileUtils.cp(pl, File.join(pd,'Manifest.lock')) rescue nil) if File.exist?(pl) && Dir.exist?(pd)\n"       >> "$BUNDLE_POD"
-          printf "  File.open(log,'a'){|f| f.puts '[POD-NOOP] install intercepted, exit 0'}\n"                                 >> "$BUNDLE_POD"
-          printf "  exit 0\n"                                                                                                    >> "$BUNDLE_POD"
-          printf "end\n"                                                                                                         >> "$BUNDLE_POD"
-          printf 'load "#{__FILE__}.real"\n'                                                                                    >> "$BUNDLE_POD"
-          echo "--- wrapper ---" && cat "$BUNDLE_POD"
-
       - name: Distribute staging iOS
-        timeout-minutes: 150
+        timeout-minutes: 75
         run: bundle exec fastlane ios distribute_staging_ios
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -321,16 +195,6 @@ jobs:
           FIREBASE_IOS_APP_ID: ${{ secrets.FIREBASE_IOS_APP_ID }}
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           COCOAPODS_DISABLE_STATS: 1
-
-      - name: Pod wrapper diagnostics
-        if: always()
-        run: |
-          echo "=== Pod wrapper call log ==="
-          cat /tmp/pod_wrapper.log 2>/dev/null || echo "(wrapper was never called — pod resolved outside PATH)"
-          echo "=== xcodebuild wrapper call log ==="
-          cat /tmp/xcodebuild_wrapper.log 2>/dev/null || echo "(xcodebuild wrapper was never called)"
-          echo "=== ~/bin/pod ==="
-          cat "$HOME/bin/pod" 2>/dev/null || echo "(wrapper not found)"
 
       - name: Notify Slack — iOS failure
         if: failure()
