@@ -10,13 +10,9 @@
 class AppConfig {
   AppConfig._();
 
-  static const String _environment =
-      String.fromEnvironment('ENVIRONMENT', defaultValue: 'development');
+  static const String _environment = String.fromEnvironment('ENVIRONMENT');
 
-  static const String _apiUrl = String.fromEnvironment(
-    'API_URL',
-    defaultValue: 'https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app',
-  );
+  static const String _apiUrl = String.fromEnvironment('API_URL');
 
   static const String _sentryDsn = String.fromEnvironment(
     'SENTRY_DSN',
@@ -26,15 +22,31 @@ class AppConfig {
 
   // ── Environment ──────────────────────────────────────────────────────────
 
-  static String get environment => _environment;
+  static String get environment {
+    if (_environment.isEmpty) {
+      throw StateError(
+        'ENVIRONMENT was not supplied. Pass it using '
+        '--dart-define=ENVIRONMENT=<environment>.',
+      );
+    }
+    return _environment;
+  }
 
-  static bool get isDevelopment => _environment == 'development';
-  static bool get isStaging => _environment == 'staging';
-  static bool get isProduction => _environment == 'production';
+  static bool get isDevelopment => environment == 'development';
+  static bool get isStaging => environment == 'staging';
+  static bool get isProduction => environment == 'production';
 
   // ── API ──────────────────────────────────────────────────────────────────
 
-  static String get apiUrl => _apiUrl;
+  static String get apiUrl {
+    if (_apiUrl.isEmpty) {
+      throw StateError(
+        'API_URL was not supplied. Pass it using '
+        '--dart-define=API_URL=<url>.',
+      );
+    }
+    return _apiUrl;
+  }
 
   // ── Sentry ───────────────────────────────────────────────────────────────
 

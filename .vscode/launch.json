@@ -2,29 +2,46 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "diet_lenz",
+      "name": "Diet Lenz Dev",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
       "program": "lib/main.dart",
       "cwd": "${workspaceFolder}",
-      "args": []
+      "args": [
+        "--flavor",
+        "development",
+        "--dart-define=ENVIRONMENT=development",
+        "--dart-define=API_URL=https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app"
+      ]
     },
     {
-      "name": "diet_lenz (profile mode)",
+      "name": "Diet Lenz Staging",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "profile",
+      "flutterMode": "debug",
       "program": "lib/main.dart",
-      "cwd": "${workspaceFolder}"
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "--flavor",
+        "staging",
+        "--dart-define=ENVIRONMENT=staging",
+        "--dart-define=API_URL=https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app"
+      ]
     },
     {
-      "name": "diet_lenz (release mode)",
+      "name": "Diet Lenz Production",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "release",
+      "flutterMode": "debug",
       "program": "lib/main.dart",
-      "cwd": "${workspaceFolder}"
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "--flavor",
+        "production",
+        "--dart-define=ENVIRONMENT=production",
+        "--dart-define=API_URL=https://dietlenz-prod-api-9mcsl.ondigitalocean.app"
+      ]
     }
   ]
 }

@@ -3,5 +3,3 @@
 EXCLUDED_ARCHS[sdk=iphonesimulator*]=
 BUNDLE_ID_SUFFIX=.staging
 APP_DISPLAY_NAME=Diet Lenz STG
-ENVIRONMENT=staging
-API_URL=https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app

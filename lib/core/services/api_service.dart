@@ -194,12 +194,6 @@ $responseBody''');
   }
 }
 
-/// API base URLs
-const String kStagingBaseUrl =
-    'https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app';
-const String kProdBaseUrl =
-    'https://dietlenz-prod-api-9mcsl.ondigitalocean.app';
-
 /// Centralized API service that manages the API client and authentication
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -234,8 +228,8 @@ class ApiService {
   /// failed HTTP call (status >= 400 or network exceptions).
   void initialize({
     required StorageRepository storageRepository,
+    required String baseUrl,
     SentryService? sentryService,
-    String baseUrl = kStagingBaseUrl,
     bool enableLogging = true,
   }) {
     _storageRepository = storageRepository;
