@@ -1,5 +1,7 @@
 class AppImages {
   static const String _imagesPath = 'assets/images';
+  static const String _onboardingPath = '$_imagesPath/onboarding';
+
   static const String dietLenzLogo = '$_imagesPath/DietLenz.svg';
   static const String dietLenzLogoAlt = '$_imagesPath/DietLenz_1.svg';
   static const String googleIcon = '$_imagesPath/Google Icon.svg';
@@ -15,6 +17,19 @@ class AppImages {
 
   static const String male = '$_imagesPath/male.svg';
   static const String female = '$_imagesPath/female.svg';
+
+  // From where
+  static const String friends = '$_onboardingPath/friends.png';
+  static const String influencer = '$_onboardingPath/influencer.png';
+  static const String instagram = '$_onboardingPath/instagram.png';
+  static const String storeSearch = '$_onboardingPath/store_search.png';
+  static const String tiktok = '$_onboardingPath/tiktok.png';
+  static const String youtube = '$_onboardingPath/youtube.png';
+
+   static const String quiz = '$_onboardingPath/quiz.png';
+    static const String slow = '$_onboardingPath/slow.png';
+     static const String optimal = '$_onboardingPath/optimal.png';
+      static const String fast = '$_onboardingPath/fast.png';
 
   //progress assets
   static const String step = '$_imagesPath/step.png';
@@ -63,6 +78,12 @@ class AppImages {
         vectorIconAlt,
         headHeartPng,
         headHeartSvg,
+        friends,
+        influencer,
+        instagram,
+        storeSearch,
+        tiktok,
+        youtube,
       ];
   static List<String> get svgImages => [
         dietLenzLogo,
@@ -76,5 +97,11 @@ class AppImages {
       ];
   static List<String> get pngImages => [
         headHeartPng,
+        friends,
+        influencer,
+        instagram,
+        storeSearch,
+        tiktok,
+        youtube,
       ];
 }

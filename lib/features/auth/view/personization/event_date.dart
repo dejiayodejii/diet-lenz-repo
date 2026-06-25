@@ -4,50 +4,40 @@ import 'package:diet_lenz/component/snapping_calendar_picker.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
-import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
-import 'package:diet_lenz/features/auth/view/personization/select_height.dart';
+import 'package:diet_lenz/features/auth/view/personization/desired_weight.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
-class SelectAgeScreen extends ConsumerStatefulWidget {
-  const SelectAgeScreen({super.key});
+class SelectEventDateScreen extends ConsumerStatefulWidget {
+  const SelectEventDateScreen({super.key});
 
   @override
-  ConsumerState<SelectAgeScreen> createState() => _SelectAgeScreenState();
+  ConsumerState<SelectEventDateScreen> createState() =>
+      _SelectEventDateScreenState();
 }
 
-class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
-  static const _startYear = 1900;
-  static const _minimumAge = 14;
-
+class _SelectEventDateScreenState extends ConsumerState<SelectEventDateScreen> {
   late DateTime _selectedDate;
 
-  int get _latestAllowedBirthYear => DateTime.now().year - _minimumAge;
-
-  int get _yearCount => _latestAllowedBirthYear - _startYear + 1;
+  int get _startYear => DateTime.now().year;
 
   @override
   void initState() {
     super.initState();
-    final savedDate = ref.read(onboardingProfileProvider).dateOfBirth;
-    _selectedDate = savedDate ?? DateTime(DateTime.now().year - 18);
+    _selectedDate = DateTime.now();
   }
 
   void _continue() {
-    ref
-        .read(onboardingProfileProvider.notifier)
-        .updateDateOfBirth(_selectedDate);
-    NavigationService.push(child: const SelectHeightScreen());
+    NavigationService.push(child: const DesiredWeightScreen());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.backgroundColor,
         automaticallyImplyLeading: true,
-        title: const PersonalizationStepper(currentStep: 6),
+        title: const PersonalizationStepper(currentStep: 9),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20),
@@ -56,7 +46,7 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
           children: [
             const SizedBox(height: 40),
             const Text(
-              "When is your \nbirthday?",
+              "When is your \nwedding?",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 28,
@@ -69,7 +59,7 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
             SnappingCalendarPicker(
               initialDate: _selectedDate,
               startYear: _startYear,
-              yearCount: _yearCount,
+              yearCount: 20,
               onDateChanged: (date) => _selectedDate = date,
             ),
             const Spacer(),

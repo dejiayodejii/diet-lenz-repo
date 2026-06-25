@@ -5,20 +5,21 @@ import 'package:diet_lenz/core/utils/functions.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/features/auth/view/personization/event_date.dart';
 import 'package:diet_lenz/features/auth/view/personization/quiz_screen.dart';
 import 'package:diet_lenz/features/auth/view/personization/select_macro_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
-class SelectGoalScreen extends ConsumerStatefulWidget {
-  const SelectGoalScreen({super.key});
+class TargetEventScreen extends ConsumerStatefulWidget {
+  const TargetEventScreen({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<SelectGoalScreen> {
+class _LoginScreenState extends ConsumerState<TargetEventScreen> {
   int selectedIndex = 0; // default selection: first goal
 
   @override
@@ -30,11 +31,7 @@ class _LoginScreenState extends ConsumerState<SelectGoalScreen> {
     });
   }
 
-  final goals = [
-    'I want to lose weight',
-    'I want to maintain my weight',
-    'I want to gain weight',
-  ];
+  final goals = ['Vacation', 'Wedding', 'Birthday', "Personal Milestone"];
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +39,7 @@ class _LoginScreenState extends ConsumerState<SelectGoalScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: true,
         title: const PersonalizationStepper(
-          currentStep: 3,
+          currentStep: 8,
         ),
       ),
       body: Padding(
@@ -51,7 +48,7 @@ class _LoginScreenState extends ConsumerState<SelectGoalScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const SizedBox(height: 25),
-            const Text("What is your goal?",
+            const Text("What is your target event?",
                 style: TextStyle(
                     fontSize: 24,
                     letterSpacing: 0,
@@ -78,6 +75,18 @@ class _LoginScreenState extends ConsumerState<SelectGoalScreen> {
                       ),
                     );
                   }),
+                  const SizedBox(height: 15),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text("I don’t have a specific event",
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: AppColors.primaryColor,
+                              fontWeight: FontWeight.w400)),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -86,7 +95,7 @@ class _LoginScreenState extends ConsumerState<SelectGoalScreen> {
                 text: "Continue",
                 iconWidget: SvgPicture.asset(AppImages.arrowRight),
                 onPressed: () {
-                  NavigationService.push(child: const QuizScreen());
+                  NavigationService.push(child: const SelectEventDateScreen());
                 }),
             SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
           ],

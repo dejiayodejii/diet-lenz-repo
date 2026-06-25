@@ -1,5 +1,6 @@
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/component/measurement_value_display.dart';
+import 'package:diet_lenz/component/personalization_stepper.dart';
 import 'package:diet_lenz/component/unit_toggle_widget.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
@@ -28,6 +29,7 @@ class MeasurementSelectionScreen extends StatefulWidget {
   final double Function(double)? rightToLeftConverter;
   final double? leftStep;
   final double? rightStep;
+  final int currentStep;
 
   /// When true and in left-unit mode, shows two separate integer pickers
   /// for feet and inches (e.g. 5'11") instead of a single decimal ruler.
@@ -36,6 +38,7 @@ class MeasurementSelectionScreen extends StatefulWidget {
   const MeasurementSelectionScreen({
     super.key,
     required this.title,
+    this.currentStep = 6,
     required this.leftUnit,
     required this.rightUnit,
     required this.minValue,
@@ -144,25 +147,17 @@ class _MeasurementSelectionScreenState
 
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: () {
-                NavigationService.pop();
-              },
-              child: SvgPicture.asset(AppImages.backButton),
-            ),
-          ],
+        automaticallyImplyLeading: true,
+        title: const PersonalizationStepper(
+          currentStep: 6,
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const SizedBox(height: 25),
+            const SizedBox(height: 60),
             Text(
               widget.title,
               textAlign: TextAlign.center,
@@ -175,7 +170,7 @@ class _MeasurementSelectionScreenState
             ),
             Expanded(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(height: isCompoundMode ? 20 : 50),
                   UnitToggleWidget(
@@ -210,6 +205,7 @@ class _MeasurementSelectionScreenState
                 ],
               ),
             ),
+            SizedBox(height: 100),
             CustomYafButton(
               fontSize: 16,
               weight: FontWeight.w600,
@@ -223,10 +219,10 @@ class _MeasurementSelectionScreenState
                   currentUnit,
                   isLeftUnitSelected,
                 );
-                NavigationService.push(child: widget.nextScreen);
+                // NavigationService.push(child: widget.nextScreen);
               },
             ),
-          SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
+            SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
           ],
         ),
       ),

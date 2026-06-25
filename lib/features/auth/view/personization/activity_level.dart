@@ -1,9 +1,9 @@
 import 'package:diet_lenz/component/custom_button.dart';
-import 'package:diet_lenz/constants/app_colors.dart';
+import 'package:diet_lenz/component/personalization_stepper.dart';
+import 'package:diet_lenz/component/selectable_option_tile.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
 import 'package:diet_lenz/features/auth/view/personization/allergies.dart';
-import 'package:diet_lenz/features/auth/view/personization/diet-prefernce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -45,26 +45,11 @@ class _ActivityLevelScreenState extends ConsumerState<ActivityLevelScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const Color accentColor = AppColors.primaryColor;
-
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.1),
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-              onPressed: () {
-                NavigationService.pop();
-              },
-            ),
-          ),
+        automaticallyImplyLeading: true,
+        title: const PersonalizationStepper(
+          currentStep: 7,
         ),
       ),
       body: Column(
@@ -76,6 +61,7 @@ class _ActivityLevelScreenState extends ConsumerState<ActivityLevelScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Column(
               children: [
+                const SizedBox(height: 30),
                 const Text(
                   "What is your\nActivity Level?",
                   textAlign: TextAlign.center,
@@ -92,14 +78,14 @@ class _ActivityLevelScreenState extends ConsumerState<ActivityLevelScreen> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(height: 30),
+          const SizedBox(height: 70),
 
           // -- Scrollable List of Options --
           Expanded(
@@ -109,12 +95,11 @@ class _ActivityLevelScreenState extends ConsumerState<ActivityLevelScreen> {
               separatorBuilder: (context, index) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
                 final option = _activityOptions[index];
-                final isSelected = _selectedIndex == index;
-
-                return _ActivityOptionItem(
-                  title: option['title']!,
+                return SelectableOptionTile(
+                  label: option['title']!,
                   subtitle: option['subtitle']!,
-                  isSelected: isSelected,
+                  height: 72,
+                  isSelected: _selectedIndex == index,
                   onTap: () {
                     setState(() {
                       _selectedIndex = index;
@@ -132,110 +117,20 @@ class _ActivityLevelScreenState extends ConsumerState<ActivityLevelScreen> {
                 text: "Continue",
                 onPressed: () {
                   // Save activity level (map index to enum value)
-                  final activityLevels = [
-                    'SEDENTARY',
-                    'LIGHTLY_ACTIVE',
-                    'MODERATELY_ACTIVE',
-                    'VERY_ACTIVE',
-                    'EXTRA_ACTIVE'
-                  ];
-                  ref
-                      .read(onboardingProfileProvider.notifier)
-                      .updateActivityLevel(activityLevels[_selectedIndex]);
+                  // final activityLevels = [
+                  //   'SEDENTARY',
+                  //   'LIGHTLY_ACTIVE',
+                  //   'MODERATELY_ACTIVE',
+                  //   'VERY_ACTIVE',
+                  //   'EXTRA_ACTIVE'
+                  // ];
+                  // ref
+                  //     .read(onboardingProfileProvider.notifier)
+                  //     .updateActivityLevel(activityLevels[_selectedIndex]);
                   NavigationService.push(child: const AllegiesScreen());
                 }),
           ),
           SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
-        ],
-      ),
-    );
-  }
-}
-
-// -- Custom Widget for a Single Activity Option --
-class _ActivityOptionItem extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _ActivityOptionItem({
-    required this.title,
-    required this.subtitle,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    const Color accentColor = Color(0xFFEF6C35);
-
-    // We use a Stack to position the Checkmark icon on top of the border
-    return GestureDetector(
-      onTap: onTap,
-      child: Stack(
-        clipBehavior:
-            Clip.none, // Allows the icon to stick out slightly if needed
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
-              border: isSelected
-                  ? Border.all(color: accentColor, width: 1.5)
-                  : Border.all(color: Colors.transparent, width: 1.5),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // The Checkmark Icon (Only visible when selected)
-          if (isSelected)
-            Positioned(
-              top: -10,
-              right: -8,
-              child: Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black, // Small border effect around the icon
-                ),
-                padding: const EdgeInsets.all(2),
-                child: Container(
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: accentColor,
-                  ),
-                  padding: const EdgeInsets.all(4),
-                  child: const Icon(
-                    Icons.check,
-                    size: 16,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
     );

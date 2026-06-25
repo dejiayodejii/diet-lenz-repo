@@ -1,11 +1,11 @@
 import 'package:diet_lenz/component/custom_button.dart';
+import 'package:diet_lenz/component/personalization_stepper.dart';
+import 'package:diet_lenz/component/selectable_option_tile.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
-import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
-import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
-import 'package:diet_lenz/features/auth/view/personization/select_weight.dart';
-import 'package:diet_lenz/features/recipe/controller/recipe_viewmodel.dart';
+import 'package:diet_lenz/features/auth/view/personization/from_where.dart';
+import 'package:diet_lenz/features/auth/view/personization/select_age.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -24,179 +24,96 @@ class _LoginScreenState extends ConsumerState<GenderScreen> {
     super.initState();
     // Fetch goals when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(recipeViewModelProvider.notifier).getDietaryPreferences();
+      // ref.read(recipeViewModelProvider.notifier).getDietaryPreferences();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      child: Scaffold(
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: true,
+        title: const PersonalizationStepper(
+          currentStep: 5,
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const SizedBox(height: 80),
+            const Column(
               children: [
-                const SizedBox(height: 80),
-                const Text("What is your gender?",
+                Text("Select you biological sex",
                     style: TextStyle(
                         fontSize: 28,
                         letterSpacing: 0,
                         color: AppColors.white,
                         fontWeight: FontWeight.w600)),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 100),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            isMale = true;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          height: 56,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                              border: !isMale
-                                  ? null
-                                  : Border.all(color: AppColors.primaryColor),
-                              borderRadius: BorderRadius.circular(32),
-                              color: const Color.fromRGBO(36, 38, 43, 1),
-                              boxShadow: !isMale
-                                  ? null
-                                  : [
-                                      const BoxShadow(
-                                        color:
-                                            Color.fromRGBO(249, 115, 22, 0.25),
-                                        spreadRadius: 4,
-                                      )
-                                    ]),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  SvgPicture.asset(AppImages.male),
-                                  const SizedBox(width: 10),
-                                  const Text(
-                                    "Male",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
-                                        fontFamily: AppFonts.workSans),
-                                  ),
-                                ],
-                              ),
-                              SvgPicture.asset(isMale
-                                  ? AppImages.selected
-                                  : AppImages.unselected)
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            isMale = false;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          height: 56,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                              border: isMale
-                                  ? null
-                                  : Border.all(color: AppColors.primaryColor),
-                              borderRadius: BorderRadius.circular(32),
-                              color: const Color.fromRGBO(36, 38, 43, 1),
-                              boxShadow: isMale
-                                  ? null
-                                  : [
-                                      const BoxShadow(
-                                        color:
-                                            Color.fromRGBO(249, 115, 22, 0.25),
-                                        spreadRadius: 4,
-                                      )
-                                    ]),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  SvgPicture.asset(AppImages.male),
-                                  const SizedBox(width: 10),
-                                  const Text(
-                                    "Female",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
-                                        fontFamily: AppFonts.workSans),
-                                  ),
-                                ],
-                              ),
-                              SvgPicture.asset(!isMale
-                                  ? AppImages.selected
-                                  : AppImages.unselected)
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 40),
-                      // GestureDetector(
-                      //   onTap: () {
-                      //     NavigationService.push(
-                      //         child: const SelectWeightScreen());
-                      //   },
-                      //   child: Container(
-                      //     height: 56,
-                      //     decoration: BoxDecoration(
-                      //       color: const Color.fromRGBO(67, 20, 7, 1),
-                      //       borderRadius: BorderRadius.circular(19),
-                      //     ),
-                      //     child: const Row(
-                      //       mainAxisAlignment: MainAxisAlignment.center,
-                      //       children: [
-                      //         Text("Prefer to skip, thanks!",
-                      //             style: TextStyle(
-                      //                 fontSize: 16,
-                      //                 fontFamily: AppFonts.workSans,
-                      //                 color: AppColors.white,
-                      //                 fontWeight: FontWeight.w600)),
-                      //         Icon(
-                      //           Icons.close,
-                      //           color: Colors.white,
-                      //         )
-                      //       ],
-                      //     ),
-                      //   ),
-                      // )
-                    ],
-                  ),
-                ),
-                CustomYafButton(
-                    fontSize: 16,
-                    weight: FontWeight.w600,
-                    iconPositionLeft: false,
-                    text: "Continue",
-                    iconWidget: SvgPicture.asset(AppImages.arrowRight),
-                    onPressed: () {
-                      // Save gender selection
-                      ref
-                          .read(onboardingProfileProvider.notifier)
-                          .updateGender(isMale ? 'MALE' : 'FEMALE');
-                      NavigationService.push(child: const SelectWeightScreen());
-                    }),
-                const SizedBox(height: 5),
+                SizedBox(height: 40),
+                Text("We use this to calculate your unique calorie needs",
+                    style: TextStyle(
+                        fontSize: 15,
+                        letterSpacing: 0,
+                        color: AppColors.white,
+                        fontWeight: FontWeight.w400)),
               ],
             ),
-          ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 100),
+                  SelectableOptionTile(
+                    label: "Male",
+                    leading: SvgPicture.asset(AppImages.male),
+                    isSelected: isMale,
+                    onTap: () {
+                      setState(() {
+                        isMale = true;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  SelectableOptionTile(
+                    label: "Female",
+                    leading: SvgPicture.asset(AppImages.female),
+                    isSelected: !isMale,
+                    onTap: () {
+                      setState(() {
+                        isMale = false;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const Column(
+              children: [
+                Icon(Icons.lock_outline_rounded),
+                Text(
+                    "We use this modifier exclusively to estimate your resting metabolic rate based on body composition. Choose the baseline that best fits your current physiology.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 15,
+                        letterSpacing: 0,
+                        color: AppColors.white,
+                        fontWeight: FontWeight.w400)),
+              ],
+            ),
+            const SizedBox(height: 60),
+            CustomYafButton(
+                fontSize: 16,
+                weight: FontWeight.w600,
+                iconPositionLeft: false,
+                text: "Continue",
+                iconWidget: SvgPicture.asset(AppImages.arrowRight),
+                onPressed: () {
+                  NavigationService.push(child: const SelectAgeScreen());
+                }),
+            SizedBox(height: 5 + MediaQuery.of(context).padding.bottom),
+          ],
         ),
       ),
     );

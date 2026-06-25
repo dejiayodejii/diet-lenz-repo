@@ -5,6 +5,7 @@ import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/push_notification_service.dart';
 import 'package:diet_lenz/core/services/storage_service.dart';
 import 'package:diet_lenz/core/widgets/restart_widget.dart';
+import 'package:diet_lenz/features/auth/view/personization/plan_setup.dart';
 import 'package:diet_lenz/features/onboarding/view/splash_screen.dart';
 import 'package:diet_lenz/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -108,6 +109,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         title: 'Diet Lenz',
         theme: AppTheme.darkTheme,
         navigatorKey: NavigationService.navigationKey,
+        // home: PlanSetUpScreen(),
         home: const SplashScreen(),
       ),
     );

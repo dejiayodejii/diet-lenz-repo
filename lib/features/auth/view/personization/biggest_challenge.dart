@@ -11,14 +11,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
-class SelectGoalScreen extends ConsumerStatefulWidget {
-  const SelectGoalScreen({super.key});
+class BiggestChallengeScreen extends ConsumerStatefulWidget {
+  const BiggestChallengeScreen({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<SelectGoalScreen> {
+class _LoginScreenState extends ConsumerState<BiggestChallengeScreen> {
   int selectedIndex = 0; // default selection: first goal
 
   @override
@@ -31,9 +31,12 @@ class _LoginScreenState extends ConsumerState<SelectGoalScreen> {
   }
 
   final goals = [
-    'I want to lose weight',
-    'I want to maintain my weight',
-    'I want to gain weight',
+    'I struggle with consistency',
+    'I give in to cravings',
+    'I lose motivation',
+    'I eat from emotions/stress',
+    "I don't know what to do",
+    'I just want a faster, easier tool',
   ];
 
   @override
@@ -42,7 +45,7 @@ class _LoginScreenState extends ConsumerState<SelectGoalScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: true,
         title: const PersonalizationStepper(
-          currentStep: 3,
+          currentStep: 10,
         ),
       ),
       body: Padding(
@@ -51,7 +54,7 @@ class _LoginScreenState extends ConsumerState<SelectGoalScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const SizedBox(height: 25),
-            const Text("What is your goal?",
+            const Text("What’s been your \nbiggest challenge?",
                 style: TextStyle(
                     fontSize: 24,
                     letterSpacing: 0,

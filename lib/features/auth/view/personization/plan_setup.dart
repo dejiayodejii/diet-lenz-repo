@@ -1,6 +1,7 @@
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/features/auth/view/personization/from_where.dart';
 import 'package:diet_lenz/features/auth/view/personization/select_gender.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,7 +45,7 @@ class _PlanSetUpScreenState extends ConsumerState<PlanSetUpScreen> {
                   weight: FontWeight.w600,
                   text: "Let’s Start",
                   onPressed: () {
-                    NavigationService.push(child: const GenderScreen());
+                    NavigationService.push(child: FromWhereScreen());
                   }),
               const SizedBox(height: 20),
             ],

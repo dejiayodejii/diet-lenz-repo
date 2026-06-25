@@ -1,6 +1,8 @@
 import 'package:diet_lenz/component/measurement_selection_screen.dart';
+import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
 import 'package:diet_lenz/features/auth/view/personization/select_age.dart';
+import 'package:diet_lenz/features/auth/view/personization/select_weight.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,6 +12,7 @@ class SelectHeightScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MeasurementSelectionScreen(
+      currentStep: 6,
       title: "What is your height?",
       leftUnit: "ft",
       rightUnit: "cm",
@@ -25,8 +28,7 @@ class SelectHeightScreen extends ConsumerWidget {
       useCompoundLeftUnit: true,
       nextScreen: const SelectAgeScreen(),
       onContinue: (value, unit, isLeftUnit) {
-        // Save height data
-        ref.read(onboardingProfileProvider.notifier).updateHeight(value, unit);
+         NavigationService.push(child: SelectWeightScreen());
       },
     );
   }
