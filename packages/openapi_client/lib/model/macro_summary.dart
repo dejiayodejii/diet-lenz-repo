@@ -10,15 +10,14 @@
 
 part of openapi.api;
 
-class PageableObject {
-  /// Returns a new [PageableObject] instance.
-  PageableObject({
-    this.offset,
-    this.unpaged,
-    this.paged,
-    this.pageNumber,
-    this.pageSize,
-    this.sort,
+class MacroSummary {
+  /// Returns a new [MacroSummary] instance.
+  MacroSummary({
+    this.dailyCalories,
+    this.proteinGrams,
+    this.carbsGrams,
+    this.fatGrams,
+    this.fiberGrams,
   });
 
   ///
@@ -27,7 +26,7 @@ class PageableObject {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  int? offset;
+  double? dailyCalories;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -35,7 +34,7 @@ class PageableObject {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  bool? unpaged;
+  double? proteinGrams;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -43,7 +42,7 @@ class PageableObject {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  bool? paged;
+  double? carbsGrams;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -51,7 +50,7 @@ class PageableObject {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  int? pageNumber;
+  double? fatGrams;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -59,77 +58,62 @@ class PageableObject {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  int? pageSize;
-
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  SortObject? sort;
+  double? fiberGrams;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is PageableObject &&
-    other.offset == offset &&
-    other.unpaged == unpaged &&
-    other.paged == paged &&
-    other.pageNumber == pageNumber &&
-    other.pageSize == pageSize &&
-    other.sort == sort;
+  bool operator ==(Object other) => identical(this, other) || other is MacroSummary &&
+    other.dailyCalories == dailyCalories &&
+    other.proteinGrams == proteinGrams &&
+    other.carbsGrams == carbsGrams &&
+    other.fatGrams == fatGrams &&
+    other.fiberGrams == fiberGrams;
 
   @override
   int get hashCode =>
     // ignore: unnecessary_parenthesis
-    (offset == null ? 0 : offset!.hashCode) +
-    (unpaged == null ? 0 : unpaged!.hashCode) +
-    (paged == null ? 0 : paged!.hashCode) +
-    (pageNumber == null ? 0 : pageNumber!.hashCode) +
-    (pageSize == null ? 0 : pageSize!.hashCode) +
-    (sort == null ? 0 : sort!.hashCode);
+    (dailyCalories == null ? 0 : dailyCalories!.hashCode) +
+    (proteinGrams == null ? 0 : proteinGrams!.hashCode) +
+    (carbsGrams == null ? 0 : carbsGrams!.hashCode) +
+    (fatGrams == null ? 0 : fatGrams!.hashCode) +
+    (fiberGrams == null ? 0 : fiberGrams!.hashCode);
 
   @override
-  String toString() => 'PageableObject[offset=$offset, unpaged=$unpaged, paged=$paged, pageNumber=$pageNumber, pageSize=$pageSize, sort=$sort]';
+  String toString() => 'MacroSummary[dailyCalories=$dailyCalories, proteinGrams=$proteinGrams, carbsGrams=$carbsGrams, fatGrams=$fatGrams, fiberGrams=$fiberGrams]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-    if (this.offset != null) {
-      json[r'offset'] = this.offset;
+    if (this.dailyCalories != null) {
+      json[r'dailyCalories'] = this.dailyCalories;
     } else {
-      json[r'offset'] = null;
+      json[r'dailyCalories'] = null;
     }
-    if (this.unpaged != null) {
-      json[r'unpaged'] = this.unpaged;
+    if (this.proteinGrams != null) {
+      json[r'proteinGrams'] = this.proteinGrams;
     } else {
-      json[r'unpaged'] = null;
+      json[r'proteinGrams'] = null;
     }
-    if (this.paged != null) {
-      json[r'paged'] = this.paged;
+    if (this.carbsGrams != null) {
+      json[r'carbsGrams'] = this.carbsGrams;
     } else {
-      json[r'paged'] = null;
+      json[r'carbsGrams'] = null;
     }
-    if (this.pageNumber != null) {
-      json[r'pageNumber'] = this.pageNumber;
+    if (this.fatGrams != null) {
+      json[r'fatGrams'] = this.fatGrams;
     } else {
-      json[r'pageNumber'] = null;
+      json[r'fatGrams'] = null;
     }
-    if (this.pageSize != null) {
-      json[r'pageSize'] = this.pageSize;
+    if (this.fiberGrams != null) {
+      json[r'fiberGrams'] = this.fiberGrams;
     } else {
-      json[r'pageSize'] = null;
-    }
-    if (this.sort != null) {
-      json[r'sort'] = this.sort;
-    } else {
-      json[r'sort'] = null;
+      json[r'fiberGrams'] = null;
     }
     return json;
   }
 
-  /// Returns a new [PageableObject] instance and imports its values from
+  /// Returns a new [MacroSummary] instance and imports its values from
   /// [value] if it's a [Map], null otherwise.
   // ignore: prefer_constructors_over_static_methods
-  static PageableObject? fromJson(dynamic value) {
+  static MacroSummary? fromJson(dynamic value) {
     if (value is Map) {
       final json = value.cast<String, dynamic>();
 
@@ -138,29 +122,28 @@ class PageableObject {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "PageableObject[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "PageableObject[$key]" has a null value in JSON.');
+          assert(json.containsKey(key), 'Required key "MacroSummary[$key]" is missing from JSON.');
+          assert(json[key] != null, 'Required key "MacroSummary[$key]" has a null value in JSON.');
         });
         return true;
       }());
 
-      return PageableObject(
-        offset: mapValueOfType<int>(json, r'offset'),
-        unpaged: mapValueOfType<bool>(json, r'unpaged'),
-        paged: mapValueOfType<bool>(json, r'paged'),
-        pageNumber: mapValueOfType<int>(json, r'pageNumber'),
-        pageSize: mapValueOfType<int>(json, r'pageSize'),
-        sort: SortObject.fromJson(json[r'sort']),
+      return MacroSummary(
+        dailyCalories: mapValueOfType<double>(json, r'dailyCalories'),
+        proteinGrams: mapValueOfType<double>(json, r'proteinGrams'),
+        carbsGrams: mapValueOfType<double>(json, r'carbsGrams'),
+        fatGrams: mapValueOfType<double>(json, r'fatGrams'),
+        fiberGrams: mapValueOfType<double>(json, r'fiberGrams'),
       );
     }
     return null;
   }
 
-  static List<PageableObject> listFromJson(dynamic json, {bool growable = false,}) {
-    final result = <PageableObject>[];
+  static List<MacroSummary> listFromJson(dynamic json, {bool growable = false,}) {
+    final result = <MacroSummary>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
-        final value = PageableObject.fromJson(row);
+        final value = MacroSummary.fromJson(row);
         if (value != null) {
           result.add(value);
         }
@@ -169,12 +152,12 @@ class PageableObject {
     return result.toList(growable: growable);
   }
 
-  static Map<String, PageableObject> mapFromJson(dynamic json) {
-    final map = <String, PageableObject>{};
+  static Map<String, MacroSummary> mapFromJson(dynamic json) {
+    final map = <String, MacroSummary>{};
     if (json is Map && json.isNotEmpty) {
       json = json.cast<String, dynamic>(); // ignore: parameter_assignments
       for (final entry in json.entries) {
-        final value = PageableObject.fromJson(entry.value);
+        final value = MacroSummary.fromJson(entry.value);
         if (value != null) {
           map[entry.key] = value;
         }
@@ -183,14 +166,14 @@ class PageableObject {
     return map;
   }
 
-  // maps a json object with a list of PageableObject-objects as value to a dart map
-  static Map<String, List<PageableObject>> mapListFromJson(dynamic json, {bool growable = false,}) {
-    final map = <String, List<PageableObject>>{};
+  // maps a json object with a list of MacroSummary-objects as value to a dart map
+  static Map<String, List<MacroSummary>> mapListFromJson(dynamic json, {bool growable = false,}) {
+    final map = <String, List<MacroSummary>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = PageableObject.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = MacroSummary.listFromJson(entry.value, growable: growable,);
       }
     }
     return map;

@@ -29,6 +29,11 @@ class User {
     this.timeZone,
     this.profilePhotoUrl,
     this.referralCode,
+    this.firstPromoterReferralCode,
+    this.firstPromoterReferralLink,
+    this.firstPromoterAuthToken,
+    this.referredByCode,
+    this.referrer,
     this.premiumExpiresAt,
     this.hasCancelledBefore,
     this.countryCode,
@@ -163,6 +168,46 @@ class User {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
+  String? firstPromoterReferralCode;
+
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  String? firstPromoterReferralLink;
+
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  String? firstPromoterAuthToken;
+
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  String? referredByCode;
+
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  User? referrer;
+
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
   DateTime? premiumExpiresAt;
 
   ///
@@ -201,6 +246,11 @@ class User {
     other.timeZone == timeZone &&
     other.profilePhotoUrl == profilePhotoUrl &&
     other.referralCode == referralCode &&
+    other.firstPromoterReferralCode == firstPromoterReferralCode &&
+    other.firstPromoterReferralLink == firstPromoterReferralLink &&
+    other.firstPromoterAuthToken == firstPromoterAuthToken &&
+    other.referredByCode == referredByCode &&
+    other.referrer == referrer &&
     other.premiumExpiresAt == premiumExpiresAt &&
     other.hasCancelledBefore == hasCancelledBefore &&
     other.countryCode == countryCode &&
@@ -225,13 +275,18 @@ class User {
     (timeZone == null ? 0 : timeZone!.hashCode) +
     (profilePhotoUrl == null ? 0 : profilePhotoUrl!.hashCode) +
     (referralCode == null ? 0 : referralCode!.hashCode) +
+    (firstPromoterReferralCode == null ? 0 : firstPromoterReferralCode!.hashCode) +
+    (firstPromoterReferralLink == null ? 0 : firstPromoterReferralLink!.hashCode) +
+    (firstPromoterAuthToken == null ? 0 : firstPromoterAuthToken!.hashCode) +
+    (referredByCode == null ? 0 : referredByCode!.hashCode) +
+    (referrer == null ? 0 : referrer!.hashCode) +
     (premiumExpiresAt == null ? 0 : premiumExpiresAt!.hashCode) +
     (hasCancelledBefore == null ? 0 : hasCancelledBefore!.hashCode) +
     (countryCode == null ? 0 : countryCode!.hashCode) +
     (notifications.hashCode);
 
   @override
-  String toString() => 'User[id=$id, createdAt=$createdAt, updatedAt=$updatedAt, email=$email, password=$password, firstName=$firstName, lastName=$lastName, provider=$provider, providerId=$providerId, emailVerified=$emailVerified, enabled=$enabled, deletedAt=$deletedAt, profile=$profile, timeZone=$timeZone, profilePhotoUrl=$profilePhotoUrl, referralCode=$referralCode, premiumExpiresAt=$premiumExpiresAt, hasCancelledBefore=$hasCancelledBefore, countryCode=$countryCode, notifications=$notifications]';
+  String toString() => 'User[id=$id, createdAt=$createdAt, updatedAt=$updatedAt, email=$email, password=$password, firstName=$firstName, lastName=$lastName, provider=$provider, providerId=$providerId, emailVerified=$emailVerified, enabled=$enabled, deletedAt=$deletedAt, profile=$profile, timeZone=$timeZone, profilePhotoUrl=$profilePhotoUrl, referralCode=$referralCode, firstPromoterReferralCode=$firstPromoterReferralCode, firstPromoterReferralLink=$firstPromoterReferralLink, firstPromoterAuthToken=$firstPromoterAuthToken, referredByCode=$referredByCode, referrer=$referrer, premiumExpiresAt=$premiumExpiresAt, hasCancelledBefore=$hasCancelledBefore, countryCode=$countryCode, notifications=$notifications]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -315,6 +370,31 @@ class User {
     } else {
       json[r'referralCode'] = null;
     }
+    if (this.firstPromoterReferralCode != null) {
+      json[r'firstPromoterReferralCode'] = this.firstPromoterReferralCode;
+    } else {
+      json[r'firstPromoterReferralCode'] = null;
+    }
+    if (this.firstPromoterReferralLink != null) {
+      json[r'firstPromoterReferralLink'] = this.firstPromoterReferralLink;
+    } else {
+      json[r'firstPromoterReferralLink'] = null;
+    }
+    if (this.firstPromoterAuthToken != null) {
+      json[r'firstPromoterAuthToken'] = this.firstPromoterAuthToken;
+    } else {
+      json[r'firstPromoterAuthToken'] = null;
+    }
+    if (this.referredByCode != null) {
+      json[r'referredByCode'] = this.referredByCode;
+    } else {
+      json[r'referredByCode'] = null;
+    }
+    if (this.referrer != null) {
+      json[r'referrer'] = this.referrer;
+    } else {
+      json[r'referrer'] = null;
+    }
     if (this.premiumExpiresAt != null) {
       json[r'premiumExpiresAt'] = this.premiumExpiresAt!.toUtc().toIso8601String();
     } else {
@@ -369,6 +449,11 @@ class User {
         timeZone: mapValueOfType<String>(json, r'timeZone'),
         profilePhotoUrl: mapValueOfType<String>(json, r'profilePhotoUrl'),
         referralCode: mapValueOfType<String>(json, r'referralCode'),
+        firstPromoterReferralCode: mapValueOfType<String>(json, r'firstPromoterReferralCode'),
+        firstPromoterReferralLink: mapValueOfType<String>(json, r'firstPromoterReferralLink'),
+        firstPromoterAuthToken: mapValueOfType<String>(json, r'firstPromoterAuthToken'),
+        referredByCode: mapValueOfType<String>(json, r'referredByCode'),
+        referrer: User.fromJson(json[r'referrer']),
         premiumExpiresAt: mapDateTime(json, r'premiumExpiresAt', r''),
         hasCancelledBefore: mapValueOfType<bool>(json, r'hasCancelledBefore'),
         countryCode: mapValueOfType<String>(json, r'countryCode'),

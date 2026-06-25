@@ -29,6 +29,7 @@ doc/MacroPerformanceDto.md
 doc/MacroResult.md
 doc/MacroTargetDto.md
 doc/MealLogResponseDto.md
+doc/MessageResponse.md
 doc/PageUserNotification.md
 doc/PageableObject.md
 doc/PasswordChangedResponse.md
@@ -55,6 +56,7 @@ doc/UserControllerApi.md
 doc/UserNotification.md
 doc/UserProfile.md
 doc/UserSubscriptionDto.md
+doc/UserSubscriptionStatusResponse.md
 doc/WeeklyTrendDto.md
 git_push.sh
 lib/api.dart
@@ -95,6 +97,7 @@ lib/model/macro_performance_dto.dart
 lib/model/macro_result.dart
 lib/model/macro_target_dto.dart
 lib/model/meal_log_response_dto.dart
+lib/model/message_response.dart
 lib/model/page_user_notification.dart
 lib/model/pageable_object.dart
 lib/model/password_changed_response.dart
@@ -118,6 +121,7 @@ lib/model/user.dart
 lib/model/user_notification.dart
 lib/model/user_profile.dart
 lib/model/user_subscription_dto.dart
+lib/model/user_subscription_status_response.dart
 lib/model/weekly_trend_dto.dart
 pubspec.yaml
 test/apple_subscription_verify_request_test.dart
@@ -146,6 +150,7 @@ test/macro_performance_dto_test.dart
 test/macro_result_test.dart
 test/macro_target_dto_test.dart
 test/meal_log_response_dto_test.dart
+test/message_response_test.dart
 test/page_user_notification_test.dart
 test/pageable_object_test.dart
 test/password_changed_response_test.dart
@@ -171,5 +176,6 @@ test/user_controller_api_test.dart
 test/user_notification_test.dart
 test/user_profile_test.dart
 test/user_subscription_dto_test.dart
+test/user_subscription_status_response_test.dart
 test/user_test.dart
 test/weekly_trend_dto_test.dart

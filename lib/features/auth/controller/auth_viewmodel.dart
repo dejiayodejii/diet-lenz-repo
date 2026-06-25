@@ -160,6 +160,23 @@ class AuthViewModel extends StateNotifier<AuthState> {
     return (appVersion: appVersion, deviceId: deviceId);
   }
 
+  Future<RegisterDeviceRequest> _buildDeviceRequest({
+    String fallbackPushToken = 'xyz',
+  }) async {
+    final timeZone = await FlutterTimezone.getLocalTimezone();
+    final deviceInfo = await _getDeviceInfo();
+
+    return RegisterDeviceRequest(
+      pushToken: _pushService.fcmToken ?? fallbackPushToken,
+      platform: Platform.isIOS
+          ? RegisterDeviceRequestPlatformEnum.IOS
+          : RegisterDeviceRequestPlatformEnum.ANDROID,
+      deviceId: deviceInfo.deviceId,
+      appVersion: deviceInfo.appVersion,
+      timeZone: timeZone,
+    );
+  }
+
   /// Login with email and password
   Future<bool> login({
     required String email,
@@ -179,21 +196,10 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
       await _apiService.clearAuthToken();
 
-      final timeZone = await FlutterTimezone.getLocalTimezone();
-      final deviceInfo = await _getDeviceInfo();
-
       // Create device request (if you need device info)
       final loginWithDeviceRequest = LoginWithDeviceRequest(
         login: loginRequest,
-        device: RegisterDeviceRequest(
-          pushToken: _pushService.fcmToken ?? 'xyz',
-          platform: Platform.isIOS
-              ? RegisterDeviceRequestPlatformEnum.IOS
-              : RegisterDeviceRequestPlatformEnum.ANDROID,
-          deviceId: deviceInfo.deviceId,
-          appVersion: deviceInfo.appVersion,
-          timeZone: timeZone,
-        ),
+        device: await _buildDeviceRequest(),
       );
 
       // Call the API
@@ -348,6 +354,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
       final refreshRequest = RefreshTokenRequest(
         refreshToken: refreshToken,
+        device: await _buildDeviceRequest(fallbackPushToken: 'xyzoi'),
       );
 
       await _apiService.setAuthToken(
@@ -381,20 +388,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
     try {
       await _apiService.clearAuthToken();
 
-      final timeZone = await FlutterTimezone.getLocalTimezone();
-      final deviceInfo = await _getDeviceInfo();
-
       final socialLoginRequest = SocialLoginRequest(
         idToken: idToken,
-        device: RegisterDeviceRequest(
-          pushToken: _pushService.fcmToken ?? "xyzoi",
-          platform: Platform.isIOS
-              ? RegisterDeviceRequestPlatformEnum.IOS
-              : RegisterDeviceRequestPlatformEnum.ANDROID,
-          deviceId: deviceInfo.deviceId,
-          appVersion: deviceInfo.appVersion,
-          timeZone: timeZone,
-        ),
+        device: await _buildDeviceRequest(fallbackPushToken: 'xyzoi'),
       );
 
       final response =
@@ -454,20 +450,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
     try {
       await _apiService.clearAuthToken();
 
-      final timeZone = await FlutterTimezone.getLocalTimezone();
-      final deviceInfo = await _getDeviceInfo();
-
       final socialLoginRequest = SocialLoginRequest(
         idToken: idToken,
-        device: RegisterDeviceRequest(
-          pushToken: _pushService.fcmToken ?? "xzss",
-          platform: Platform.isIOS
-              ? RegisterDeviceRequestPlatformEnum.IOS
-              : RegisterDeviceRequestPlatformEnum.ANDROID,
-          deviceId: deviceInfo.deviceId,
-          appVersion: deviceInfo.appVersion,
-          timeZone: timeZone,
-        ),
+        device: await _buildDeviceRequest(fallbackPushToken: 'xzss'),
       );
 
       final response = await _apiService.authApi.appleLogin(socialLoginRequest);

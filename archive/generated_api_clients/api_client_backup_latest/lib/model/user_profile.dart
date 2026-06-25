@@ -166,62 +166,65 @@ class UserProfile {
   String? country;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is UserProfile &&
-    other.id == id &&
-    other.createdAt == createdAt &&
-    other.updatedAt == updatedAt &&
-    other.height == height &&
-    other.weight == weight &&
-    other.age == age &&
-    other.activityLevel == activityLevel &&
-    other.goal == goal &&
-    other.macroTarget == macroTarget &&
-    other.dietaryPreference == dietaryPreference &&
-    _deepEquality.equals(other.allergenExclusions, allergenExclusions) &&
-    _deepEquality.equals(other.cuisinePreferences, cuisinePreferences) &&
-    other.notificationsEnabled == notificationsEnabled &&
-    other.mealRemindersEnabled == mealRemindersEnabled &&
-    other.gender == gender &&
-    other.currentWeight == currentWeight &&
-    other.macroResult == macroResult &&
-    other.currentWeightUnit == currentWeightUnit &&
-    other.heightUnit == heightUnit &&
-    other.dateOfBirth == dateOfBirth &&
-    other.desiredGoal == desiredGoal &&
-    other.desiredWeight == desiredWeight &&
-    other.desiredWeightUnit == desiredWeightUnit &&
-    other.country == country;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UserProfile &&
+          other.id == id &&
+          other.createdAt == createdAt &&
+          other.updatedAt == updatedAt &&
+          other.height == height &&
+          other.weight == weight &&
+          other.age == age &&
+          other.activityLevel == activityLevel &&
+          other.goal == goal &&
+          other.macroTarget == macroTarget &&
+          other.dietaryPreference == dietaryPreference &&
+          _deepEquality.equals(other.allergenExclusions, allergenExclusions) &&
+          _deepEquality.equals(other.cuisinePreferences, cuisinePreferences) &&
+          other.notificationsEnabled == notificationsEnabled &&
+          other.mealRemindersEnabled == mealRemindersEnabled &&
+          other.gender == gender &&
+          other.currentWeight == currentWeight &&
+          other.macroResult == macroResult &&
+          other.currentWeightUnit == currentWeightUnit &&
+          other.heightUnit == heightUnit &&
+          other.dateOfBirth == dateOfBirth &&
+          other.desiredGoal == desiredGoal &&
+          other.desiredWeight == desiredWeight &&
+          other.desiredWeightUnit == desiredWeightUnit &&
+          other.country == country;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (id == null ? 0 : id!.hashCode) +
-    (createdAt == null ? 0 : createdAt!.hashCode) +
-    (updatedAt == null ? 0 : updatedAt!.hashCode) +
-    (height == null ? 0 : height!.hashCode) +
-    (weight == null ? 0 : weight!.hashCode) +
-    (age == null ? 0 : age!.hashCode) +
-    (activityLevel == null ? 0 : activityLevel!.hashCode) +
-    (goal == null ? 0 : goal!.hashCode) +
-    (macroTarget == null ? 0 : macroTarget!.hashCode) +
-    (dietaryPreference == null ? 0 : dietaryPreference!.hashCode) +
-    (allergenExclusions.hashCode) +
-    (cuisinePreferences.hashCode) +
-    (notificationsEnabled == null ? 0 : notificationsEnabled!.hashCode) +
-    (mealRemindersEnabled == null ? 0 : mealRemindersEnabled!.hashCode) +
-    (gender == null ? 0 : gender!.hashCode) +
-    (currentWeight == null ? 0 : currentWeight!.hashCode) +
-    (macroResult == null ? 0 : macroResult!.hashCode) +
-    (currentWeightUnit == null ? 0 : currentWeightUnit!.hashCode) +
-    (heightUnit == null ? 0 : heightUnit!.hashCode) +
-    (dateOfBirth == null ? 0 : dateOfBirth!.hashCode) +
-    (desiredGoal == null ? 0 : desiredGoal!.hashCode) +
-    (desiredWeight == null ? 0 : desiredWeight!.hashCode) +
-    (desiredWeightUnit == null ? 0 : desiredWeightUnit!.hashCode) +
-    (country == null ? 0 : country!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (id == null ? 0 : id!.hashCode) +
+      (createdAt == null ? 0 : createdAt!.hashCode) +
+      (updatedAt == null ? 0 : updatedAt!.hashCode) +
+      (height == null ? 0 : height!.hashCode) +
+      (weight == null ? 0 : weight!.hashCode) +
+      (age == null ? 0 : age!.hashCode) +
+      (activityLevel == null ? 0 : activityLevel!.hashCode) +
+      (goal == null ? 0 : goal!.hashCode) +
+      (macroTarget == null ? 0 : macroTarget!.hashCode) +
+      (dietaryPreference == null ? 0 : dietaryPreference!.hashCode) +
+      (allergenExclusions.hashCode) +
+      (cuisinePreferences.hashCode) +
+      (notificationsEnabled == null ? 0 : notificationsEnabled!.hashCode) +
+      (mealRemindersEnabled == null ? 0 : mealRemindersEnabled!.hashCode) +
+      (gender == null ? 0 : gender!.hashCode) +
+      (currentWeight == null ? 0 : currentWeight!.hashCode) +
+      (macroResult == null ? 0 : macroResult!.hashCode) +
+      (currentWeightUnit == null ? 0 : currentWeightUnit!.hashCode) +
+      (heightUnit == null ? 0 : heightUnit!.hashCode) +
+      (dateOfBirth == null ? 0 : dateOfBirth!.hashCode) +
+      (desiredGoal == null ? 0 : desiredGoal!.hashCode) +
+      (desiredWeight == null ? 0 : desiredWeight!.hashCode) +
+      (desiredWeightUnit == null ? 0 : desiredWeightUnit!.hashCode) +
+      (country == null ? 0 : country!.hashCode);
 
   @override
-  String toString() => 'UserProfile[id=$id, createdAt=$createdAt, updatedAt=$updatedAt, height=$height, weight=$weight, age=$age, activityLevel=$activityLevel, goal=$goal, macroTarget=$macroTarget, dietaryPreference=$dietaryPreference, allergenExclusions=$allergenExclusions, cuisinePreferences=$cuisinePreferences, notificationsEnabled=$notificationsEnabled, mealRemindersEnabled=$mealRemindersEnabled, gender=$gender, currentWeight=$currentWeight, macroResult=$macroResult, currentWeightUnit=$currentWeightUnit, heightUnit=$heightUnit, dateOfBirth=$dateOfBirth, desiredGoal=$desiredGoal, desiredWeight=$desiredWeight, desiredWeightUnit=$desiredWeightUnit, country=$country]';
+  String toString() =>
+      'UserProfile[id=$id, createdAt=$createdAt, updatedAt=$updatedAt, height=$height, weight=$weight, age=$age, activityLevel=$activityLevel, goal=$goal, macroTarget=$macroTarget, dietaryPreference=$dietaryPreference, allergenExclusions=$allergenExclusions, cuisinePreferences=$cuisinePreferences, notificationsEnabled=$notificationsEnabled, mealRemindersEnabled=$mealRemindersEnabled, gender=$gender, currentWeight=$currentWeight, macroResult=$macroResult, currentWeightUnit=$currentWeightUnit, heightUnit=$heightUnit, dateOfBirth=$dateOfBirth, desiredGoal=$desiredGoal, desiredWeight=$desiredWeight, desiredWeightUnit=$desiredWeightUnit, country=$country]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -275,8 +278,10 @@ class UserProfile {
     } else {
       json[r'dietaryPreference'] = null;
     }
-      json[r'allergenExclusions'] = this.allergenExclusions.toList(growable: false);
-      json[r'cuisinePreferences'] = this.cuisinePreferences.toList(growable: false);
+    json[r'allergenExclusions'] =
+        this.allergenExclusions.toList(growable: false);
+    json[r'cuisinePreferences'] =
+        this.cuisinePreferences.toList(growable: false);
     if (this.notificationsEnabled != null) {
       json[r'notificationsEnabled'] = this.notificationsEnabled;
     } else {
@@ -313,7 +318,7 @@ class UserProfile {
       json[r'heightUnit'] = null;
     }
     if (this.dateOfBirth != null) {
-      json[r'dateOfBirth'] = _dateFormatter.format(this.dateOfBirth!.toUtc());
+      json[r'dateOfBirth'] = _dateFormatter.format(this.dateOfBirth!);
     } else {
       json[r'dateOfBirth'] = null;
     }
@@ -352,8 +357,10 @@ class UserProfile {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "UserProfile[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "UserProfile[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "UserProfile[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "UserProfile[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -362,37 +369,50 @@ class UserProfile {
         id: mapValueOfType<String>(json, r'id'),
         createdAt: mapDateTime(json, r'createdAt', r''),
         updatedAt: mapDateTime(json, r'updatedAt', r''),
-        height: json[r'height'] != null ? num.parse('${json[r'height']}') : null, // PATCHED FOR NULL HANDLING
-        weight: json[r'weight'] != null ? num.parse('${json[r'weight']}') : null, // PATCHED FOR NULL HANDLING
+        height: json[r'height'] != null
+            ? num.parse('${json[r'height']}')
+            : null, // PATCHED FOR NULL HANDLING
+        weight: json[r'weight'] != null
+            ? num.parse('${json[r'weight']}')
+            : null, // PATCHED FOR NULL HANDLING
         age: mapValueOfType<int>(json, r'age'),
-        activityLevel: UserProfileActivityLevelEnum.fromJson(json[r'activityLevel']),
+        activityLevel:
+            UserProfileActivityLevelEnum.fromJson(json[r'activityLevel']),
         goal: UserProfileGoalEnum.fromJson(json[r'goal']),
         macroTarget: UserProfileMacroTargetEnum.fromJson(json[r'macroTarget']),
-        dietaryPreference: UserProfileDietaryPreferenceEnum.fromJson(json[r'dietaryPreference']),
+        dietaryPreference: UserProfileDietaryPreferenceEnum.fromJson(
+            json[r'dietaryPreference']),
         allergenExclusions: json[r'allergenExclusions'] is Iterable
             ? (json[r'allergenExclusions'] as Iterable).cast<String>().toSet()
             : const {},
         cuisinePreferences: json[r'cuisinePreferences'] is Iterable
             ? (json[r'cuisinePreferences'] as Iterable).cast<String>().toSet()
             : const {},
-        notificationsEnabled: mapValueOfType<bool>(json, r'notificationsEnabled'),
-        mealRemindersEnabled: mapValueOfType<bool>(json, r'mealRemindersEnabled'),
+        notificationsEnabled:
+            mapValueOfType<bool>(json, r'notificationsEnabled'),
+        mealRemindersEnabled:
+            mapValueOfType<bool>(json, r'mealRemindersEnabled'),
         gender: UserProfileGenderEnum.fromJson(json[r'gender']),
         currentWeight: mapValueOfType<int>(json, r'currentWeight'),
         macroResult: MacroResult.fromJson(json[r'macroResult']),
-        currentWeightUnit: UserProfileCurrentWeightUnitEnum.fromJson(json[r'currentWeightUnit']),
+        currentWeightUnit: UserProfileCurrentWeightUnitEnum.fromJson(
+            json[r'currentWeightUnit']),
         heightUnit: UserProfileHeightUnitEnum.fromJson(json[r'heightUnit']),
         dateOfBirth: mapDateTime(json, r'dateOfBirth', r''),
         desiredGoal: UserProfileDesiredGoalEnum.fromJson(json[r'desiredGoal']),
         desiredWeight: mapValueOfType<int>(json, r'desiredWeight'),
-        desiredWeightUnit: UserProfileDesiredWeightUnitEnum.fromJson(json[r'desiredWeightUnit']),
+        desiredWeightUnit: UserProfileDesiredWeightUnitEnum.fromJson(
+            json[r'desiredWeightUnit']),
         country: mapValueOfType<String>(json, r'country'),
       );
     }
     return null;
   }
 
-  static List<UserProfile> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<UserProfile> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <UserProfile>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -420,23 +440,27 @@ class UserProfile {
   }
 
   // maps a json object with a list of UserProfile-objects as value to a dart map
-  static Map<String, List<UserProfile>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<UserProfile>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<UserProfile>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = UserProfile.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = UserProfile.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-
 
 class UserProfileActivityLevelEnum {
   /// Instantiate a new enum with the provided [value].
@@ -451,8 +475,10 @@ class UserProfileActivityLevelEnum {
   String toJson() => value;
 
   static const SEDENTARY = UserProfileActivityLevelEnum._(r'SEDENTARY');
-  static const LIGHTLY_ACTIVE = UserProfileActivityLevelEnum._(r'LIGHTLY_ACTIVE');
-  static const MODERATELY_ACTIVE = UserProfileActivityLevelEnum._(r'MODERATELY_ACTIVE');
+  static const LIGHTLY_ACTIVE =
+      UserProfileActivityLevelEnum._(r'LIGHTLY_ACTIVE');
+  static const MODERATELY_ACTIVE =
+      UserProfileActivityLevelEnum._(r'MODERATELY_ACTIVE');
   static const VERY_ACTIVE = UserProfileActivityLevelEnum._(r'VERY_ACTIVE');
   static const EXTRA_ACTIVE = UserProfileActivityLevelEnum._(r'EXTRA_ACTIVE');
 
@@ -465,9 +491,13 @@ class UserProfileActivityLevelEnum {
     EXTRA_ACTIVE,
   ];
 
-  static UserProfileActivityLevelEnum? fromJson(dynamic value) => UserProfileActivityLevelEnumTypeTransformer().decode(value);
+  static UserProfileActivityLevelEnum? fromJson(dynamic value) =>
+      UserProfileActivityLevelEnumTypeTransformer().decode(value);
 
-  static List<UserProfileActivityLevelEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<UserProfileActivityLevelEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <UserProfileActivityLevelEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -484,7 +514,8 @@ class UserProfileActivityLevelEnum {
 /// Transformation class that can [encode] an instance of [UserProfileActivityLevelEnum] to String,
 /// and [decode] dynamic data back to [UserProfileActivityLevelEnum].
 class UserProfileActivityLevelEnumTypeTransformer {
-  factory UserProfileActivityLevelEnumTypeTransformer() => _instance ??= const UserProfileActivityLevelEnumTypeTransformer._();
+  factory UserProfileActivityLevelEnumTypeTransformer() =>
+      _instance ??= const UserProfileActivityLevelEnumTypeTransformer._();
 
   const UserProfileActivityLevelEnumTypeTransformer._();
 
@@ -501,11 +532,16 @@ class UserProfileActivityLevelEnumTypeTransformer {
   UserProfileActivityLevelEnum? decode(dynamic data, {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'SEDENTARY': return UserProfileActivityLevelEnum.SEDENTARY;
-        case r'LIGHTLY_ACTIVE': return UserProfileActivityLevelEnum.LIGHTLY_ACTIVE;
-        case r'MODERATELY_ACTIVE': return UserProfileActivityLevelEnum.MODERATELY_ACTIVE;
-        case r'VERY_ACTIVE': return UserProfileActivityLevelEnum.VERY_ACTIVE;
-        case r'EXTRA_ACTIVE': return UserProfileActivityLevelEnum.EXTRA_ACTIVE;
+        case r'SEDENTARY':
+          return UserProfileActivityLevelEnum.SEDENTARY;
+        case r'LIGHTLY_ACTIVE':
+          return UserProfileActivityLevelEnum.LIGHTLY_ACTIVE;
+        case r'MODERATELY_ACTIVE':
+          return UserProfileActivityLevelEnum.MODERATELY_ACTIVE;
+        case r'VERY_ACTIVE':
+          return UserProfileActivityLevelEnum.VERY_ACTIVE;
+        case r'EXTRA_ACTIVE':
+          return UserProfileActivityLevelEnum.EXTRA_ACTIVE;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -518,8 +554,6 @@ class UserProfileActivityLevelEnumTypeTransformer {
   /// Singleton [UserProfileActivityLevelEnumTypeTransformer] instance.
   static UserProfileActivityLevelEnumTypeTransformer? _instance;
 }
-
-
 
 class UserProfileGoalEnum {
   /// Instantiate a new enum with the provided [value].
@@ -546,9 +580,13 @@ class UserProfileGoalEnum {
     NOTHING,
   ];
 
-  static UserProfileGoalEnum? fromJson(dynamic value) => UserProfileGoalEnumTypeTransformer().decode(value);
+  static UserProfileGoalEnum? fromJson(dynamic value) =>
+      UserProfileGoalEnumTypeTransformer().decode(value);
 
-  static List<UserProfileGoalEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<UserProfileGoalEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <UserProfileGoalEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -565,7 +603,8 @@ class UserProfileGoalEnum {
 /// Transformation class that can [encode] an instance of [UserProfileGoalEnum] to String,
 /// and [decode] dynamic data back to [UserProfileGoalEnum].
 class UserProfileGoalEnumTypeTransformer {
-  factory UserProfileGoalEnumTypeTransformer() => _instance ??= const UserProfileGoalEnumTypeTransformer._();
+  factory UserProfileGoalEnumTypeTransformer() =>
+      _instance ??= const UserProfileGoalEnumTypeTransformer._();
 
   const UserProfileGoalEnumTypeTransformer._();
 
@@ -582,10 +621,14 @@ class UserProfileGoalEnumTypeTransformer {
   UserProfileGoalEnum? decode(dynamic data, {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'LOSE_WEIGHT': return UserProfileGoalEnum.LOSE_WEIGHT;
-        case r'MAINTAIN_WEIGHT': return UserProfileGoalEnum.MAINTAIN_WEIGHT;
-        case r'GAIN_WEIGHT': return UserProfileGoalEnum.GAIN_WEIGHT;
-        case r'NOTHING': return UserProfileGoalEnum.NOTHING;
+        case r'LOSE_WEIGHT':
+          return UserProfileGoalEnum.LOSE_WEIGHT;
+        case r'MAINTAIN_WEIGHT':
+          return UserProfileGoalEnum.MAINTAIN_WEIGHT;
+        case r'GAIN_WEIGHT':
+          return UserProfileGoalEnum.GAIN_WEIGHT;
+        case r'NOTHING':
+          return UserProfileGoalEnum.NOTHING;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -598,8 +641,6 @@ class UserProfileGoalEnumTypeTransformer {
   /// Singleton [UserProfileGoalEnumTypeTransformer] instance.
   static UserProfileGoalEnumTypeTransformer? _instance;
 }
-
-
 
 class UserProfileMacroTargetEnum {
   /// Instantiate a new enum with the provided [value].
@@ -628,9 +669,13 @@ class UserProfileMacroTargetEnum {
     HIGH_FIBER,
   ];
 
-  static UserProfileMacroTargetEnum? fromJson(dynamic value) => UserProfileMacroTargetEnumTypeTransformer().decode(value);
+  static UserProfileMacroTargetEnum? fromJson(dynamic value) =>
+      UserProfileMacroTargetEnumTypeTransformer().decode(value);
 
-  static List<UserProfileMacroTargetEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<UserProfileMacroTargetEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <UserProfileMacroTargetEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -647,7 +692,8 @@ class UserProfileMacroTargetEnum {
 /// Transformation class that can [encode] an instance of [UserProfileMacroTargetEnum] to String,
 /// and [decode] dynamic data back to [UserProfileMacroTargetEnum].
 class UserProfileMacroTargetEnumTypeTransformer {
-  factory UserProfileMacroTargetEnumTypeTransformer() => _instance ??= const UserProfileMacroTargetEnumTypeTransformer._();
+  factory UserProfileMacroTargetEnumTypeTransformer() =>
+      _instance ??= const UserProfileMacroTargetEnumTypeTransformer._();
 
   const UserProfileMacroTargetEnumTypeTransformer._();
 
@@ -664,11 +710,16 @@ class UserProfileMacroTargetEnumTypeTransformer {
   UserProfileMacroTargetEnum? decode(dynamic data, {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'BALANCED': return UserProfileMacroTargetEnum.BALANCED;
-        case r'HIGH_PROTEIN': return UserProfileMacroTargetEnum.HIGH_PROTEIN;
-        case r'LOW_CARB': return UserProfileMacroTargetEnum.LOW_CARB;
-        case r'LOW_FAT': return UserProfileMacroTargetEnum.LOW_FAT;
-        case r'HIGH_FIBER': return UserProfileMacroTargetEnum.HIGH_FIBER;
+        case r'BALANCED':
+          return UserProfileMacroTargetEnum.BALANCED;
+        case r'HIGH_PROTEIN':
+          return UserProfileMacroTargetEnum.HIGH_PROTEIN;
+        case r'LOW_CARB':
+          return UserProfileMacroTargetEnum.LOW_CARB;
+        case r'LOW_FAT':
+          return UserProfileMacroTargetEnum.LOW_FAT;
+        case r'HIGH_FIBER':
+          return UserProfileMacroTargetEnum.HIGH_FIBER;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -681,8 +732,6 @@ class UserProfileMacroTargetEnumTypeTransformer {
   /// Singleton [UserProfileMacroTargetEnumTypeTransformer] instance.
   static UserProfileMacroTargetEnumTypeTransformer? _instance;
 }
-
-
 
 class UserProfileDietaryPreferenceEnum {
   /// Instantiate a new enum with the provided [value].
@@ -715,9 +764,13 @@ class UserProfileDietaryPreferenceEnum {
     DAIRY_FREE,
   ];
 
-  static UserProfileDietaryPreferenceEnum? fromJson(dynamic value) => UserProfileDietaryPreferenceEnumTypeTransformer().decode(value);
+  static UserProfileDietaryPreferenceEnum? fromJson(dynamic value) =>
+      UserProfileDietaryPreferenceEnumTypeTransformer().decode(value);
 
-  static List<UserProfileDietaryPreferenceEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<UserProfileDietaryPreferenceEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <UserProfileDietaryPreferenceEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -734,7 +787,8 @@ class UserProfileDietaryPreferenceEnum {
 /// Transformation class that can [encode] an instance of [UserProfileDietaryPreferenceEnum] to String,
 /// and [decode] dynamic data back to [UserProfileDietaryPreferenceEnum].
 class UserProfileDietaryPreferenceEnumTypeTransformer {
-  factory UserProfileDietaryPreferenceEnumTypeTransformer() => _instance ??= const UserProfileDietaryPreferenceEnumTypeTransformer._();
+  factory UserProfileDietaryPreferenceEnumTypeTransformer() =>
+      _instance ??= const UserProfileDietaryPreferenceEnumTypeTransformer._();
 
   const UserProfileDietaryPreferenceEnumTypeTransformer._();
 
@@ -748,16 +802,24 @@ class UserProfileDietaryPreferenceEnumTypeTransformer {
   ///
   /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
   /// and users are still using an old app with the old code.
-  UserProfileDietaryPreferenceEnum? decode(dynamic data, {bool allowNull = true}) {
+  UserProfileDietaryPreferenceEnum? decode(dynamic data,
+      {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'NONE': return UserProfileDietaryPreferenceEnum.NONE;
-        case r'VEGETARIAN': return UserProfileDietaryPreferenceEnum.VEGETARIAN;
-        case r'VEGAN': return UserProfileDietaryPreferenceEnum.VEGAN;
-        case r'KETO': return UserProfileDietaryPreferenceEnum.KETO;
-        case r'PALEO': return UserProfileDietaryPreferenceEnum.PALEO;
-        case r'GLUTEN_FREE': return UserProfileDietaryPreferenceEnum.GLUTEN_FREE;
-        case r'DAIRY_FREE': return UserProfileDietaryPreferenceEnum.DAIRY_FREE;
+        case r'NONE':
+          return UserProfileDietaryPreferenceEnum.NONE;
+        case r'VEGETARIAN':
+          return UserProfileDietaryPreferenceEnum.VEGETARIAN;
+        case r'VEGAN':
+          return UserProfileDietaryPreferenceEnum.VEGAN;
+        case r'KETO':
+          return UserProfileDietaryPreferenceEnum.KETO;
+        case r'PALEO':
+          return UserProfileDietaryPreferenceEnum.PALEO;
+        case r'GLUTEN_FREE':
+          return UserProfileDietaryPreferenceEnum.GLUTEN_FREE;
+        case r'DAIRY_FREE':
+          return UserProfileDietaryPreferenceEnum.DAIRY_FREE;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -770,8 +832,6 @@ class UserProfileDietaryPreferenceEnumTypeTransformer {
   /// Singleton [UserProfileDietaryPreferenceEnumTypeTransformer] instance.
   static UserProfileDietaryPreferenceEnumTypeTransformer? _instance;
 }
-
-
 
 class UserProfileGenderEnum {
   /// Instantiate a new enum with the provided [value].
@@ -796,9 +856,13 @@ class UserProfileGenderEnum {
     OTHER,
   ];
 
-  static UserProfileGenderEnum? fromJson(dynamic value) => UserProfileGenderEnumTypeTransformer().decode(value);
+  static UserProfileGenderEnum? fromJson(dynamic value) =>
+      UserProfileGenderEnumTypeTransformer().decode(value);
 
-  static List<UserProfileGenderEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<UserProfileGenderEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <UserProfileGenderEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -815,7 +879,8 @@ class UserProfileGenderEnum {
 /// Transformation class that can [encode] an instance of [UserProfileGenderEnum] to String,
 /// and [decode] dynamic data back to [UserProfileGenderEnum].
 class UserProfileGenderEnumTypeTransformer {
-  factory UserProfileGenderEnumTypeTransformer() => _instance ??= const UserProfileGenderEnumTypeTransformer._();
+  factory UserProfileGenderEnumTypeTransformer() =>
+      _instance ??= const UserProfileGenderEnumTypeTransformer._();
 
   const UserProfileGenderEnumTypeTransformer._();
 
@@ -832,9 +897,12 @@ class UserProfileGenderEnumTypeTransformer {
   UserProfileGenderEnum? decode(dynamic data, {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'MALE': return UserProfileGenderEnum.MALE;
-        case r'FEMALE': return UserProfileGenderEnum.FEMALE;
-        case r'OTHER': return UserProfileGenderEnum.OTHER;
+        case r'MALE':
+          return UserProfileGenderEnum.MALE;
+        case r'FEMALE':
+          return UserProfileGenderEnum.FEMALE;
+        case r'OTHER':
+          return UserProfileGenderEnum.OTHER;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -847,8 +915,6 @@ class UserProfileGenderEnumTypeTransformer {
   /// Singleton [UserProfileGenderEnumTypeTransformer] instance.
   static UserProfileGenderEnumTypeTransformer? _instance;
 }
-
-
 
 class UserProfileCurrentWeightUnitEnum {
   /// Instantiate a new enum with the provided [value].
@@ -871,9 +937,13 @@ class UserProfileCurrentWeightUnitEnum {
     POUNDS,
   ];
 
-  static UserProfileCurrentWeightUnitEnum? fromJson(dynamic value) => UserProfileCurrentWeightUnitEnumTypeTransformer().decode(value);
+  static UserProfileCurrentWeightUnitEnum? fromJson(dynamic value) =>
+      UserProfileCurrentWeightUnitEnumTypeTransformer().decode(value);
 
-  static List<UserProfileCurrentWeightUnitEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<UserProfileCurrentWeightUnitEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <UserProfileCurrentWeightUnitEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -890,7 +960,8 @@ class UserProfileCurrentWeightUnitEnum {
 /// Transformation class that can [encode] an instance of [UserProfileCurrentWeightUnitEnum] to String,
 /// and [decode] dynamic data back to [UserProfileCurrentWeightUnitEnum].
 class UserProfileCurrentWeightUnitEnumTypeTransformer {
-  factory UserProfileCurrentWeightUnitEnumTypeTransformer() => _instance ??= const UserProfileCurrentWeightUnitEnumTypeTransformer._();
+  factory UserProfileCurrentWeightUnitEnumTypeTransformer() =>
+      _instance ??= const UserProfileCurrentWeightUnitEnumTypeTransformer._();
 
   const UserProfileCurrentWeightUnitEnumTypeTransformer._();
 
@@ -904,11 +975,14 @@ class UserProfileCurrentWeightUnitEnumTypeTransformer {
   ///
   /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
   /// and users are still using an old app with the old code.
-  UserProfileCurrentWeightUnitEnum? decode(dynamic data, {bool allowNull = true}) {
+  UserProfileCurrentWeightUnitEnum? decode(dynamic data,
+      {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'KG': return UserProfileCurrentWeightUnitEnum.KG;
-        case r'POUNDS': return UserProfileCurrentWeightUnitEnum.POUNDS;
+        case r'KG':
+          return UserProfileCurrentWeightUnitEnum.KG;
+        case r'POUNDS':
+          return UserProfileCurrentWeightUnitEnum.POUNDS;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -921,8 +995,6 @@ class UserProfileCurrentWeightUnitEnumTypeTransformer {
   /// Singleton [UserProfileCurrentWeightUnitEnumTypeTransformer] instance.
   static UserProfileCurrentWeightUnitEnumTypeTransformer? _instance;
 }
-
-
 
 class UserProfileHeightUnitEnum {
   /// Instantiate a new enum with the provided [value].
@@ -945,9 +1017,13 @@ class UserProfileHeightUnitEnum {
     FT,
   ];
 
-  static UserProfileHeightUnitEnum? fromJson(dynamic value) => UserProfileHeightUnitEnumTypeTransformer().decode(value);
+  static UserProfileHeightUnitEnum? fromJson(dynamic value) =>
+      UserProfileHeightUnitEnumTypeTransformer().decode(value);
 
-  static List<UserProfileHeightUnitEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<UserProfileHeightUnitEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <UserProfileHeightUnitEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -964,7 +1040,8 @@ class UserProfileHeightUnitEnum {
 /// Transformation class that can [encode] an instance of [UserProfileHeightUnitEnum] to String,
 /// and [decode] dynamic data back to [UserProfileHeightUnitEnum].
 class UserProfileHeightUnitEnumTypeTransformer {
-  factory UserProfileHeightUnitEnumTypeTransformer() => _instance ??= const UserProfileHeightUnitEnumTypeTransformer._();
+  factory UserProfileHeightUnitEnumTypeTransformer() =>
+      _instance ??= const UserProfileHeightUnitEnumTypeTransformer._();
 
   const UserProfileHeightUnitEnumTypeTransformer._();
 
@@ -981,8 +1058,10 @@ class UserProfileHeightUnitEnumTypeTransformer {
   UserProfileHeightUnitEnum? decode(dynamic data, {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'CM': return UserProfileHeightUnitEnum.CM;
-        case r'FT': return UserProfileHeightUnitEnum.FT;
+        case r'CM':
+          return UserProfileHeightUnitEnum.CM;
+        case r'FT':
+          return UserProfileHeightUnitEnum.FT;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -995,8 +1074,6 @@ class UserProfileHeightUnitEnumTypeTransformer {
   /// Singleton [UserProfileHeightUnitEnumTypeTransformer] instance.
   static UserProfileHeightUnitEnumTypeTransformer? _instance;
 }
-
-
 
 class UserProfileDesiredGoalEnum {
   /// Instantiate a new enum with the provided [value].
@@ -1011,7 +1088,8 @@ class UserProfileDesiredGoalEnum {
   String toJson() => value;
 
   static const LOSE_WEIGHT = UserProfileDesiredGoalEnum._(r'LOSE_WEIGHT');
-  static const MAINTAIN_WEIGHT = UserProfileDesiredGoalEnum._(r'MAINTAIN_WEIGHT');
+  static const MAINTAIN_WEIGHT =
+      UserProfileDesiredGoalEnum._(r'MAINTAIN_WEIGHT');
   static const GAIN_WEIGHT = UserProfileDesiredGoalEnum._(r'GAIN_WEIGHT');
   static const NOTHING = UserProfileDesiredGoalEnum._(r'NOTHING');
 
@@ -1023,9 +1101,13 @@ class UserProfileDesiredGoalEnum {
     NOTHING,
   ];
 
-  static UserProfileDesiredGoalEnum? fromJson(dynamic value) => UserProfileDesiredGoalEnumTypeTransformer().decode(value);
+  static UserProfileDesiredGoalEnum? fromJson(dynamic value) =>
+      UserProfileDesiredGoalEnumTypeTransformer().decode(value);
 
-  static List<UserProfileDesiredGoalEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<UserProfileDesiredGoalEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <UserProfileDesiredGoalEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -1042,7 +1124,8 @@ class UserProfileDesiredGoalEnum {
 /// Transformation class that can [encode] an instance of [UserProfileDesiredGoalEnum] to String,
 /// and [decode] dynamic data back to [UserProfileDesiredGoalEnum].
 class UserProfileDesiredGoalEnumTypeTransformer {
-  factory UserProfileDesiredGoalEnumTypeTransformer() => _instance ??= const UserProfileDesiredGoalEnumTypeTransformer._();
+  factory UserProfileDesiredGoalEnumTypeTransformer() =>
+      _instance ??= const UserProfileDesiredGoalEnumTypeTransformer._();
 
   const UserProfileDesiredGoalEnumTypeTransformer._();
 
@@ -1059,10 +1142,14 @@ class UserProfileDesiredGoalEnumTypeTransformer {
   UserProfileDesiredGoalEnum? decode(dynamic data, {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'LOSE_WEIGHT': return UserProfileDesiredGoalEnum.LOSE_WEIGHT;
-        case r'MAINTAIN_WEIGHT': return UserProfileDesiredGoalEnum.MAINTAIN_WEIGHT;
-        case r'GAIN_WEIGHT': return UserProfileDesiredGoalEnum.GAIN_WEIGHT;
-        case r'NOTHING': return UserProfileDesiredGoalEnum.NOTHING;
+        case r'LOSE_WEIGHT':
+          return UserProfileDesiredGoalEnum.LOSE_WEIGHT;
+        case r'MAINTAIN_WEIGHT':
+          return UserProfileDesiredGoalEnum.MAINTAIN_WEIGHT;
+        case r'GAIN_WEIGHT':
+          return UserProfileDesiredGoalEnum.GAIN_WEIGHT;
+        case r'NOTHING':
+          return UserProfileDesiredGoalEnum.NOTHING;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -1075,8 +1162,6 @@ class UserProfileDesiredGoalEnumTypeTransformer {
   /// Singleton [UserProfileDesiredGoalEnumTypeTransformer] instance.
   static UserProfileDesiredGoalEnumTypeTransformer? _instance;
 }
-
-
 
 class UserProfileDesiredWeightUnitEnum {
   /// Instantiate a new enum with the provided [value].
@@ -1099,9 +1184,13 @@ class UserProfileDesiredWeightUnitEnum {
     POUNDS,
   ];
 
-  static UserProfileDesiredWeightUnitEnum? fromJson(dynamic value) => UserProfileDesiredWeightUnitEnumTypeTransformer().decode(value);
+  static UserProfileDesiredWeightUnitEnum? fromJson(dynamic value) =>
+      UserProfileDesiredWeightUnitEnumTypeTransformer().decode(value);
 
-  static List<UserProfileDesiredWeightUnitEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<UserProfileDesiredWeightUnitEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <UserProfileDesiredWeightUnitEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -1118,7 +1207,8 @@ class UserProfileDesiredWeightUnitEnum {
 /// Transformation class that can [encode] an instance of [UserProfileDesiredWeightUnitEnum] to String,
 /// and [decode] dynamic data back to [UserProfileDesiredWeightUnitEnum].
 class UserProfileDesiredWeightUnitEnumTypeTransformer {
-  factory UserProfileDesiredWeightUnitEnumTypeTransformer() => _instance ??= const UserProfileDesiredWeightUnitEnumTypeTransformer._();
+  factory UserProfileDesiredWeightUnitEnumTypeTransformer() =>
+      _instance ??= const UserProfileDesiredWeightUnitEnumTypeTransformer._();
 
   const UserProfileDesiredWeightUnitEnumTypeTransformer._();
 
@@ -1132,11 +1222,14 @@ class UserProfileDesiredWeightUnitEnumTypeTransformer {
   ///
   /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
   /// and users are still using an old app with the old code.
-  UserProfileDesiredWeightUnitEnum? decode(dynamic data, {bool allowNull = true}) {
+  UserProfileDesiredWeightUnitEnum? decode(dynamic data,
+      {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'KG': return UserProfileDesiredWeightUnitEnum.KG;
-        case r'POUNDS': return UserProfileDesiredWeightUnitEnum.POUNDS;
+        case r'KG':
+          return UserProfileDesiredWeightUnitEnum.KG;
+        case r'POUNDS':
+          return UserProfileDesiredWeightUnitEnum.POUNDS;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -1149,5 +1242,3 @@ class UserProfileDesiredWeightUnitEnumTypeTransformer {
   /// Singleton [UserProfileDesiredWeightUnitEnumTypeTransformer] instance.
   static UserProfileDesiredWeightUnitEnumTypeTransformer? _instance;
 }
-
-

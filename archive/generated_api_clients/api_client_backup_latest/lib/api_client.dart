@@ -11,7 +11,7 @@
 part of openapi.api;
 
 class ApiClient {
-  ApiClient({this.basePath = 'https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app', this.authentication,});
+  ApiClient({this.basePath = 'https://dietlenz-prod-api-9mcsl.ondigitalocean.app', this.authentication,});
 
   final String basePath;
   final Authentication? authentication;
@@ -230,6 +230,8 @@ class ApiClient {
           return MacroTargetDto.fromJson(value);
         case 'MealLogResponseDto':
           return MealLogResponseDto.fromJson(value);
+        case 'MessageResponse':
+          return MessageResponse.fromJson(value);
         case 'PageUserNotification':
           return PageUserNotification.fromJson(value);
         case 'PageableObject':
@@ -276,6 +278,8 @@ class ApiClient {
           return UserProfile.fromJson(value);
         case 'UserSubscriptionDto':
           return UserSubscriptionDto.fromJson(value);
+        case 'UserSubscriptionStatusResponse':
+          return UserSubscriptionStatusResponse.fromJson(value);
         case 'WeeklyTrendDto':
           return WeeklyTrendDto.fromJson(value);
         default:

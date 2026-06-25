@@ -80,7 +80,7 @@ class _PlanSetUpScreenState extends ConsumerState<PlanFinishedScreen> {
             ? (profileData.gender == 'MALE'
                 ? ProfileRequestDtoGenderEnum.MALE
                 : ProfileRequestDtoGenderEnum.FEMALE)
-            : null,
+            : ProfileRequestDtoGenderEnum.OTHER,
         currentWeight: profileData.weight?.toInt(),
         currentWeightUnit: profileData.weightUnit?.toLowerCase() == 'kg'
             ? ProfileRequestDtoCurrentWeightUnitEnum.KG
@@ -89,7 +89,7 @@ class _PlanSetUpScreenState extends ConsumerState<PlanFinishedScreen> {
         heightUnit: profileData.heightUnit?.toLowerCase() == 'cm'
             ? ProfileRequestDtoHeightUnitEnum.CM
             : ProfileRequestDtoHeightUnitEnum.FT,
-        dateOfBirth: profileData.dateOfBirth,
+        dateOfBirth: profileData.dateOfBirth ?? DateTime.now(),
         desiredGoal: goalEnum,
         desiredWeight: profileData.desiredWeight?.toInt(),
         desiredWeightUnit: profileData.desiredWeightUnit?.toLowerCase() == 'kg'

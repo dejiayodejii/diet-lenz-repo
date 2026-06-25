@@ -27,7 +27,22 @@ void main() {
       // TODO
     });
 
-    //Future<PageUserNotification> getUserNotifications(int pageNumber) async
+    //Future<CalorieTrackerResponse> getCalorieTracker({ String filter }) async
+    test('test getCalorieTracker', () async {
+      // TODO
+    });
+
+    //Future<EnergyBalanceResponse> getEnergyBalance({ String filter }) async
+    test('test getEnergyBalance', () async {
+      // TODO
+    });
+
+    //Future<MacroCompositionResponse> getMacroComposition({ String filter }) async
+    test('test getMacroComposition', () async {
+      // TODO
+    });
+
+    //Future<PagedModelUserNotification> getUserNotifications(int pageNumber) async
     test('test getUserNotifications', () async {
       // TODO
     });
@@ -37,8 +52,23 @@ void main() {
       // TODO
     });
 
+    //Future<WeightProgressResponse> getWeightProgress({ String filter }) async
+    test('test getWeightProgress', () async {
+      // TODO
+    });
+
+    //Future<WeightEntry> logWeight(WeightLogRequest weightLogRequest) async
+    test('test logWeight', () async {
+      // TODO
+    });
+
     //Future markNotificationAsRead(String notificationId) async
     test('test markNotificationAsRead', () async {
+      // TODO
+    });
+
+    //Future<OnboardingSurveyResponse> submitOnboardingSurvey(OnboardingSurveyRequest onboardingSurveyRequest) async
+    test('test submitOnboardingSurvey', () async {
       // TODO
     });
 

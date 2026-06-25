@@ -421,7 +421,8 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final response = await _apiService.foodLoggingApi.searchRecipes(query);
+      final response =
+          await _apiService.foodLoggingApi.searchByIngredient(query);
 
       if (response != null) {
         state = state.copyWith(

@@ -19,13 +19,7 @@ class UserSubscriptionDto {
     this.planName,
   });
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  String? status;
+  UserSubscriptionDtoStatusEnum? status;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -113,7 +107,7 @@ class UserSubscriptionDto {
       }());
 
       return UserSubscriptionDto(
-        status: mapValueOfType<String>(json, r'status'),
+        status: UserSubscriptionDtoStatusEnum.fromJson(json[r'status']),
         expiresAt: mapDateTime(json, r'expiresAt', r''),
         autoRenewing: mapValueOfType<bool>(json, r'autoRenewing'),
         planName: mapValueOfType<String>(json, r'planName'),
@@ -166,4 +160,84 @@ class UserSubscriptionDto {
   static const requiredKeys = <String>{
   };
 }
+
+
+class UserSubscriptionDtoStatusEnum {
+  /// Instantiate a new enum with the provided [value].
+  const UserSubscriptionDtoStatusEnum._(this.value);
+
+  /// The underlying value of this enum member.
+  final String value;
+
+  @override
+  String toString() => value;
+
+  String toJson() => value;
+
+  static const ACTIVE = UserSubscriptionDtoStatusEnum._(r'ACTIVE');
+  static const EXPIRED = UserSubscriptionDtoStatusEnum._(r'EXPIRED');
+  static const CANCELED = UserSubscriptionDtoStatusEnum._(r'CANCELED');
+  static const GRACE_PERIOD = UserSubscriptionDtoStatusEnum._(r'GRACE_PERIOD');
+
+  /// List of all possible values in this [enum][UserSubscriptionDtoStatusEnum].
+  static const values = <UserSubscriptionDtoStatusEnum>[
+    ACTIVE,
+    EXPIRED,
+    CANCELED,
+    GRACE_PERIOD,
+  ];
+
+  static UserSubscriptionDtoStatusEnum? fromJson(dynamic value) => UserSubscriptionDtoStatusEnumTypeTransformer().decode(value);
+
+  static List<UserSubscriptionDtoStatusEnum> listFromJson(dynamic json, {bool growable = false,}) {
+    final result = <UserSubscriptionDtoStatusEnum>[];
+    if (json is List && json.isNotEmpty) {
+      for (final row in json) {
+        final value = UserSubscriptionDtoStatusEnum.fromJson(row);
+        if (value != null) {
+          result.add(value);
+        }
+      }
+    }
+    return result.toList(growable: growable);
+  }
+}
+
+/// Transformation class that can [encode] an instance of [UserSubscriptionDtoStatusEnum] to String,
+/// and [decode] dynamic data back to [UserSubscriptionDtoStatusEnum].
+class UserSubscriptionDtoStatusEnumTypeTransformer {
+  factory UserSubscriptionDtoStatusEnumTypeTransformer() => _instance ??= const UserSubscriptionDtoStatusEnumTypeTransformer._();
+
+  const UserSubscriptionDtoStatusEnumTypeTransformer._();
+
+  String encode(UserSubscriptionDtoStatusEnum data) => data.value;
+
+  /// Decodes a [dynamic value][data] to a UserSubscriptionDtoStatusEnum.
+  ///
+  /// If [allowNull] is true and the [dynamic value][data] cannot be decoded successfully,
+  /// then null is returned. However, if [allowNull] is false and the [dynamic value][data]
+  /// cannot be decoded successfully, then an [UnimplementedError] is thrown.
+  ///
+  /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
+  /// and users are still using an old app with the old code.
+  UserSubscriptionDtoStatusEnum? decode(dynamic data, {bool allowNull = true}) {
+    if (data != null) {
+      switch (data) {
+        case r'ACTIVE': return UserSubscriptionDtoStatusEnum.ACTIVE;
+        case r'EXPIRED': return UserSubscriptionDtoStatusEnum.EXPIRED;
+        case r'CANCELED': return UserSubscriptionDtoStatusEnum.CANCELED;
+        case r'GRACE_PERIOD': return UserSubscriptionDtoStatusEnum.GRACE_PERIOD;
+        default:
+          if (!allowNull) {
+            throw ArgumentError('Unknown enum value to decode: $data');
+          }
+      }
+    }
+    return null;
+  }
+
+  /// Singleton [UserSubscriptionDtoStatusEnumTypeTransformer] instance.
+  static UserSubscriptionDtoStatusEnumTypeTransformer? _instance;
+}
+
 

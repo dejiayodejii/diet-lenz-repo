@@ -51,12 +51,12 @@ void main() {
       // TODO
     });
 
-    // String paidAt
+    // DateTime paidAt
     test('to test the property `paidAt`', () async {
       // TODO
     });
 
-    // String createdAt
+    // DateTime createdAt
     test('to test the property `createdAt`', () async {
       // TODO
     });

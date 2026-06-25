@@ -10,12 +10,12 @@
 
 part of openapi.api;
 
-class SortObject {
-  /// Returns a new [SortObject] instance.
-  SortObject({
-    this.empty,
-    this.unsorted,
-    this.sorted,
+class Macros {
+  /// Returns a new [Macros] instance.
+  Macros({
+    this.proteinGrams,
+    this.carbsGrams,
+    this.fatGrams,
   });
 
   ///
@@ -24,7 +24,7 @@ class SortObject {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  bool? empty;
+  double? proteinGrams;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -32,7 +32,7 @@ class SortObject {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  bool? unsorted;
+  double? carbsGrams;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -40,48 +40,48 @@ class SortObject {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  bool? sorted;
+  double? fatGrams;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is SortObject &&
-    other.empty == empty &&
-    other.unsorted == unsorted &&
-    other.sorted == sorted;
+  bool operator ==(Object other) => identical(this, other) || other is Macros &&
+    other.proteinGrams == proteinGrams &&
+    other.carbsGrams == carbsGrams &&
+    other.fatGrams == fatGrams;
 
   @override
   int get hashCode =>
     // ignore: unnecessary_parenthesis
-    (empty == null ? 0 : empty!.hashCode) +
-    (unsorted == null ? 0 : unsorted!.hashCode) +
-    (sorted == null ? 0 : sorted!.hashCode);
+    (proteinGrams == null ? 0 : proteinGrams!.hashCode) +
+    (carbsGrams == null ? 0 : carbsGrams!.hashCode) +
+    (fatGrams == null ? 0 : fatGrams!.hashCode);
 
   @override
-  String toString() => 'SortObject[empty=$empty, unsorted=$unsorted, sorted=$sorted]';
+  String toString() => 'Macros[proteinGrams=$proteinGrams, carbsGrams=$carbsGrams, fatGrams=$fatGrams]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-    if (this.empty != null) {
-      json[r'empty'] = this.empty;
+    if (this.proteinGrams != null) {
+      json[r'proteinGrams'] = this.proteinGrams;
     } else {
-      json[r'empty'] = null;
+      json[r'proteinGrams'] = null;
     }
-    if (this.unsorted != null) {
-      json[r'unsorted'] = this.unsorted;
+    if (this.carbsGrams != null) {
+      json[r'carbsGrams'] = this.carbsGrams;
     } else {
-      json[r'unsorted'] = null;
+      json[r'carbsGrams'] = null;
     }
-    if (this.sorted != null) {
-      json[r'sorted'] = this.sorted;
+    if (this.fatGrams != null) {
+      json[r'fatGrams'] = this.fatGrams;
     } else {
-      json[r'sorted'] = null;
+      json[r'fatGrams'] = null;
     }
     return json;
   }
 
-  /// Returns a new [SortObject] instance and imports its values from
+  /// Returns a new [Macros] instance and imports its values from
   /// [value] if it's a [Map], null otherwise.
   // ignore: prefer_constructors_over_static_methods
-  static SortObject? fromJson(dynamic value) {
+  static Macros? fromJson(dynamic value) {
     if (value is Map) {
       final json = value.cast<String, dynamic>();
 
@@ -90,26 +90,26 @@ class SortObject {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "SortObject[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "SortObject[$key]" has a null value in JSON.');
+          assert(json.containsKey(key), 'Required key "Macros[$key]" is missing from JSON.');
+          assert(json[key] != null, 'Required key "Macros[$key]" has a null value in JSON.');
         });
         return true;
       }());
 
-      return SortObject(
-        empty: mapValueOfType<bool>(json, r'empty'),
-        unsorted: mapValueOfType<bool>(json, r'unsorted'),
-        sorted: mapValueOfType<bool>(json, r'sorted'),
+      return Macros(
+        proteinGrams: mapValueOfType<double>(json, r'proteinGrams'),
+        carbsGrams: mapValueOfType<double>(json, r'carbsGrams'),
+        fatGrams: mapValueOfType<double>(json, r'fatGrams'),
       );
     }
     return null;
   }
 
-  static List<SortObject> listFromJson(dynamic json, {bool growable = false,}) {
-    final result = <SortObject>[];
+  static List<Macros> listFromJson(dynamic json, {bool growable = false,}) {
+    final result = <Macros>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
-        final value = SortObject.fromJson(row);
+        final value = Macros.fromJson(row);
         if (value != null) {
           result.add(value);
         }
@@ -118,12 +118,12 @@ class SortObject {
     return result.toList(growable: growable);
   }
 
-  static Map<String, SortObject> mapFromJson(dynamic json) {
-    final map = <String, SortObject>{};
+  static Map<String, Macros> mapFromJson(dynamic json) {
+    final map = <String, Macros>{};
     if (json is Map && json.isNotEmpty) {
       json = json.cast<String, dynamic>(); // ignore: parameter_assignments
       for (final entry in json.entries) {
-        final value = SortObject.fromJson(entry.value);
+        final value = Macros.fromJson(entry.value);
         if (value != null) {
           map[entry.key] = value;
         }
@@ -132,14 +132,14 @@ class SortObject {
     return map;
   }
 
-  // maps a json object with a list of SortObject-objects as value to a dart map
-  static Map<String, List<SortObject>> mapListFromJson(dynamic json, {bool growable = false,}) {
-    final map = <String, List<SortObject>>{};
+  // maps a json object with a list of Macros-objects as value to a dart map
+  static Map<String, List<Macros>> mapListFromJson(dynamic json, {bool growable = false,}) {
+    final map = <String, List<Macros>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = SortObject.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = Macros.listFromJson(entry.value, growable: growable,);
       }
     }
     return map;

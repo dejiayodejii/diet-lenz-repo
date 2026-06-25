@@ -54,6 +54,19 @@ if [ $? -eq 0 ]; then
     echo "⚠️  Warning: Patch script not found. You may encounter null-handling issues."
   fi
 
+  # Apply temporary patch for date-only food logging query params.
+  echo "🔧 Applying food logging date query patch..."
+  if [ -f "fix_food_logging_date_queries.dart" ]; then
+    dart fix_food_logging_date_queries.dart
+    if [ $? -eq 0 ]; then
+      echo "✅ Date query patch applied successfully"
+    else
+      echo "⚠️  Warning: Date query patch failed. Food logging date filters may break."
+    fi
+  else
+    echo "⚠️  Warning: Date query patch script not found. Food logging date filters may break."
+  fi
+
   rm -rf "$CLIENT_DIR/.dart_tool" "$CLIENT_DIR/pubspec.lock"
 
   # Install root dependencies so the path package is resolved.

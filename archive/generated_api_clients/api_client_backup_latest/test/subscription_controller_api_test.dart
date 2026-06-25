@@ -17,17 +17,17 @@ void main() {
   // final instance = SubscriptionControllerApi();
 
   group('tests for SubscriptionControllerApi', () {
-    //Future<Object> applyReferral(ReferralApplyRequest referralApplyRequest) async
+    //Future<MessageResponse> applyReferral(ReferralApplyRequest referralApplyRequest) async
     test('test applyReferral', () async {
       // TODO
     });
 
-    //Future<Object> cancelSubscription(String subscriptionId) async
+    //Future<MessageResponse> cancelSubscription(String subscriptionId) async
     test('test cancelSubscription', () async {
       // TODO
     });
 
-    //Future<Object> getMySubscription() async
+    //Future<UserSubscriptionStatusResponse> getMySubscription() async
     test('test getMySubscription', () async {
       // TODO
     });
@@ -52,6 +52,11 @@ void main() {
       // TODO
     });
 
+    //Future<MessageResponse> simulatePurchase() async
+    test('test simulatePurchase', () async {
+      // TODO
+    });
+
     //Future<UserSubscriptionDto> verifyAppleSubscription(AppleSubscriptionVerifyRequest appleSubscriptionVerifyRequest) async
     test('test verifyAppleSubscription', () async {
       // TODO
@@ -59,6 +64,11 @@ void main() {
 
     //Future<UserSubscriptionDto> verifyGoogleSubscription(GoogleSubscriptionVerifyRequest googleSubscriptionVerifyRequest) async
     test('test verifyGoogleSubscription', () async {
+      // TODO
+    });
+
+    //Future<UserSubscriptionDto> verifyRevenueCatSubscription() async
+    test('test verifyRevenueCatSubscription', () async {
       // TODO
     });
 

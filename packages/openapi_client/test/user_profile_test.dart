@@ -136,6 +136,36 @@ void main() {
       // TODO
     });
 
+    // String hearAboutUs
+    test('to test the property `hearAboutUs`', () async {
+      // TODO
+    });
+
+    // String targetEvent
+    test('to test the property `targetEvent`', () async {
+      // TODO
+    });
+
+    // DateTime targetEventDate
+    test('to test the property `targetEventDate`', () async {
+      // TODO
+    });
+
+    // String goalPace
+    test('to test the property `goalPace`', () async {
+      // TODO
+    });
+
+    // String biggestChallenge
+    test('to test the property `biggestChallenge`', () async {
+      // TODO
+    });
+
+    // HealthSyncSettings healthSyncSettings
+    test('to test the property `healthSyncSettings`', () async {
+      // TODO
+    });
+
 
   });
 

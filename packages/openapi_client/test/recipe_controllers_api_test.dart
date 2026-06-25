@@ -62,6 +62,16 @@ void main() {
       // TODO
     });
 
+    //Future<FoodAnalysisDto> reAnalyzeRecipe(FoodAnalysisDto foodAnalysisDto) async
+    test('test reAnalyzeRecipe', () async {
+      // TODO
+    });
+
+    //Future<List<FoodAnalysisDto>> searchFood(String query) async
+    test('test searchFood', () async {
+      // TODO
+    });
+
     //Future<List<SuggestedFoodAnalysis>> suggestAndAnalyze(MultipartFile image) async
     test('test suggestAndAnalyze', () async {
       // TODO

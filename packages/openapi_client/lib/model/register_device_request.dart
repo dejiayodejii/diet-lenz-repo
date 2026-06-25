@@ -14,10 +14,10 @@ class RegisterDeviceRequest {
   /// Returns a new [RegisterDeviceRequest] instance.
   RegisterDeviceRequest({
     this.timeZone,
-    this.deviceId,
-    this.platform,
+    required this.deviceId,
+    required this.platform,
     required this.pushToken,
-    this.appVersion,
+    required this.appVersion,
   });
 
   ///
@@ -28,25 +28,13 @@ class RegisterDeviceRequest {
   ///
   String? timeZone;
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  String? deviceId;
+  String deviceId;
 
-  RegisterDeviceRequestPlatformEnum? platform;
+  RegisterDeviceRequestPlatformEnum platform;
 
   String pushToken;
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  String? appVersion;
+  String appVersion;
 
   @override
   bool operator ==(Object other) => identical(this, other) || other is RegisterDeviceRequest &&
@@ -60,10 +48,10 @@ class RegisterDeviceRequest {
   int get hashCode =>
     // ignore: unnecessary_parenthesis
     (timeZone == null ? 0 : timeZone!.hashCode) +
-    (deviceId == null ? 0 : deviceId!.hashCode) +
-    (platform == null ? 0 : platform!.hashCode) +
+    (deviceId.hashCode) +
+    (platform.hashCode) +
     (pushToken.hashCode) +
-    (appVersion == null ? 0 : appVersion!.hashCode);
+    (appVersion.hashCode);
 
   @override
   String toString() => 'RegisterDeviceRequest[timeZone=$timeZone, deviceId=$deviceId, platform=$platform, pushToken=$pushToken, appVersion=$appVersion]';
@@ -75,22 +63,10 @@ class RegisterDeviceRequest {
     } else {
       json[r'timeZone'] = null;
     }
-    if (this.deviceId != null) {
       json[r'deviceId'] = this.deviceId;
-    } else {
-      json[r'deviceId'] = null;
-    }
-    if (this.platform != null) {
       json[r'platform'] = this.platform;
-    } else {
-      json[r'platform'] = null;
-    }
       json[r'pushToken'] = this.pushToken;
-    if (this.appVersion != null) {
       json[r'appVersion'] = this.appVersion;
-    } else {
-      json[r'appVersion'] = null;
-    }
     return json;
   }
 
@@ -114,10 +90,10 @@ class RegisterDeviceRequest {
 
       return RegisterDeviceRequest(
         timeZone: mapValueOfType<String>(json, r'timeZone'),
-        deviceId: mapValueOfType<String>(json, r'deviceId'),
-        platform: RegisterDeviceRequestPlatformEnum.fromJson(json[r'platform']),
+        deviceId: mapValueOfType<String>(json, r'deviceId')!,
+        platform: RegisterDeviceRequestPlatformEnum.fromJson(json[r'platform'])!,
         pushToken: mapValueOfType<String>(json, r'pushToken')!,
-        appVersion: mapValueOfType<String>(json, r'appVersion'),
+        appVersion: mapValueOfType<String>(json, r'appVersion')!,
       );
     }
     return null;
@@ -165,7 +141,10 @@ class RegisterDeviceRequest {
 
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
+    'deviceId',
+    'platform',
     'pushToken',
+    'appVersion',
   };
 }
 

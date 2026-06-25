@@ -12,7 +12,7 @@ class UserProfileState {
   final UserProfile? userProfile;
   final String? errorMessage;
   final bool hasProfile;
-  final PageUserNotification? notifications;
+  final PagedModelUserNotification? notifications;
   final String? successMessage;
 
   UserProfileState({
@@ -29,7 +29,7 @@ class UserProfileState {
     UserProfile? userProfile,
     String? errorMessage,
     bool? hasProfile,
-    PageUserNotification? notifications,
+    PagedModelUserNotification? notifications,
     String? successMessage,
   }) {
     return UserProfileState(
@@ -186,8 +186,11 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
   }) async {
     // Create a profile request with only the fields that are provided
     final profileRequest = ProfileRequestDto(
-      gender:
-          gender ?? (state.userProfile?.gender as ProfileRequestDtoGenderEnum?),
+      gender: gender ??
+          ProfileRequestDtoGenderEnum.fromJson(
+            state.userProfile?.gender?.value,
+          ) ??
+          ProfileRequestDtoGenderEnum.OTHER,
       currentWeight: currentWeight ?? state.userProfile?.currentWeight?.toInt(),
       currentWeightUnit: currentWeightUnit ??
           (state.userProfile?.currentWeightUnit
@@ -195,7 +198,8 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
       height: height ?? state.userProfile?.height?.toInt(),
       heightUnit: heightUnit ??
           (state.userProfile?.heightUnit as ProfileRequestDtoHeightUnitEnum?),
-      dateOfBirth: dateOfBirth ?? state.userProfile?.dateOfBirth,
+      dateOfBirth:
+          dateOfBirth ?? state.userProfile?.dateOfBirth ?? DateTime.now(),
       desiredGoal: desiredGoal ??
           (state.userProfile?.desiredGoal as ProfileRequestDtoDesiredGoalEnum?),
       desiredWeight: desiredWeight ?? state.userProfile?.desiredWeight?.toInt(),

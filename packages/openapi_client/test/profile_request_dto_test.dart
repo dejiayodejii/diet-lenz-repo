@@ -86,6 +86,11 @@ void main() {
       // TODO
     });
 
+    // String timeZone
+    test('to test the property `timeZone`', () async {
+      // TODO
+    });
+
 
   });
 

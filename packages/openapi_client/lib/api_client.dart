@@ -11,7 +11,7 @@
 part of openapi.api;
 
 class ApiClient {
-  ApiClient({this.basePath = 'https://dietlenz-prod-api-9mcsl.ondigitalocean.app', this.authentication,});
+  ApiClient({this.basePath = 'https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app', this.authentication,});
 
   final String basePath;
   final Authentication? authentication;
@@ -188,8 +188,12 @@ class ApiClient {
           return AuthResponse.fromJson(value);
         case 'AverageMacrosDto':
           return AverageMacrosDto.fromJson(value);
+        case 'CalorieTrackerResponse':
+          return CalorieTrackerResponse.fromJson(value);
         case 'ChangePasswordRequest':
           return ChangePasswordRequest.fromJson(value);
+        case 'ChartPoint':
+          return ChartPoint.fromJson(value);
         case 'ConsumedMacrosDto':
           return ConsumedMacrosDto.fromJson(value);
         case 'DailyTrendDto':
@@ -198,6 +202,8 @@ class ApiClient {
           return DashboardResponseDto.fromJson(value);
         case 'DeleteAccountRequest':
           return DeleteAccountRequest.fromJson(value);
+        case 'EnergyBalanceResponse':
+          return EnergyBalanceResponse.fromJson(value);
         case 'FavoriteRecipeResponseDto':
           return FavoriteRecipeResponseDto.fromJson(value);
         case 'FoodAnalysisDto':
@@ -206,6 +212,10 @@ class ApiClient {
           return ForgotPasswordRequest.fromJson(value);
         case 'GoogleSubscriptionVerifyRequest':
           return GoogleSubscriptionVerifyRequest.fromJson(value);
+        case 'HealthSyncSettings':
+          return HealthSyncSettings.fromJson(value);
+        case 'HealthSyncSettingsDto':
+          return HealthSyncSettingsDto.fromJson(value);
         case 'ImageUploadResponse':
           return ImageUploadResponse.fromJson(value);
         case 'IngredientDto':
@@ -218,6 +228,8 @@ class ApiClient {
           return LoginWithDeviceRequest.fromJson(value);
         case 'MacroActualDto':
           return MacroActualDto.fromJson(value);
+        case 'MacroCompositionResponse':
+          return MacroCompositionResponse.fromJson(value);
         case 'MacroInfoDto':
           return MacroInfoDto.fromJson(value);
         case 'MacroNutrientsDto':
@@ -226,18 +238,28 @@ class ApiClient {
           return MacroPerformanceDto.fromJson(value);
         case 'MacroResult':
           return MacroResult.fromJson(value);
+        case 'MacroSummary':
+          return MacroSummary.fromJson(value);
         case 'MacroTargetDto':
           return MacroTargetDto.fromJson(value);
+        case 'Macros':
+          return Macros.fromJson(value);
         case 'MealLogResponseDto':
           return MealLogResponseDto.fromJson(value);
         case 'MessageResponse':
           return MessageResponse.fromJson(value);
-        case 'PageUserNotification':
-          return PageUserNotification.fromJson(value);
-        case 'PageableObject':
-          return PageableObject.fromJson(value);
+        case 'OnboardingSurveyRequest':
+          return OnboardingSurveyRequest.fromJson(value);
+        case 'OnboardingSurveyResponse':
+          return OnboardingSurveyResponse.fromJson(value);
+        case 'PageMetadata':
+          return PageMetadata.fromJson(value);
+        case 'PagedModelUserNotification':
+          return PagedModelUserNotification.fromJson(value);
         case 'PasswordChangedResponse':
           return PasswordChangedResponse.fromJson(value);
+        case 'Percentages':
+          return Percentages.fromJson(value);
         case 'PricingResponse':
           return PricingResponse.fromJson(value);
         case 'ProfileRequestDto':
@@ -262,16 +284,14 @@ class ApiClient {
           return ResetPasswordRequest.fromJson(value);
         case 'SocialLoginRequest':
           return SocialLoginRequest.fromJson(value);
-        case 'SortObject':
-          return SortObject.fromJson(value);
         case 'StreakInfoDto':
           return StreakInfoDto.fromJson(value);
         case 'SubscriptionPlanDto':
           return SubscriptionPlanDto.fromJson(value);
         case 'SuggestedFoodAnalysis':
           return SuggestedFoodAnalysis.fromJson(value);
-        case 'User':
-          return User.fromJson(value);
+        case 'Summary':
+          return Summary.fromJson(value);
         case 'UserNotification':
           return UserNotification.fromJson(value);
         case 'UserProfile':
@@ -282,6 +302,12 @@ class ApiClient {
           return UserSubscriptionStatusResponse.fromJson(value);
         case 'WeeklyTrendDto':
           return WeeklyTrendDto.fromJson(value);
+        case 'WeightEntry':
+          return WeightEntry.fromJson(value);
+        case 'WeightLogRequest':
+          return WeightLogRequest.fromJson(value);
+        case 'WeightProgressResponse':
+          return WeightProgressResponse.fromJson(value);
         default:
           dynamic match;
           if (value is List && (match = _regList.firstMatch(targetType)?.group(1)) != null) {

@@ -10,20 +10,18 @@
 
 part of openapi.api;
 
-class PageUserNotification {
-  /// Returns a new [PageUserNotification] instance.
-  PageUserNotification({
-    this.totalElements,
-    this.totalPages,
-    this.size,
-    this.content = const [],
-    this.number,
-    this.pageable,
-    this.sort,
-    this.numberOfElements,
-    this.first,
-    this.last,
-    this.empty,
+class HealthSyncSettings {
+  /// Returns a new [HealthSyncSettings] instance.
+  HealthSyncSettings({
+    this.readSteps,
+    this.readActiveCalories,
+    this.readWeight,
+    this.readHeartRate,
+    this.readSleep,
+    this.writeDietaryEnergy,
+    this.writeProtein,
+    this.writeCarbohydrate,
+    this.writeFat,
   });
 
   ///
@@ -32,7 +30,7 @@ class PageUserNotification {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  int? totalElements;
+  bool? readSteps;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -40,7 +38,7 @@ class PageUserNotification {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  int? totalPages;
+  bool? readActiveCalories;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -48,9 +46,7 @@ class PageUserNotification {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  int? size;
-
-  List<UserNotification> content;
+  bool? readWeight;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -58,7 +54,7 @@ class PageUserNotification {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  int? number;
+  bool? readHeartRate;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -66,7 +62,7 @@ class PageUserNotification {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  PageableObject? pageable;
+  bool? readSleep;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -74,7 +70,7 @@ class PageUserNotification {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  SortObject? sort;
+  bool? writeDietaryEnergy;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -82,7 +78,7 @@ class PageUserNotification {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  int? numberOfElements;
+  bool? writeProtein;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -90,7 +86,7 @@ class PageUserNotification {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  bool? first;
+  bool? writeCarbohydrate;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -98,108 +94,90 @@ class PageUserNotification {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  bool? last;
-
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  bool? empty;
+  bool? writeFat;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is PageUserNotification &&
-    other.totalElements == totalElements &&
-    other.totalPages == totalPages &&
-    other.size == size &&
-    _deepEquality.equals(other.content, content) &&
-    other.number == number &&
-    other.pageable == pageable &&
-    other.sort == sort &&
-    other.numberOfElements == numberOfElements &&
-    other.first == first &&
-    other.last == last &&
-    other.empty == empty;
+  bool operator ==(Object other) => identical(this, other) || other is HealthSyncSettings &&
+    other.readSteps == readSteps &&
+    other.readActiveCalories == readActiveCalories &&
+    other.readWeight == readWeight &&
+    other.readHeartRate == readHeartRate &&
+    other.readSleep == readSleep &&
+    other.writeDietaryEnergy == writeDietaryEnergy &&
+    other.writeProtein == writeProtein &&
+    other.writeCarbohydrate == writeCarbohydrate &&
+    other.writeFat == writeFat;
 
   @override
   int get hashCode =>
     // ignore: unnecessary_parenthesis
-    (totalElements == null ? 0 : totalElements!.hashCode) +
-    (totalPages == null ? 0 : totalPages!.hashCode) +
-    (size == null ? 0 : size!.hashCode) +
-    (content.hashCode) +
-    (number == null ? 0 : number!.hashCode) +
-    (pageable == null ? 0 : pageable!.hashCode) +
-    (sort == null ? 0 : sort!.hashCode) +
-    (numberOfElements == null ? 0 : numberOfElements!.hashCode) +
-    (first == null ? 0 : first!.hashCode) +
-    (last == null ? 0 : last!.hashCode) +
-    (empty == null ? 0 : empty!.hashCode);
+    (readSteps == null ? 0 : readSteps!.hashCode) +
+    (readActiveCalories == null ? 0 : readActiveCalories!.hashCode) +
+    (readWeight == null ? 0 : readWeight!.hashCode) +
+    (readHeartRate == null ? 0 : readHeartRate!.hashCode) +
+    (readSleep == null ? 0 : readSleep!.hashCode) +
+    (writeDietaryEnergy == null ? 0 : writeDietaryEnergy!.hashCode) +
+    (writeProtein == null ? 0 : writeProtein!.hashCode) +
+    (writeCarbohydrate == null ? 0 : writeCarbohydrate!.hashCode) +
+    (writeFat == null ? 0 : writeFat!.hashCode);
 
   @override
-  String toString() => 'PageUserNotification[totalElements=$totalElements, totalPages=$totalPages, size=$size, content=$content, number=$number, pageable=$pageable, sort=$sort, numberOfElements=$numberOfElements, first=$first, last=$last, empty=$empty]';
+  String toString() => 'HealthSyncSettings[readSteps=$readSteps, readActiveCalories=$readActiveCalories, readWeight=$readWeight, readHeartRate=$readHeartRate, readSleep=$readSleep, writeDietaryEnergy=$writeDietaryEnergy, writeProtein=$writeProtein, writeCarbohydrate=$writeCarbohydrate, writeFat=$writeFat]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-    if (this.totalElements != null) {
-      json[r'totalElements'] = this.totalElements;
+    if (this.readSteps != null) {
+      json[r'readSteps'] = this.readSteps;
     } else {
-      json[r'totalElements'] = null;
+      json[r'readSteps'] = null;
     }
-    if (this.totalPages != null) {
-      json[r'totalPages'] = this.totalPages;
+    if (this.readActiveCalories != null) {
+      json[r'readActiveCalories'] = this.readActiveCalories;
     } else {
-      json[r'totalPages'] = null;
+      json[r'readActiveCalories'] = null;
     }
-    if (this.size != null) {
-      json[r'size'] = this.size;
+    if (this.readWeight != null) {
+      json[r'readWeight'] = this.readWeight;
     } else {
-      json[r'size'] = null;
+      json[r'readWeight'] = null;
     }
-      json[r'content'] = this.content;
-    if (this.number != null) {
-      json[r'number'] = this.number;
+    if (this.readHeartRate != null) {
+      json[r'readHeartRate'] = this.readHeartRate;
     } else {
-      json[r'number'] = null;
+      json[r'readHeartRate'] = null;
     }
-    if (this.pageable != null) {
-      json[r'pageable'] = this.pageable;
+    if (this.readSleep != null) {
+      json[r'readSleep'] = this.readSleep;
     } else {
-      json[r'pageable'] = null;
+      json[r'readSleep'] = null;
     }
-    if (this.sort != null) {
-      json[r'sort'] = this.sort;
+    if (this.writeDietaryEnergy != null) {
+      json[r'writeDietaryEnergy'] = this.writeDietaryEnergy;
     } else {
-      json[r'sort'] = null;
+      json[r'writeDietaryEnergy'] = null;
     }
-    if (this.numberOfElements != null) {
-      json[r'numberOfElements'] = this.numberOfElements;
+    if (this.writeProtein != null) {
+      json[r'writeProtein'] = this.writeProtein;
     } else {
-      json[r'numberOfElements'] = null;
+      json[r'writeProtein'] = null;
     }
-    if (this.first != null) {
-      json[r'first'] = this.first;
+    if (this.writeCarbohydrate != null) {
+      json[r'writeCarbohydrate'] = this.writeCarbohydrate;
     } else {
-      json[r'first'] = null;
+      json[r'writeCarbohydrate'] = null;
     }
-    if (this.last != null) {
-      json[r'last'] = this.last;
+    if (this.writeFat != null) {
+      json[r'writeFat'] = this.writeFat;
     } else {
-      json[r'last'] = null;
-    }
-    if (this.empty != null) {
-      json[r'empty'] = this.empty;
-    } else {
-      json[r'empty'] = null;
+      json[r'writeFat'] = null;
     }
     return json;
   }
 
-  /// Returns a new [PageUserNotification] instance and imports its values from
+  /// Returns a new [HealthSyncSettings] instance and imports its values from
   /// [value] if it's a [Map], null otherwise.
   // ignore: prefer_constructors_over_static_methods
-  static PageUserNotification? fromJson(dynamic value) {
+  static HealthSyncSettings? fromJson(dynamic value) {
     if (value is Map) {
       final json = value.cast<String, dynamic>();
 
@@ -208,34 +186,32 @@ class PageUserNotification {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "PageUserNotification[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "PageUserNotification[$key]" has a null value in JSON.');
+          assert(json.containsKey(key), 'Required key "HealthSyncSettings[$key]" is missing from JSON.');
+          assert(json[key] != null, 'Required key "HealthSyncSettings[$key]" has a null value in JSON.');
         });
         return true;
       }());
 
-      return PageUserNotification(
-        totalElements: mapValueOfType<int>(json, r'totalElements'),
-        totalPages: mapValueOfType<int>(json, r'totalPages'),
-        size: mapValueOfType<int>(json, r'size'),
-        content: UserNotification.listFromJson(json[r'content']),
-        number: mapValueOfType<int>(json, r'number'),
-        pageable: PageableObject.fromJson(json[r'pageable']),
-        sort: SortObject.fromJson(json[r'sort']),
-        numberOfElements: mapValueOfType<int>(json, r'numberOfElements'),
-        first: mapValueOfType<bool>(json, r'first'),
-        last: mapValueOfType<bool>(json, r'last'),
-        empty: mapValueOfType<bool>(json, r'empty'),
+      return HealthSyncSettings(
+        readSteps: mapValueOfType<bool>(json, r'readSteps'),
+        readActiveCalories: mapValueOfType<bool>(json, r'readActiveCalories'),
+        readWeight: mapValueOfType<bool>(json, r'readWeight'),
+        readHeartRate: mapValueOfType<bool>(json, r'readHeartRate'),
+        readSleep: mapValueOfType<bool>(json, r'readSleep'),
+        writeDietaryEnergy: mapValueOfType<bool>(json, r'writeDietaryEnergy'),
+        writeProtein: mapValueOfType<bool>(json, r'writeProtein'),
+        writeCarbohydrate: mapValueOfType<bool>(json, r'writeCarbohydrate'),
+        writeFat: mapValueOfType<bool>(json, r'writeFat'),
       );
     }
     return null;
   }
 
-  static List<PageUserNotification> listFromJson(dynamic json, {bool growable = false,}) {
-    final result = <PageUserNotification>[];
+  static List<HealthSyncSettings> listFromJson(dynamic json, {bool growable = false,}) {
+    final result = <HealthSyncSettings>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
-        final value = PageUserNotification.fromJson(row);
+        final value = HealthSyncSettings.fromJson(row);
         if (value != null) {
           result.add(value);
         }
@@ -244,12 +220,12 @@ class PageUserNotification {
     return result.toList(growable: growable);
   }
 
-  static Map<String, PageUserNotification> mapFromJson(dynamic json) {
-    final map = <String, PageUserNotification>{};
+  static Map<String, HealthSyncSettings> mapFromJson(dynamic json) {
+    final map = <String, HealthSyncSettings>{};
     if (json is Map && json.isNotEmpty) {
       json = json.cast<String, dynamic>(); // ignore: parameter_assignments
       for (final entry in json.entries) {
-        final value = PageUserNotification.fromJson(entry.value);
+        final value = HealthSyncSettings.fromJson(entry.value);
         if (value != null) {
           map[entry.key] = value;
         }
@@ -258,14 +234,14 @@ class PageUserNotification {
     return map;
   }
 
-  // maps a json object with a list of PageUserNotification-objects as value to a dart map
-  static Map<String, List<PageUserNotification>> mapListFromJson(dynamic json, {bool growable = false,}) {
-    final map = <String, List<PageUserNotification>>{};
+  // maps a json object with a list of HealthSyncSettings-objects as value to a dart map
+  static Map<String, List<HealthSyncSettings>> mapListFromJson(dynamic json, {bool growable = false,}) {
+    final map = <String, List<HealthSyncSettings>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = PageUserNotification.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = HealthSyncSettings.listFromJson(entry.value, growable: growable,);
       }
     }
     return map;
