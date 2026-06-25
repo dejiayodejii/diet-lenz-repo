@@ -1,4 +1,4 @@
-import 'package:diet_lenz/api_client/lib/api.dart';
+import 'package:openapi/api.dart';
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/component/custom_textfield.dart';
 import 'package:diet_lenz/component/personalization_stepper.dart';

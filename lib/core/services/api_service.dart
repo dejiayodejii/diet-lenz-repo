@@ -4,7 +4,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:diet_lenz/api_client/lib/api.dart';
+import 'package:openapi/api.dart';
 import 'package:diet_lenz/core/repositories/storage_repository.dart';
 import 'package:diet_lenz/core/services/sentry_service.dart';
 import 'package:http/http.dart' as http;

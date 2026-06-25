@@ -31,6 +31,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg:
+  openapi:
+    path: packages/openapi_client
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -42,6 +44,7 @@ dependencies:
   pin_code_fields: any
   fl_chart: any
   dio: ^5.9.0
+  http: ^1.6.0
   shared_preferences: any
   flutter_secure_storage: any
   intl: any

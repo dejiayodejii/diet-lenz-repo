@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:diet_lenz/api_client/lib/api.dart';
+import 'package:openapi/api.dart';
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';

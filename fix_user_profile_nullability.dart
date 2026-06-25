@@ -15,15 +15,17 @@
 
 import 'dart:io';
 
+const userProfilePath = 'packages/openapi_client/lib/model/user_profile.dart';
+
 void main() {
-  final file = File('lib/api_client/lib/model/user_profile.dart');
+  final file = File(userProfilePath);
 
   if (!file.existsSync()) {
-    print('❌ Error: user_profile.dart not found');
+    print('❌ Error: $userProfilePath not found');
     exit(1);
   }
 
-  print('📝 Patching user_profile.dart for null weight/height handling...');
+  print('📝 Patching $userProfilePath for null weight/height handling...');
 
   String content = file.readAsStringSync();
 

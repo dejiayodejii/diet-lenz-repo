@@ -1,4 +1,4 @@
-import 'package:diet_lenz/api_client/lib/api.dart';
+import 'package:openapi/api.dart';
 import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/services/api_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

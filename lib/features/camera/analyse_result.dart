@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:diet_lenz/constants/app_colors.dart';
-import 'package:diet_lenz/api_client/lib/api.dart';
+import 'package:openapi/api.dart';
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/component/custom_textfield.dart';
 import 'package:diet_lenz/constants/app_assets.dart';

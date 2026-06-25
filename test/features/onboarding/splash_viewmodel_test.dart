@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:diet_lenz/api_client/lib/api.dart';
+import 'package:openapi/api.dart';
 import 'package:diet_lenz/core/services/api_service.dart';
 import 'package:diet_lenz/core/services/sentry_service.dart';
 import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';

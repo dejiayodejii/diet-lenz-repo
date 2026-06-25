@@ -3,39 +3,43 @@
 # Regenerate API Client from Swagger Specification
 # Usage: ./regenerate_api.sh [swagger-url-or-file]
 
+set -u
+
 echo "🔄 Regenerating API Client..."
 
 # Default Swagger URL (update this with your actual endpoint)
 SWAGGER_SOURCE="${1:-https://diet-lenz-stagingapi-d3mbl.ondigitalocean.app/v3/api-docs}"
+CLIENT_DIR="packages/openapi_client"
+NEXT_DIR="packages/openapi_client_next"
+BACKUP_ROOT="archive/generated_api_clients"
+BACKUP_DIR="$BACKUP_ROOT/api_client_backup_latest"
 
 echo "📥 Source: $SWAGGER_SOURCE"
 
-# Backup current API client
-if [ -d "lib/api_client" ]; then
-  echo "📦 Backing up current API client..."
-  BACKUP_DIR="lib/api_client_backup_$(date +%Y%m%d_%H%M%S)"
-  mv lib/api_client "$BACKUP_DIR"
-  echo "✅ Backup saved to: $BACKUP_DIR"
-fi
+mkdir -p "$BACKUP_ROOT"
+rm -rf "$NEXT_DIR"
 
 # Generate new API client
 echo "🔨 Generating new API client..."
 npx @openapitools/openapi-generator-cli generate \
   -i "$SWAGGER_SOURCE" \
   -g dart \
-  -o lib/api_client \
+  -o "$NEXT_DIR" \
   --additional-properties=pubName=openapi,pubAuthor=DietLenz,pubAuthorEmail=support@dietlenz.com \
   --skip-validate-spec
 
 if [ $? -eq 0 ]; then
   echo "✅ API client generated successfully!"
-  
-  # Install dependencies
-  echo "📦 Installing dependencies..."
-  cd lib/api_client
-  flutter pub get
-  cd ../..
-  flutter pub get
+
+  # Keep only one backup: the previous generated client.
+  if [ -d "$CLIENT_DIR" ]; then
+    echo "📦 Backing up current API client..."
+    rm -rf "$BACKUP_DIR"
+    mv "$CLIENT_DIR" "$BACKUP_DIR"
+    echo "✅ Backup saved to: $BACKUP_DIR"
+  fi
+
+  mv "$NEXT_DIR" "$CLIENT_DIR"
   
   # Apply temporary patch for null handling (until backend Swagger is fixed)
   echo "🔧 Applying temporary null-handling patch..."
@@ -49,6 +53,16 @@ if [ $? -eq 0 ]; then
   else
     echo "⚠️  Warning: Patch script not found. You may encounter null-handling issues."
   fi
+
+  rm -rf "$CLIENT_DIR/.dart_tool" "$CLIENT_DIR/pubspec.lock"
+
+  # Install root dependencies so the path package is resolved.
+  echo "📦 Installing dependencies..."
+  if command -v fvm >/dev/null 2>&1; then
+    fvm flutter pub get
+  else
+    flutter pub get
+  fi
   
   echo "✨ Done! Your API client is now up to date."
   echo ""
@@ -58,11 +72,7 @@ if [ $? -eq 0 ]; then
   echo "   - Update your viewmodels if API signatures changed"
 else
   echo "❌ API generation failed!"
-  echo "Restoring backup..."
-  if [ -d "$BACKUP_DIR" ]; then
-    rm -rf lib/api_client
-    mv "$BACKUP_DIR" lib/api_client
-    echo "✅ Backup restored"
-  fi
+  rm -rf "$NEXT_DIR"
+  echo "Current API client left unchanged."
   exit 1
 fi

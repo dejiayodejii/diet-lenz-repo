@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:diet_lenz/api_client/lib/api.dart';
+import 'package:openapi/api.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/features/camera/suggest_detail.dart';
 import 'package:flutter/material.dart';
