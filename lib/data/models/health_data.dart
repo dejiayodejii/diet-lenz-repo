@@ -1,3 +1,15 @@
+class HealthMetricPoint {
+  final String label;
+  final DateTime date;
+  final double value;
+
+  const HealthMetricPoint({
+    required this.label,
+    required this.date,
+    required this.value,
+  });
+}
+
 class HealthData {
   final int steps;
   final double distance; // in meters
@@ -9,6 +21,7 @@ class HealthData {
   final int sleepDurationMinutes;
   final int exerciseDurationMinutes;
   final DateTime? lastUpdated;
+  final List<HealthMetricPoint> calorieBurnSeries;
 
   const HealthData({
     this.steps = 0,
@@ -21,12 +34,14 @@ class HealthData {
     this.sleepDurationMinutes = 0,
     this.exerciseDurationMinutes = 0,
     this.lastUpdated,
+    this.calorieBurnSeries = const [],
   });
 
   bool get hasNoData =>
       steps == 0 &&
       distance == 0.0 &&
       totalCalories == 0.0 &&
+      activeCalories == 0.0 &&
       sleepDurationMinutes == 0;
 
   String get distanceKm => (distance / 1000).toStringAsFixed(2);
@@ -48,6 +63,7 @@ class HealthData {
     int? sleepDurationMinutes,
     int? exerciseDurationMinutes,
     DateTime? lastUpdated,
+    List<HealthMetricPoint>? calorieBurnSeries,
   }) {
     return HealthData(
       steps: steps ?? this.steps,
@@ -61,6 +77,7 @@ class HealthData {
       exerciseDurationMinutes:
           exerciseDurationMinutes ?? this.exerciseDurationMinutes,
       lastUpdated: lastUpdated ?? this.lastUpdated,
+      calorieBurnSeries: calorieBurnSeries ?? this.calorieBurnSeries,
     );
   }
 }

@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:openapi/api.dart';
 import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/services/api_service.dart';
+import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Food Logging state to track loading, data, and error states
@@ -90,14 +92,15 @@ class FoodLoggingState {
 final foodLoggingViewModelProvider =
     StateNotifierProvider<FoodLoggingViewModel, FoodLoggingState>((ref) {
   final apiService = ref.watch(apiServiceProvider);
-  return FoodLoggingViewModel(apiService);
+  return FoodLoggingViewModel(apiService, ref);
 });
 
 /// Food Logging ViewModel with all food logging methods
 class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
-  FoodLoggingViewModel(this._apiService) : super(FoodLoggingState());
+  FoodLoggingViewModel(this._apiService, this._ref) : super(FoodLoggingState());
 
   final ApiService _apiService;
+  final Ref _ref;
 
   /// In-memory caches keyed by date string (yyyy-MM-dd)
   final Map<String, List<RecipeResponseDto>> _recipesCache = {};
@@ -256,6 +259,11 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
       final response = await _apiService.foodLoggingApi.logMeal(mealRequest);
 
       if (response != null) {
+        invalidateCache(date: mealRequest.loggedDate ?? DateTime.now());
+        _ref
+            .read(userProfileViewModelProvider.notifier)
+            .invalidateFoodDependentProgressCaches();
+
         state = state.copyWith(
           isLoading: false,
           loggedMeal: response,
@@ -269,6 +277,78 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
         );
         return false;
       }
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Edit a logged meal
+  Future<bool> editMealLog({
+    required String id,
+    required LogMealRequestDto mealRequest,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final response =
+          await _apiService.foodLoggingApi.editMealLog(id, mealRequest);
+
+      invalidateCache(date: mealRequest.loggedDate ?? DateTime.now());
+      _ref
+          .read(userProfileViewModelProvider.notifier)
+          .invalidateFoodDependentProgressCaches();
+
+      state = state.copyWith(
+        isLoading: false,
+        loggedMeal: response,
+        errorMessage: null,
+      );
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  /// Delete a logged meal
+  Future<bool> deleteMealLog({
+    required String id,
+    DateTime? loggedDate,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      await _apiService.foodLoggingApi.deleteMealLog(id);
+
+      invalidateCache(date: loggedDate ?? DateTime.now());
+      _ref
+          .read(userProfileViewModelProvider.notifier)
+          .invalidateFoodDependentProgressCaches();
+
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: null,
+      );
+      return true;
     } on ApiException catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -779,6 +859,21 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
 
   /// Parse API error into user-friendly message
   String _parseApiError(ApiException error) {
+    final message = error.message;
+    if (message != null && message.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(message);
+        if (decoded is Map<String, dynamic>) {
+          final apiMessage = decoded['message'];
+          if (apiMessage is String && apiMessage.trim().isNotEmpty) {
+            return apiMessage;
+          }
+        }
+      } catch (_) {
+        return message;
+      }
+    }
+
     switch (error.code) {
       case 400:
         return 'Invalid request. Please check your input.';
@@ -793,7 +888,7 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
       case 503:
         return 'Service unavailable. Please try again later.';
       default:
-        return error.message ?? 'An error occurred';
+        return message ?? 'An error occurred';
     }
   }
 }

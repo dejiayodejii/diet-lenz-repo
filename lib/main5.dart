@@ -195,7 +195,7 @@ class _CalorieProgressCardState extends State<CalorieProgressCard>
 
                         // Calorie count
                         Text(
-                          '${widget.currentCalories} kcal',
+                          '${widget.currentCalories} cal',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 28,

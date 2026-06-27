@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:diet_lenz/core/constants/storage_keys.dart';
 import 'package:diet_lenz/core/services/storage_service.dart';
 
@@ -131,6 +129,21 @@ class StorageRepository {
 
   Future<void> clearUserProfile() async {
     await _storageService.remove(StorageKeys.userProfileData);
+  }
+
+  Future<void> saveDatabaseLoggedHistory(String historyJson) async {
+    await _storageService.setString(
+      StorageKeys.databaseLoggedHistory,
+      historyJson,
+    );
+  }
+
+  String? getDatabaseLoggedHistory() {
+    return _storageService.getString(StorageKeys.databaseLoggedHistory);
+  }
+
+  Future<void> clearDatabaseLoggedHistory() async {
+    await _storageService.remove(StorageKeys.databaseLoggedHistory);
   }
 
   // Health permission methods

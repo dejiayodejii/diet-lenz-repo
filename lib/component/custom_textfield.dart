@@ -116,7 +116,7 @@ class LabelTextFormField extends StatefulWidget {
       this.textCapitalization = TextCapitalization.none});
 
   @override
-  _LabelTextFormFieldState createState() => _LabelTextFormFieldState();
+  State<LabelTextFormField> createState() => _LabelTextFormFieldState();
 }
 
 class _LabelTextFormFieldState extends State<LabelTextFormField> {
@@ -127,7 +127,7 @@ class _LabelTextFormFieldState extends State<LabelTextFormField> {
             BorderRadius.circular(widget.isProfile ? 12 : widget.radius),
         borderSide: BorderSide(
           color: widget.isProfile
-              ? Color.fromRGBO(47, 47, 47, 1)
+              ? const Color.fromRGBO(47, 47, 47, 1)
               : AppColors.primaryColor,
           width: widget.hideBorders ? 0 : 1,
         ),
@@ -232,6 +232,7 @@ class _LabelTextFormFieldState extends State<LabelTextFormField> {
                     letterSpacing: widget.obscureText ? 0.0 : 0.0,
                   ),
           onSaved: widget.onSaved,
+          onEditingComplete: widget.onEditingComplete,
           textInputAction: widget.textInputAction,
           autofocus: widget.autofocus,
           enableInteractiveSelection: widget.enableInteractiveSelection,

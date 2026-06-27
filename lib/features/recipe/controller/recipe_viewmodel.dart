@@ -1,6 +1,7 @@
 import 'package:openapi/api.dart';
 import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/services/api_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' show MultipartFile;
 
@@ -12,6 +13,8 @@ class RecipeState {
   final List<String>? dietaryPreferences;
   final List<String>? goals;
   final List<String>? macroTargets;
+  final List<FoodAnalysisDto>? searchResults;
+  final String searchQuery;
   final String? errorMessage;
 
   RecipeState({
@@ -21,6 +24,8 @@ class RecipeState {
     this.dietaryPreferences,
     this.goals,
     this.macroTargets,
+    this.searchResults,
+    this.searchQuery = '',
     this.errorMessage,
   });
 
@@ -31,6 +36,8 @@ class RecipeState {
     List<String>? dietaryPreferences,
     List<String>? goals,
     List<String>? macroTargets,
+    List<FoodAnalysisDto>? searchResults,
+    String? searchQuery,
     String? errorMessage,
   }) {
     return RecipeState(
@@ -40,6 +47,8 @@ class RecipeState {
       dietaryPreferences: dietaryPreferences ?? this.dietaryPreferences,
       goals: goals ?? this.goals,
       macroTargets: macroTargets ?? this.macroTargets,
+      searchResults: searchResults ?? this.searchResults,
+      searchQuery: searchQuery ?? this.searchQuery,
       errorMessage: errorMessage,
     );
   }
@@ -86,7 +95,7 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
         return false;
       }
     } on ApiException catch (e) {
-      print(e);
+      debugPrint(e.toString());
       state = state.copyWith(
         isLoading: false,
         errorMessage: _parseApiError(e),
@@ -125,7 +134,7 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
         return false;
       }
     } on ApiException catch (e) {
-      print(e);
+      debugPrint(e.toString());
       state = state.copyWith(
         isLoading: false,
         errorMessage: _parseApiError(e),
@@ -167,7 +176,7 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
         return false;
       }
     } on ApiException catch (e) {
-      print(e);
+      debugPrint(e.toString());
       state = state.copyWith(
         isLoading: false,
         errorMessage: _parseApiError(e),
@@ -206,7 +215,7 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
         return false;
       }
     } on ApiException catch (e) {
-      print(e);
+      debugPrint(e.toString());
       state = state.copyWith(
         isLoading: false,
         errorMessage: _parseApiError(e),
@@ -354,7 +363,7 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
         return false;
       }
     } on ApiException catch (e) {
-      print(e);
+      debugPrint(e.toString());
       state = state.copyWith(
         isLoading: false,
         errorMessage: _parseApiError(e),
@@ -367,6 +376,65 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
       );
       return false;
     }
+  }
+
+  /// Search foods from the recipe database.
+  /// Returns true if the request completed, false if it failed.
+  Future<bool> searchFood(String query) async {
+    final trimmedQuery = query.trim();
+
+    if (trimmedQuery.isEmpty) {
+      state = state.copyWith(
+        isLoading: false,
+        searchResults: [],
+        searchQuery: '',
+        errorMessage: null,
+      );
+      return true;
+    }
+
+    state = state.copyWith(
+      isLoading: true,
+      searchResults: [],
+      searchQuery: trimmedQuery,
+      errorMessage: null,
+    );
+
+    try {
+      final response = await _apiService.recipeApi.searchFood(trimmedQuery);
+      state = state.copyWith(
+        isLoading: false,
+        searchResults: response ?? [],
+        searchQuery: trimmedQuery,
+        errorMessage: null,
+      );
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        searchResults: [],
+        searchQuery: trimmedQuery,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        searchResults: [],
+        searchQuery: trimmedQuery,
+        errorMessage: 'An unexpected error occurred',
+      );
+      return false;
+    }
+  }
+
+  void clearSearchResults() {
+    state = state.copyWith(
+      isLoading: false,
+      searchResults: [],
+      searchQuery: '',
+      errorMessage: null,
+    );
   }
 
   /// Clear the analyzed recipe

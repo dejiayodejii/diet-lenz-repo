@@ -113,9 +113,9 @@ class Summary {
       }());
 
       return Summary(
-        lastWeekWeight: num.parse('${json[r'lastWeekWeight']}'),
-        currentWeight: num.parse('${json[r'currentWeight']}'),
-        targetWeight: num.parse('${json[r'targetWeight']}'),
+        lastWeekWeight: json[r'lastWeekWeight'] != null ? num.parse('${json[r'lastWeekWeight']}') : null, // PATCHED FOR NULL WEIGHT PROGRESS
+        currentWeight: json[r'currentWeight'] != null ? num.parse('${json[r'currentWeight']}') : null, // PATCHED FOR NULL WEIGHT PROGRESS
+        targetWeight: json[r'targetWeight'] != null ? num.parse('${json[r'targetWeight']}') : null, // PATCHED FOR NULL WEIGHT PROGRESS
         unit: mapValueOfType<String>(json, r'unit'),
       );
     }

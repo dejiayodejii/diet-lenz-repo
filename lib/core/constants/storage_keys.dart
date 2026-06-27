@@ -11,4 +11,5 @@ class StorageKeys {
   static const String healthPermissionGranted = 'health_permission_granted';
   static const String userProfileData = 'user_profile_data';
   static const String biometricEnabled = 'biometric_enabled';
+  static const String databaseLoggedHistory = 'database_logged_history';
 }

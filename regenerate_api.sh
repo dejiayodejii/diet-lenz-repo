@@ -67,6 +67,19 @@ if [ $? -eq 0 ]; then
     echo "⚠️  Warning: Date query patch script not found. Food logging date filters may break."
   fi
 
+  # Apply temporary patch for nullable weight progress fields.
+  echo "🔧 Applying weight progress nullability patch..."
+  if [ -f "fix_weight_progress_nullability.dart" ]; then
+    dart fix_weight_progress_nullability.dart
+    if [ $? -eq 0 ]; then
+      echo "✅ Weight progress patch applied successfully"
+    else
+      echo "⚠️  Warning: Weight progress patch failed. Weight progress may fail to load."
+    fi
+  else
+    echo "⚠️  Warning: Weight progress patch script not found. Weight progress may fail to load."
+  fi
+
   rm -rf "$CLIENT_DIR/.dart_tool" "$CLIENT_DIR/pubspec.lock"
 
   # Install root dependencies so the path package is resolved.

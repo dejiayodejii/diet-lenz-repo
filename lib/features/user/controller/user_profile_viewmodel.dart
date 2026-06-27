@@ -14,6 +14,15 @@ class UserProfileState {
   final bool hasProfile;
   final PagedModelUserNotification? notifications;
   final String? successMessage;
+  final WeightProgressResponse? weightProgress;
+  final bool isWeightProgressLoading;
+  final bool isWeightLogSubmitting;
+  final MacroCompositionResponse? macroComposition;
+  final bool isMacroCompositionLoading;
+  final EnergyBalanceResponse? energyBalance;
+  final bool isEnergyBalanceLoading;
+  final bool isMacroCompositionStale;
+  final bool isEnergyBalanceStale;
 
   UserProfileState({
     this.isLoading = false,
@@ -22,6 +31,15 @@ class UserProfileState {
     this.hasProfile = false,
     this.notifications,
     this.successMessage,
+    this.weightProgress,
+    this.isWeightProgressLoading = false,
+    this.isWeightLogSubmitting = false,
+    this.macroComposition,
+    this.isMacroCompositionLoading = false,
+    this.energyBalance,
+    this.isEnergyBalanceLoading = false,
+    this.isMacroCompositionStale = false,
+    this.isEnergyBalanceStale = false,
   });
 
   UserProfileState copyWith({
@@ -31,6 +49,15 @@ class UserProfileState {
     bool? hasProfile,
     PagedModelUserNotification? notifications,
     String? successMessage,
+    WeightProgressResponse? weightProgress,
+    bool? isWeightProgressLoading,
+    bool? isWeightLogSubmitting,
+    MacroCompositionResponse? macroComposition,
+    bool? isMacroCompositionLoading,
+    EnergyBalanceResponse? energyBalance,
+    bool? isEnergyBalanceLoading,
+    bool? isMacroCompositionStale,
+    bool? isEnergyBalanceStale,
   }) {
     return UserProfileState(
       isLoading: isLoading ?? this.isLoading,
@@ -39,6 +66,20 @@ class UserProfileState {
       hasProfile: hasProfile ?? this.hasProfile,
       notifications: notifications ?? this.notifications,
       successMessage: successMessage,
+      weightProgress: weightProgress ?? this.weightProgress,
+      isWeightProgressLoading:
+          isWeightProgressLoading ?? this.isWeightProgressLoading,
+      isWeightLogSubmitting:
+          isWeightLogSubmitting ?? this.isWeightLogSubmitting,
+      macroComposition: macroComposition ?? this.macroComposition,
+      isMacroCompositionLoading:
+          isMacroCompositionLoading ?? this.isMacroCompositionLoading,
+      energyBalance: energyBalance ?? this.energyBalance,
+      isEnergyBalanceLoading:
+          isEnergyBalanceLoading ?? this.isEnergyBalanceLoading,
+      isMacroCompositionStale:
+          isMacroCompositionStale ?? this.isMacroCompositionStale,
+      isEnergyBalanceStale: isEnergyBalanceStale ?? this.isEnergyBalanceStale,
     );
   }
 }
@@ -55,6 +96,25 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
   UserProfileViewModel(this._apiService) : super(UserProfileState());
 
   final ApiService _apiService;
+  final Map<String, WeightProgressResponse> _weightProgressCache = {};
+  final Map<String, MacroCompositionResponse> _macroCompositionCache = {};
+  final Map<String, EnergyBalanceResponse> _energyBalanceCache = {};
+
+  String _weightProgressCacheKey(String filter) => filter.toLowerCase().trim();
+  String _macroCompositionCacheKey(String filter) =>
+      filter.toLowerCase().trim();
+  String _energyBalanceCacheKey(String filter) => filter.toLowerCase().trim();
+
+  /// Food logs affect macro composition and energy intake. Keep current UI data
+  /// visible, but force those sections to refresh the next time they are shown.
+  void invalidateFoodDependentProgressCaches() {
+    _macroCompositionCache.clear();
+    _energyBalanceCache.clear();
+    state = state.copyWith(
+      isMacroCompositionStale: true,
+      isEnergyBalanceStale: true,
+    );
+  }
 
   /// Get user profile
   Future<bool> getUserProfile() async {
@@ -92,9 +152,7 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
               'API response format mismatch. The backend may have changed. Please contact support.',
           hasProfile: false,
         );
-        print('⚠️ Deserialization error in getUserProfile: ${e.message}');
-        print(
-            'This usually means the Swagger spec is out of sync with the backend.');
+       
       } else {
         state = state.copyWith(
           isLoading: false,
@@ -137,7 +195,6 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
         return false;
       }
     } on ApiException catch (e) {
-      print('❌ ApiException in updateUserProfile: ${e.toString()}');
 
       // Check if it's a deserialization error (Swagger spec mismatch)
       if (e.message != null && e.message!.contains('FormatException')) {
@@ -146,10 +203,7 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
           errorMessage:
               'API response format mismatch. The backend may have changed. Please contact support.',
         );
-        print('⚠️ Deserialization error: ${e.message}');
-        print(
-            'This usually means the Swagger spec is out of sync with the backend.');
-        print('The API returned data that doesn\'t match the expected format.');
+       
       } else {
         state = state.copyWith(
           isLoading: false,
@@ -235,6 +289,236 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
       currentWeight: weight.toInt(),
       currentWeightUnit: weightUnit,
     );
+  }
+
+  /// Get weight progress data
+  Future<bool> getWeightProgress({
+    String filter = 'daily',
+    bool refresh = false,
+  }) async {
+    final cacheKey = _weightProgressCacheKey(filter);
+
+    if (!refresh && _weightProgressCache.containsKey(cacheKey)) {
+      state = state.copyWith(
+        isWeightProgressLoading: false,
+        weightProgress: _weightProgressCache[cacheKey],
+        errorMessage: null,
+      );
+      return true;
+    }
+
+    state = state.copyWith(
+      isWeightProgressLoading: true,
+      errorMessage: null,
+    );
+
+    try {
+      final response =
+          await _apiService.userApi.getWeightProgress(filter: filter);
+
+      if (response != null) {
+        _weightProgressCache[cacheKey] = response;
+        state = state.copyWith(
+          isWeightProgressLoading: false,
+          weightProgress: response,
+          errorMessage: null,
+        );
+        return true;
+      }
+
+      state = state.copyWith(
+        isWeightProgressLoading: false,
+        errorMessage: 'Failed to load weight progress',
+      );
+      return false;
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isWeightProgressLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isWeightProgressLoading: false,
+        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
+  /// Get macro composition data
+  Future<bool> getMacroComposition({
+    String filter = 'daily',
+    bool refresh = false,
+  }) async {
+    final cacheKey = _macroCompositionCacheKey(filter);
+
+    if (!refresh &&
+        !state.isMacroCompositionStale &&
+        _macroCompositionCache.containsKey(cacheKey)) {
+      state = state.copyWith(
+        isMacroCompositionLoading: false,
+        macroComposition: _macroCompositionCache[cacheKey],
+        errorMessage: null,
+      );
+      return true;
+    }
+
+    state = state.copyWith(
+      isMacroCompositionLoading: true,
+      errorMessage: null,
+    );
+
+    try {
+      final response =
+          await _apiService.userApi.getMacroComposition(filter: filter);
+
+      if (response != null) {
+        _macroCompositionCache[cacheKey] = response;
+        state = state.copyWith(
+          isMacroCompositionLoading: false,
+          macroComposition: response,
+          isMacroCompositionStale: false,
+          errorMessage: null,
+        );
+        return true;
+      }
+
+      state = state.copyWith(
+        isMacroCompositionLoading: false,
+        errorMessage: 'Failed to load macro composition',
+      );
+      return false;
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isMacroCompositionLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isMacroCompositionLoading: false,
+        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
+  /// Get energy balance data
+  Future<bool> getEnergyBalance({
+    String filter = 'daily',
+    bool refresh = false,
+  }) async {
+    final cacheKey = _energyBalanceCacheKey(filter);
+
+    if (!refresh &&
+        !state.isEnergyBalanceStale &&
+        _energyBalanceCache.containsKey(cacheKey)) {
+      state = state.copyWith(
+        isEnergyBalanceLoading: false,
+        energyBalance: _energyBalanceCache[cacheKey],
+        errorMessage: null,
+      );
+      return true;
+    }
+
+    state = state.copyWith(
+      isEnergyBalanceLoading: true,
+      errorMessage: null,
+    );
+
+    try {
+      final response =
+          await _apiService.userApi.getEnergyBalance(filter: filter);
+
+      if (response != null) {
+        _energyBalanceCache[cacheKey] = response;
+        state = state.copyWith(
+          isEnergyBalanceLoading: false,
+          energyBalance: response,
+          isEnergyBalanceStale: false,
+          errorMessage: null,
+        );
+        return true;
+      }
+
+      state = state.copyWith(
+        isEnergyBalanceLoading: false,
+        errorMessage: 'Failed to load energy balance',
+      );
+      return false;
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isEnergyBalanceLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isEnergyBalanceLoading: false,
+        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
+  /// Log a new weight entry
+  Future<bool> logWeight({
+    required double weight,
+    required String unit,
+    DateTime? date,
+    String refreshFilter = 'daily',
+  }) async {
+    state = state.copyWith(
+      isWeightLogSubmitting: true,
+      errorMessage: null,
+      successMessage: null,
+    );
+
+    final weightUnit = unit.toLowerCase() == 'kg'
+        ? WeightLogRequestUnitEnum.KG
+        : WeightLogRequestUnitEnum.POUNDS;
+
+    try {
+      final request = WeightLogRequest(
+        value: weight,
+        unit: weightUnit,
+        date: date,
+      );
+
+      final response = await _apiService.userApi.logWeight(request);
+
+      if (response != null) {
+        state = state.copyWith(
+          isWeightLogSubmitting: false,
+          successMessage: 'Weight logged successfully',
+          errorMessage: null,
+        );
+        await Future.wait([
+          getWeightProgress(filter: refreshFilter, refresh: true),
+          getUserProfile(),
+        ]);
+        return true;
+      }
+
+      state = state.copyWith(
+        isWeightLogSubmitting: false,
+        errorMessage: 'Failed to log weight',
+      );
+      return false;
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isWeightLogSubmitting: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isWeightLogSubmitting: false,
+        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+      );
+      return false;
+    }
   }
 
   /// Update height

@@ -3,12 +3,12 @@ import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:openapi/api.dart';
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/component/custom_textfield.dart';
-import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/core/utils/loader.dart';
 import 'package:diet_lenz/features/bottom_nav/bottom.dart';
+import 'package:diet_lenz/features/database/controller/database_history_provider.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
 import 'package:diet_lenz/features/recipe/controller/recipe_viewmodel.dart';
 import 'package:diet_lenz/widgets/calorie_badge.dart';
@@ -18,8 +18,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AnalyseResultDetail extends ConsumerStatefulWidget {
-  const AnalyseResultDetail(this.analysis, {super.key});
+  const AnalyseResultDetail(
+    this.analysis, {
+    super.key,
+    this.trackInDatabaseHistory = false,
+  });
+
   final FoodAnalysisDto analysis;
+  final bool trackInDatabaseHistory;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _FoodLogDetailState();
@@ -224,6 +230,12 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
     } else {
       // Success
       if (true) {
+        if (widget.trackInDatabaseHistory) {
+          await ref
+              .read(databaseLoggedHistoryProvider.notifier)
+              .saveLoggedFood(editedAnalysis);
+        }
+
         ref.read(toastProvider).showSuccess(
               'Meal logged successfully!',
             );
@@ -737,20 +749,30 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
           children: [
             Stack(
               children: [
-                SizedBox(
-                  height: 350,
-                  width: double.infinity,
-                  child: widget.analysis.imageBase64 != null
-                      ? Image.memory(
-                          base64Decode(widget.analysis.imageBase64!),
-                          fit: BoxFit.cover,
-                        )
-                      : Image.asset(
-                          AppImages.salad,
-                          scale: 2,
-                          fit: BoxFit.cover,
+                widget.analysis.imageBase64 != null
+                    ? SizedBox(
+                        height: 350,
+                        width: double.infinity,
+                        child: widget.analysis.imageBase64 != null
+                            ? Image.memory(
+                                base64Decode(widget.analysis.imageBase64!),
+                                fit: BoxFit.cover,
+                              )
+                            : Icon(
+                                Icons.restaurant_rounded,
+                                color: AppColors.primaryColor,
+                                size: 58,
+                              ))
+                    : Container(
+                        width: double.infinity,
+                        height: 200,
+                        color: AppColors.surfaceGrey,
+                        child: Icon(
+                          Icons.restaurant_rounded,
+                          color: AppColors.primaryColor,
+                          size: 58,
                         ),
-                ),
+                      ),
                 Positioned(
                   top: 40.0,
                   left: 15,

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:diet_lenz/core/providers/storage_providers.dart';
 import 'package:diet_lenz/core/repositories/storage_repository.dart';
 import 'package:diet_lenz/data/models/health_ui_state.dart';
@@ -19,11 +17,7 @@ class HealthNotifier extends StateNotifier<HealthUiState> {
 
   HealthNotifier(this._repository, this._storageRepository)
       : super(const HealthUiState()) {
-    if (Platform.isIOS) {
-      _initialize();
-    } else {
-      state = state.copyWith(status: HealthStatus.unavailable);
-    }
+    _initialize();
   }
 
   /// Initialize - check availability and permissions

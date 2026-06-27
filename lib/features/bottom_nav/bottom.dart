@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:diet_lenz/constants/app_colors.dart';
+import 'package:diet_lenz/features/database/database.dart';
 import 'package:diet_lenz/features/home/views/home.dart';
 import 'package:diet_lenz/features/home/views/progress.dart';
 import 'package:diet_lenz/features/settings/views/settings.dart';
@@ -13,7 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final currentTabProvider = StateProvider<int>((ref) => 0);
 
 class BottomNavScreen extends ConsumerStatefulWidget {
-  const BottomNavScreen({super.key, this.index = 0, this.fromDeepLink = false});
+  const BottomNavScreen({super.key, this.index = 1, this.fromDeepLink = false});
   final int index;
   final bool fromDeepLink;
 
@@ -23,19 +22,19 @@ class BottomNavScreen extends ConsumerStatefulWidget {
 
 class _BottomNavState extends ConsumerState<BottomNavScreen> {
   late final List<Widget> _screens;
-  int currentIndex = 0;
 
   int _selectedIndex = 1;
+  bool _isActionMenuOpen = false;
 
   @override
   void initState() {
-    currentIndex = widget.index;
     _screens = [
       const ProgressScreen(),
       const HomeScreen(),
       const SetttingsScreen(),
       const AICameraScreen()
     ];
+    _selectedIndex = widget.index.clamp(0, _screens.length - 1);
     super.initState();
     // Show paywall once if user is not premium when they land on the home tab
     WidgetsBinding.instance
@@ -57,18 +56,111 @@ class _BottomNavState extends ConsumerState<BottomNavScreen> {
     //   await ref.read(subscriptionViewModelProvider.notifier).presentPaywall();
     //   return;
     // }
-    setState(() => _selectedIndex = 3);
+    setState(() {
+      _selectedIndex = 3;
+      _isActionMenuOpen = false;
+    });
+  }
+
+  void _toggleActionMenu() {
+    setState(() => _isActionMenuOpen = !_isActionMenuOpen);
+  }
+
+  void _closeActionMenu() {
+    if (!_isActionMenuOpen) return;
+    setState(() => _isActionMenuOpen = false);
+  }
+
+  void _navigateToFoodDatabase() {
+    _closeActionMenu();
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const DatabaseSearchScreen()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final isKeyboardVisible = keyboardHeight > 0;
-
     return Scaffold(
-        body: SafeArea(child: _screens[_selectedIndex]),
-        resizeToAvoidBottomInset: false, // Set to false for both platforms
-        bottomNavigationBar: _buildCustomBottomBar());
+      body: Stack(
+        children: [
+          SafeArea(child: _screens[_selectedIndex]),
+          if (_isActionMenuOpen) ...[
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: _closeActionMenu,
+                behavior: HitTestBehavior.opaque,
+                child: Container(color: Colors.black.withValues(alpha: 0.45)),
+              ),
+            ),
+            Positioned(
+              right: 28,
+              bottom: 18,
+              child: _buildActionMenu(),
+            ),
+          ],
+        ],
+      ),
+      resizeToAvoidBottomInset: false, // Set to false for both platforms
+      bottomNavigationBar: _buildCustomBottomBar(),
+    );
+  }
+
+  Widget _buildActionMenu() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        _buildActionMenuItem(
+          label: 'Scan Food',
+          icon: Icons.qr_code_scanner_rounded,
+          onTap: _navigateToScan,
+        ),
+        const SizedBox(height: 30),
+        _buildActionMenuItem(
+          label: 'Food Database',
+          icon: Icons.search_rounded,
+          onTap: _navigateToFoodDatabase,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionMenuItem({
+    required String label,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(40),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(width: 18),
+          Container(
+            height: 76,
+            width: 76,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: AppColors.primaryColor,
+              size: 38,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildCustomBottomBar() {
@@ -131,6 +223,7 @@ class _BottomNavState extends ConsumerState<BottomNavScreen> {
       onTap: () {
         setState(() {
           _selectedIndex = index;
+          _isActionMenuOpen = false;
         });
       },
       child: Column(
@@ -159,23 +252,27 @@ class _BottomNavState extends ConsumerState<BottomNavScreen> {
   // Helper widget for the unique Scan button
   Widget _buildScanButton() {
     return GestureDetector(
-      onTap: _navigateToScan,
+      onTap: _toggleActionMenu,
       child: Container(
-        height: 60,
-        width: 60,
-        decoration: BoxDecoration(
-          color: _selectedIndex == 3
-              ? AppColors.primaryColor
-              : Colors.white, // White background
+        height: 72,
+        width: 72,
+        decoration: const BoxDecoration(
+          color: AppColors.primaryColor,
           shape: BoxShape.circle,
         ),
         child: Center(
-          child: Icon(
-            Icons.qr_code_scanner_rounded, // Scan icon
-            color: _selectedIndex == 3
-                ? Colors.white
-                : AppColors.primaryColor, // Orange icon color
-            size: 30,
+          child: Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.white, width: 1.5),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              _isActionMenuOpen ? Icons.close_rounded : Icons.add_rounded,
+              color: Colors.white,
+              size: 30,
+            ),
           ),
         ),
       ),
