@@ -31,13 +31,16 @@ platform :ios do
     )
   end
 
-  desc "Build a staging iOS IPA using ad-hoc signing"
+  desc "Build a staging iOS IPA using App Store signing"
   lane :build_staging_ios do
     setup_ci if is_ci
 
+    api_key = app_store_connect_api_key
+
     match(
-      type: "adhoc",
+      type: "appstore",
       app_identifier: "com.dietlenz.diet.staging",
+      api_key: api_key,
       readonly: is_ci,
     )
 
@@ -48,7 +51,7 @@ platform :ios do
       path: "ios/Runner.xcodeproj",
       targets: ["Runner"],
       bundle_identifier: "com.dietlenz.diet.staging",
-      profile_name: "match AdHoc com.dietlenz.diet.staging",
+      profile_name: "match AppStore com.dietlenz.diet.staging",
       code_sign_identity: "iPhone Distribution",
     )
 
@@ -69,8 +72,8 @@ platform :ios do
       scheme: "Staging",
       configuration: "Release-staging",
       clean: true,
-      export_method: "ad-hoc",
-      export_options: "ios/ExportOptions-AdHoc.plist",
+      export_method: "app-store",
+      export_options: "ios/ExportOptions-Staging-AppStore.plist",
       output_directory: "build/ios/ipa",
       output_name: "DietLenz-staging.ipa",
       skip_profile_detection: true
@@ -122,15 +125,20 @@ platform :ios do
     )
   end
 
-  desc "Build staging and distribute to Firebase App Distribution"
+  desc "Build staging and upload to TestFlight"
   lane :distribute_staging_ios do
+    upload_staging_testflight
+  end
+
+  desc "Build staging and upload to TestFlight"
+  lane :upload_staging_testflight do
+    api_key = app_store_connect_api_key
     build_staging_ios
 
-    firebase_app_distribution(
-      app: ENV["FIREBASE_IOS_APP_ID"],
-      groups: "qa-team",
-      release_notes: "Staging build from CI — branch: #{git_branch}, commit: #{last_git_commit[:abbreviated_commit_hash]}",
-      firebase_cli_token: ENV["FIREBASE_TOKEN"],
+    upload_to_testflight(
+      api_key: api_key,
+      app_identifier: "com.dietlenz.diet.staging",
+      skip_waiting_for_build_processing: true,
     )
   end
 

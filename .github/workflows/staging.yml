@@ -186,16 +186,15 @@ jobs:
         env:
           COCOAPODS_DISABLE_STATS: 1
 
-      - name: Upload to TestFlight
+      - name: Upload staging iOS to TestFlight
         timeout-minutes: 90
-        run: bundle exec fastlane ios upload_testflight
+        run: bundle exec fastlane ios upload_staging_testflight
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
-          BUILD_NUMBER: ${{ needs.test.outputs.build_number }}
           COCOAPODS_DISABLE_STATS: 1
 
       - name: Notify Slack — iOS failure
@@ -204,7 +203,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "❌ Staging iOS distribution failed\nBranch: ${{ github.ref_name }}\nSee: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              "text": "❌ Staging iOS TestFlight upload failed\nBranch: ${{ github.ref_name }}\nSee: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -221,7 +220,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "✅ Staging distributed to Android + iOS\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}"
+              "text": "✅ Staging distributed to Android + iOS TestFlight\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
