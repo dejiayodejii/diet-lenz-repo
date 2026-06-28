@@ -186,14 +186,16 @@ jobs:
         env:
           COCOAPODS_DISABLE_STATS: 1
 
-      - name: Distribute staging iOS
-        timeout-minutes: 75
-        run: bundle exec fastlane ios distribute_staging_ios
+      - name: Upload to TestFlight
+        timeout-minutes: 90
+        run: bundle exec fastlane ios upload_testflight
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-          FIREBASE_IOS_APP_ID: ${{ secrets.FIREBASE_IOS_APP_ID }}
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+          BUILD_NUMBER: ${{ needs.test.outputs.build_number }}
           COCOAPODS_DISABLE_STATS: 1
 
       - name: Notify Slack — iOS failure
