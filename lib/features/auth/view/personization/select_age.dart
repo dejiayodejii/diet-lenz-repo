@@ -27,11 +27,29 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
 
   int get _yearCount => _latestAllowedBirthYear - _startYear + 1;
 
+  int get _selectedAge => _calculateAge(_selectedDate);
+
   @override
   void initState() {
     super.initState();
     final savedDate = ref.read(onboardingProfileProvider).dateOfBirth;
     _selectedDate = savedDate ?? DateTime(DateTime.now().year - 18);
+  }
+
+  int _calculateAge(DateTime birthDate) {
+    final today = DateTime.now();
+    var age = today.year - birthDate.year;
+    final birthdayThisYear = DateTime(
+      today.year,
+      birthDate.month,
+      birthDate.day,
+    );
+
+    if (birthdayThisYear.isAfter(today)) {
+      age -= 1;
+    }
+
+    return age;
   }
 
   void _continue() {
@@ -65,12 +83,42 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
                 height: 1.3,
               ),
             ),
+            const SizedBox(height: 40),
+            const Text(
+              "Your age shapes your metabolic rate.",
+              style: TextStyle(
+                fontSize: 15,
+                letterSpacing: 0,
+                color: AppColors.white,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
             const SizedBox(height: 56),
             SnappingCalendarPicker(
               initialDate: _selectedDate,
               startYear: _startYear,
               yearCount: _yearCount,
-              onDateChanged: (date) => _selectedDate = date,
+              onDateChanged: (date) {
+                setState(() => _selectedDate = date);
+              },
+            ),
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.all(11),
+              decoration: BoxDecoration(
+                color: const Color(0xff393C43),
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: Text(
+                "You are $_selectedAge ${_selectedAge == 1 ? 'year' : 'years'} old",
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  height: 1.3,
+                ),
+              ),
             ),
             const Spacer(),
             CustomYafButton(

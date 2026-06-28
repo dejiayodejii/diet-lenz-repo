@@ -1,17 +1,16 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:diet_lenz/component/custom_button.dart';
-import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/providers/biometric_providers.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/iap_service.dart';
-import 'package:diet_lenz/core/widgets/restart_widget.dart';
 import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
 import 'package:diet_lenz/features/auth/view/login.dart';
 import 'package:diet_lenz/features/auth/view/personization/select_country.dart';
+import 'package:diet_lenz/features/database/controller/database_history_provider.dart';
 import 'package:diet_lenz/features/settings/views/change_password.dart';
 import 'package:diet_lenz/features/settings/views/edit_profile.dart';
 import 'package:diet_lenz/features/settings/views/more.dart';
@@ -102,6 +101,7 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
     if (success && mounted) {
       final apiService = ref.read(apiServiceProvider);
       await apiService.clearAuthToken();
+      await ref.read(databaseLoggedHistoryProvider.notifier).clearHistory();
       ref.read(userProfileViewModelProvider.notifier).clearProfile();
       NavigationService.pushAndRemoveUntil(child: const LoginScreen());
     } else if (mounted) {
@@ -151,6 +151,7 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
 
     // Clear tokens and profile
     await apiService.clearAuthToken();
+    await ref.read(databaseLoggedHistoryProvider.notifier).clearHistory();
     userProfileNotifier.clearProfile();
 
     // Log out from RevenueCat
@@ -221,7 +222,7 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
                               borderRadius: BorderRadius.circular(60),
                               child: authState!.profilePhoto != null
                                   ? CachedNetworkImage(
-                                      imageUrl: authState!.profilePhoto!,
+                                      imageUrl: authState.profilePhoto!,
                                       height: 120,
                                       width: 120,
                                       fit: BoxFit.cover,
@@ -232,7 +233,7 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
                                         height: 120,
                                         width: 120,
                                         color: AppColors.primaryColor
-                                            .withOpacity(0.2),
+                                            .withValues(alpha: 0.2),
                                         child: const Icon(
                                           Icons.person,
                                           size: 60,
@@ -244,7 +245,7 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
                                       height: 120,
                                       width: 120,
                                       color: AppColors.primaryColor
-                                          .withOpacity(0.2),
+                                          .withValues(alpha: 0.2),
                                       child: const Icon(
                                         Icons.person,
                                         size: 60,
@@ -289,13 +290,13 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
                 settingTile(
                   title: "Profile",
                   onTap: () {
-                    NavigationService.push(child: EditProfileScreen());
+                    NavigationService.push(child: const EditProfileScreen());
                   },
                 ),
                 settingTile(
                   title: "Change Password",
                   onTap: () {
-                    NavigationService.push(child: ChangePasswordScreen());
+                    NavigationService.push(child: const ChangePasswordScreen());
                   },
                 ),
                 settingTile(
@@ -305,7 +306,7 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
                         final biometricEnabled =
                             ref.watch(biometricEnabledNotifierProvider);
                         return Switch.adaptive(
-                          activeColor: AppColors.primaryColor,
+                          activeThumbColor: AppColors.primaryColor,
                           value: biometricEnabled,
                           onChanged: (val) => _handleBiometricToggle(val),
                         );
@@ -315,7 +316,7 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
                     title: "Location",
                     onTap: () {
                       NavigationService.push(
-                          child: CountrySelectionScreen(
+                          child: const CountrySelectionScreen(
                         isFromSettings: true,
                       ));
                     }),
@@ -342,12 +343,12 @@ class _SetttingsScreenState extends ConsumerState<SetttingsScreen> {
                 settingTile(
                     title: "Referal",
                     onTap: () {
-                      NavigationService.push(child: ReferalScreen());
+                      NavigationService.push(child: const ReferalScreen());
                     }),
                 settingTile(
                     title: "More",
                     onTap: () {
-                      NavigationService.push(child: MoreScreen());
+                      NavigationService.push(child: const MoreScreen());
                     }),
                 const SizedBox(height: 20),
                 CustomYafButton(

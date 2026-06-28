@@ -58,6 +58,11 @@ class LabelTextFormField extends StatefulWidget {
   final TextCapitalization textCapitalization;
   final bool useSpace;
   final AutovalidateMode? autovalidateMode;
+  final Color? borderColor;
+  final Color? focusedBorderColor;
+  final Color? errorBorderColor;
+  final double borderWidth;
+  final double focusedBorderWidth;
 
   const LabelTextFormField(
       {super.key,
@@ -113,7 +118,12 @@ class LabelTextFormField extends StatefulWidget {
       this.noBorder = false,
       this.labelstyle,
       this.onEditingComplete,
-      this.textCapitalization = TextCapitalization.none});
+      this.textCapitalization = TextCapitalization.none,
+      this.borderColor,
+      this.focusedBorderColor,
+      this.errorBorderColor,
+      this.borderWidth = 1,
+      this.focusedBorderWidth = 1});
 
   @override
   State<LabelTextFormField> createState() => _LabelTextFormFieldState();
@@ -122,14 +132,20 @@ class LabelTextFormField extends StatefulWidget {
 class _LabelTextFormFieldState extends State<LabelTextFormField> {
   final TextEditingController _textController = TextEditingController(text: '');
 
-  OutlineInputBorder get _border => OutlineInputBorder(
+  Color get _defaultBorderColor => widget.isProfile
+      ? const Color.fromRGBO(47, 47, 47, 1)
+      : AppColors.primaryColor;
+
+  OutlineInputBorder _border({
+    Color? color,
+    double? width,
+  }) =>
+      OutlineInputBorder(
         borderRadius:
             BorderRadius.circular(widget.isProfile ? 12 : widget.radius),
         borderSide: BorderSide(
-          color: widget.isProfile
-              ? const Color.fromRGBO(47, 47, 47, 1)
-              : AppColors.primaryColor,
-          width: widget.hideBorders ? 0 : 1,
+          color: color ?? widget.borderColor ?? _defaultBorderColor,
+          width: widget.hideBorders ? 0 : width ?? widget.borderWidth,
         ),
       );
 
@@ -216,10 +232,24 @@ class _LabelTextFormFieldState extends State<LabelTextFormField> {
             floatingLabelBehavior: widget.hasFloatingPlaceholder
                 ? FloatingLabelBehavior.always
                 : FloatingLabelBehavior.never,
-            border: widget.noBorder ? InputBorder.none : _border,
-            focusedBorder: widget.noBorder ? InputBorder.none : _border,
-            enabledBorder: widget.noBorder ? InputBorder.none : _border,
-            disabledBorder: widget.noBorder ? InputBorder.none : _border,
+            border: widget.noBorder ? InputBorder.none : _border(),
+            focusedBorder: widget.noBorder
+                ? InputBorder.none
+                : _border(
+                    color: widget.focusedBorderColor,
+                    width: widget.focusedBorderWidth,
+                  ),
+            enabledBorder: widget.noBorder ? InputBorder.none : _border(),
+            disabledBorder: widget.noBorder ? InputBorder.none : _border(),
+            errorBorder: widget.noBorder
+                ? InputBorder.none
+                : _border(color: widget.errorBorderColor ?? Colors.redAccent),
+            focusedErrorBorder: widget.noBorder
+                ? InputBorder.none
+                : _border(
+                    color: widget.errorBorderColor ?? Colors.redAccent,
+                    width: widget.focusedBorderWidth,
+                  ),
           ),
           style: widget.style ??
               context.textTheme.bodyMedium!

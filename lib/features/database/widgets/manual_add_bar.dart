@@ -1,3 +1,4 @@
+import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -28,18 +29,13 @@ class ManualAddBar extends StatelessWidget {
                 Positioned(
                   top: -42,
                   child: Container(
-                    height: 82,
-                    width: 82,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.note_add_outlined,
-                      color: AppColors.primaryColor,
-                      size: 52,
-                    ),
-                  ),
+                      height: 82,
+                      width: 82,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Image.asset(AppImages.add, scale: 2)),
                 ),
                 const Positioned(
                   top: 50,

@@ -87,7 +87,7 @@ class GoalPaceScreen extends ConsumerStatefulWidget {
 }
 
 class _GoalPaceScreenState extends ConsumerState<GoalPaceScreen> {
-  int? _selectedIndex;
+  int? _selectedIndex = 1;
 
   PaceOption? get _pace =>
       _selectedIndex == null ? null : _paces[_selectedIndex!];

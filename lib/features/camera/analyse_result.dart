@@ -886,22 +886,23 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      PulsatingBorder(
-                        borderWidth: 3,
-                        color: AppColors.primaryColor,
-                        child: LabelTextFormField(
-                          noBorder: true,
-                          suffixIcon: GestureDetector(
-                            onTap: _handleReAnalyze,
-                            child: const Icon(Icons.send,
-                                size: 20, color: AppColors.primaryColor),
+                      if (!widget.trackInDatabaseHistory)
+                        PulsatingBorder(
+                          borderWidth: 3,
+                          color: AppColors.primaryColor,
+                          child: LabelTextFormField(
+                            noBorder: true,
+                            suffixIcon: GestureDetector(
+                              onTap: _handleReAnalyze,
+                              child: const Icon(Icons.send,
+                                  size: 20, color: AppColors.primaryColor),
+                            ),
+                            maxLines: 2,
+                            controller: _reanalyseController,
+                            hintText:
+                                "Anything missing? (e.g., 'fried in oil' or 'large size')",
                           ),
-                          maxLines: 2,
-                          controller: _reanalyseController,
-                          hintText:
-                              "Anything missing? (e.g., 'fried in oil' or 'large size')",
                         ),
-                      ),
                       const SizedBox(height: 20),
                       MacroProgressItem(
                         label: 'Protein',

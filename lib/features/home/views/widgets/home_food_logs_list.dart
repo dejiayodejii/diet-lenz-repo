@@ -12,7 +12,7 @@ class HomeFoodLogsList extends ConsumerWidget {
     final foodLoggingState = ref.watch(foodLoggingViewModelProvider);
     final recipes = foodLoggingState.userRecipes;
 
-    if (foodLoggingState.isLoading && recipes == null) {
+    if (foodLoggingState.isLoading) {
       return Column(
         children: List.generate(3, (index) => const FoodLogShimmer()),
       );

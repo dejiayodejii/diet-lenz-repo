@@ -1,3 +1,5 @@
+import 'package:diet_lenz/component/custom_button.dart';
+import 'package:diet_lenz/component/custom_textfield.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/features/database/controller/database_history_provider.dart';
@@ -10,17 +12,6 @@ import 'package:openapi/api.dart';
 final _decimalFormatter = FilteringTextInputFormatter.allow(
   RegExp(r'^\d*\.?\d{0,2}'),
 );
-
-OutlineInputBorder _manualInputBorder(
-  Color color, {
-  double radius = 14,
-  double width = 1,
-}) {
-  return OutlineInputBorder(
-    borderRadius: BorderRadius.circular(radius),
-    borderSide: BorderSide(color: color, width: width),
-  );
-}
 
 String? _numberValidator(String? value) {
   final text = value?.trim() ?? '';
@@ -39,10 +30,11 @@ class ManualLogScreen extends ConsumerStatefulWidget {
 class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _caloriesController = TextEditingController(text: '0');
-  final _proteinController = TextEditingController(text: '0');
-  final _carbsController = TextEditingController(text: '0');
-  final _fatController = TextEditingController(text: '0');
+  final _caloriesController = TextEditingController(text: '');
+  final _proteinController = TextEditingController(text: '');
+  final _carbsController = TextEditingController(text: '');
+  final _fatController = TextEditingController(text: '');
+  final _fiberController = TextEditingController(text: '');
   bool _isSubmitting = false;
 
   @override
@@ -52,6 +44,7 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
     _proteinController.dispose();
     _carbsController.dispose();
     _fatController.dispose();
+    _fiberController.dispose();
     super.dispose();
   }
 
@@ -78,7 +71,10 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
           value: _parseNumber(_fatController.text),
           unit: 'g',
         ),
-        fiber: QuantityDto(value: 0, unit: 'g'),
+        fiber: QuantityDto(
+          value: _parseNumber(_fiberController.text),
+          unit: 'g',
+        ),
       ),
     );
 
@@ -119,223 +115,115 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF101010),
       resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  padding: const EdgeInsets.fromLTRB(28, 28, 28, 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _ManualBackButton(
-                        onTap: () => Navigator.of(context).pop(),
+      appBar: AppBar(
+        automaticallyImplyLeading: true,
+      ),
+      body: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: const EdgeInsets.fromLTRB(28, 28, 28, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
+                    LabelTextFormField(
+                      labelText: 'Name',
+                      controller: _nameController,
+                      keyboardType: TextInputType.text,
+                      textInputAction: TextInputAction.next,
+                      maxLines: 3,
+                      useSpace: false,
+                      radius: 14,
+                      fillColor: const Color(0xFF141414),
+                      focusedBorderWidth: 1.5,
+                      contentPadding: const EdgeInsets.all(18),
+                      textAlignVertical: TextAlignVertical.top,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400,
                       ),
-                      const SizedBox(height: 24),
-                      const _ManualFieldLabel('Name'),
-                      const SizedBox(height: 10),
-                      _ManualTextInput(
-                        controller: _nameController,
-                        height: 118,
-                        textInputAction: TextInputAction.next,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Enter food name';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 32),
-                      const _ManualFieldLabel('Calories'),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: 266,
-                        child: _ManualMetricInput(
-                          controller: _caloriesController,
-                          unit: 'kcal',
-                          fontSize: 44,
-                        ),
-                      ),
-                      const SizedBox(height: 34),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _ManualMacroInput(
-                              label: 'Protein',
-                              controller: _proteinController,
-                            ),
-                          ),
-                          const SizedBox(width: 22),
-                          Expanded(
-                            child: _ManualMacroInput(
-                              label: 'Carbs',
-                              controller: _carbsController,
-                            ),
-                          ),
-                          const SizedBox(width: 22),
-                          Expanded(
-                            child: _ManualMacroInput(
-                              label: 'Fats',
-                              controller: _fatController,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 40),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const _ManualFieldLabel('Ingredient'),
-                          IconButton(
-                            onPressed: () {},
-                            icon: const Icon(
-                              Icons.add,
-                              color: AppColors.primaryColor,
-                              size: 22,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      const _ManualIngredientCard(),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(28, 12, 28, 28),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 72,
-                  child: ElevatedButton(
-                    onPressed: _isSubmitting ? null : _addToFoodLog,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
-                      disabledBackgroundColor:
-                          AppColors.primaryColor.withValues(alpha: 0.45),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Enter food name';
+                        }
+                        return null;
+                      },
                     ),
-                    child: _isSubmitting
-                        ? const SizedBox(
-                            height: 22,
-                            width: 22,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text(
-                            'Add to Food Log',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                            ),
+                    const SizedBox(height: 32),
+                    LabelTextFormField(
+                      labelText: 'Calories',
+                      hintText: "0",
+                      controller: _caloriesController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: [_decimalFormatter],
+                      validator: _numberValidator,
+                      useSpace: false,
+                      fillColor: const Color(0xFF262422),
+                      borderColor: const Color(0xFF9A9A9A),
+                      focusedBorderColor: AppColors.primaryColor,
+                      focusedBorderWidth: 1.5,
+                      textAlignVertical: TextAlignVertical.center,
+                      suffixIcon: const _ManualUnitSuffix('kcal'),
+                    ),
+                    const SizedBox(height: 34),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _ManualMacroInput(
+                            label: 'Protein',
+                            controller: _proteinController,
                           ),
-                  ),
+                        ),
+                        const SizedBox(width: 22),
+                        Expanded(
+                          child: _ManualMacroInput(
+                            label: 'Carbs',
+                            controller: _carbsController,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _ManualMacroInput(
+                            label: 'Fats',
+                            controller: _fatController,
+                          ),
+                        ),
+                        const SizedBox(width: 22),
+                        Expanded(
+                          child: _ManualMacroInput(
+                            label: 'Fibre',
+                            controller: _fiberController,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 40),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ManualBackButton extends StatelessWidget {
-  const _ManualBackButton({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(28),
-      child: Container(
-        height: 58,
-        width: 58,
-        decoration: const BoxDecoration(
-          color: Color(0xFF242424),
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(
-          Icons.chevron_left_rounded,
-          color: Colors.white,
-          size: 34,
-        ),
-      ),
-    );
-  }
-}
-
-class _ManualFieldLabel extends StatelessWidget {
-  const _ManualFieldLabel(this.label);
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      label,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 22,
-        fontWeight: FontWeight.w500,
-      ),
-    );
-  }
-}
-
-class _ManualTextInput extends StatelessWidget {
-  const _ManualTextInput({
-    required this.controller,
-    this.height,
-    this.textInputAction,
-    this.validator,
-  });
-
-  final TextEditingController controller;
-  final double? height;
-  final TextInputAction? textInputAction;
-  final String? Function(String?)? validator;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-      child: TextFormField(
-        controller: controller,
-        validator: validator,
-        keyboardType: TextInputType.text,
-        textInputAction: textInputAction,
-        maxLines: height == null ? 1 : null,
-        expands: height != null,
-        textAlignVertical:
-            height == null ? TextAlignVertical.center : TextAlignVertical.top,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.w400,
-        ),
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: const Color(0xFF141414),
-          contentPadding: const EdgeInsets.all(18),
-          errorStyle: const TextStyle(height: 0.9),
-          border: _manualInputBorder(AppColors.primaryColor),
-          enabledBorder: _manualInputBorder(AppColors.primaryColor),
-          focusedBorder: _manualInputBorder(AppColors.primaryColor, width: 1.5),
-          errorBorder: _manualInputBorder(Colors.redAccent),
-          focusedErrorBorder: _manualInputBorder(Colors.redAccent, width: 1.5),
+            ),
+            Padding(
+                padding: const EdgeInsets.fromLTRB(28, 12, 28, 28),
+                child: CustomYafButton(
+                    width: double.infinity,
+                    isLoading: _isSubmitting,
+                    onPressed: _isSubmitting ? null : _addToFoodLog,
+                    text: "Add to food log")),
+          ],
         ),
       ),
     );
@@ -344,55 +232,61 @@ class _ManualTextInput extends StatelessWidget {
 
 class _ManualMetricInput extends StatelessWidget {
   const _ManualMetricInput({
+    required this.label,
     required this.controller,
     required this.unit,
     this.fontSize = 34,
   });
 
+  final String label;
   final TextEditingController controller;
   final String unit;
   final double fontSize;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 94,
-      child: TextFormField(
-        controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        inputFormatters: [_decimalFormatter],
-        validator: _numberValidator,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: fontSize,
-          fontWeight: FontWeight.w400,
-        ),
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: const Color(0xFF262422),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 18),
-          suffixIcon: Padding(
-            padding: const EdgeInsets.only(right: 18),
-            child: Center(
-              widthFactor: 1,
-              child: Text(
-                unit,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
+    return LabelTextFormField(
+      labelText: label,
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [_decimalFormatter],
+      validator: _numberValidator,
+      useSpace: false,
+      hintText: "0",
+      radius: 24,
+      fillColor: const Color(0xFF262422),
+      borderColor: AppColors.primaryColor,
+      focusedBorderColor: AppColors.primaryColor,
+      focusedBorderWidth: 1.5,
+      textAlignVertical: TextAlignVertical.center,
+      suffixIcon: _ManualUnitSuffix(unit),
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: fontSize,
+        fontWeight: FontWeight.w400,
+      ),
+    );
+  }
+}
+
+class _ManualUnitSuffix extends StatelessWidget {
+  const _ManualUnitSuffix(this.unit);
+
+  final String unit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 18),
+      child: Center(
+        widthFactor: 1,
+        child: Text(
+          unit,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.w400,
           ),
-          border: _manualInputBorder(const Color(0xFF9A9A9A), radius: 24),
-          enabledBorder:
-              _manualInputBorder(const Color(0xFF9A9A9A), radius: 24),
-          focusedBorder: _manualInputBorder(AppColors.primaryColor,
-              radius: 24, width: 1.5),
-          errorBorder: _manualInputBorder(Colors.redAccent, radius: 24),
-          focusedErrorBorder:
-              _manualInputBorder(Colors.redAccent, radius: 24, width: 1.5),
         ),
       ),
     );
@@ -410,63 +304,11 @@ class _ManualMacroInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 8),
-        _ManualMetricInput(
-          controller: controller,
-          unit: 'g',
-          fontSize: 34,
-        ),
-      ],
-    );
-  }
-}
-
-class _ManualIngredientCard extends StatelessWidget {
-  const _ManualIngredientCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF141414),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.primaryColor),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Item',
-            style: TextStyle(
-              color: AppColors.textLightGrey,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            '-- kcal  |  Protein: --g  |  Carbs: --g  |  Fat: --g',
-            style: TextStyle(
-              color: AppColors.textLightGrey,
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
-      ),
+    return _ManualMetricInput(
+      label: label,
+      controller: controller,
+      unit: 'g',
+      fontSize: 34,
     );
   }
 }

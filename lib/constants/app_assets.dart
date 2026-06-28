@@ -34,7 +34,7 @@ class AppImages {
   static const String confetti = '$_onboardingPath/confetti.png';
 
   static const String graph = '$_onboardingPath/graph.png';
-
+  static const String add = '$_onboardingPath/add.png';
   //progress assets
   static const String step = '$_imagesPath/step.png';
   static const String burn = '$_imagesPath/burn.png';

@@ -6,6 +6,7 @@ import 'package:diet_lenz/core/services/social_auth_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
 import 'package:diet_lenz/features/auth/view/login.dart';
+import 'package:diet_lenz/features/auth/view/personization/from_where.dart';
 import 'package:diet_lenz/features/auth/view/use_referral.dart';
 import 'package:diet_lenz/features/auth/view/register.dart';
 import 'package:diet_lenz/features/bottom_nav/bottom.dart';
@@ -169,7 +170,7 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
           onTap: () {
             if (widget.isLogin) {
               // Navigate to Sign Up
-              NavigationService.push(child: const SignUpScreen());
+              NavigationService.push(child: FromWhereScreen());
             } else {
               // Navigate to Log In
               NavigationService.push(child: const LoginScreen());

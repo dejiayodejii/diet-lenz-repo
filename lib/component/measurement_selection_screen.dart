@@ -8,6 +8,13 @@ import 'package:diet_lenz/main2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+typedef MeasurementExtraBuilder = Widget Function(
+  BuildContext context,
+  double value,
+  String unit,
+  bool isLeftUnit,
+);
+
 class MeasurementSelectionScreen extends StatefulWidget {
   final String title;
   final String leftUnit;
@@ -29,6 +36,7 @@ class MeasurementSelectionScreen extends StatefulWidget {
   final double? leftStep;
   final double? rightStep;
   final int currentStep;
+  final MeasurementExtraBuilder? extraBuilder;
 
   /// When true and in left-unit mode, shows two separate integer pickers
   /// for feet and inches (e.g. 5'11") instead of a single decimal ruler.
@@ -55,6 +63,7 @@ class MeasurementSelectionScreen extends StatefulWidget {
     this.leftStep,
     this.rightStep,
     this.useCompoundLeftUnit = false,
+    this.extraBuilder,
   });
 
   @override
@@ -80,12 +89,18 @@ class _MeasurementSelectionScreenState
       if (isLeftUnitSelected) {
         _initFeetAndInches(selectedValue);
       } else if (widget.rightToLeftConverter != null) {
-        _initFeetAndInches(widget.rightToLeftConverter!(selectedValue));
+        _initFeetAndInches(
+          widget.rightToLeftConverter!(selectedValue),
+          syncSelectedValue: false,
+        );
       }
     }
   }
 
-  void _initFeetAndInches(double decimalFeet) {
+  void _initFeetAndInches(
+    double decimalFeet, {
+    bool syncSelectedValue = true,
+  }) {
     final minFt = (widget.minLeftValue ?? widget.minValue).toInt();
     final maxFt = (widget.maxLeftValue ?? widget.maxValue).toInt();
     int feet = decimalFeet.floor().clamp(minFt, maxFt);
@@ -97,7 +112,9 @@ class _MeasurementSelectionScreenState
     }
     _feetValue = feet;
     _inchesValue = inches;
-    selectedValue = _feetValue + _inchesValue / 12.0;
+    if (syncSelectedValue) {
+      selectedValue = _feetValue + _inchesValue / 12.0;
+    }
   }
 
   String get currentUnit =>
@@ -171,7 +188,7 @@ class _MeasurementSelectionScreenState
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height: isCompoundMode ? 20 : 50),
+                  SizedBox(height: isCompoundMode ? 20 : 30),
                   UnitToggleWidget(
                     leftUnit: widget.leftUnit,
                     rightUnit: widget.rightUnit,
@@ -199,6 +216,15 @@ class _MeasurementSelectionScreenState
                           selectedValue = value;
                         });
                       },
+                    ),
+                  ],
+                  if (widget.extraBuilder != null) ...[
+                    const SizedBox(height: 50),
+                    widget.extraBuilder!(
+                      context,
+                      selectedValue,
+                      currentUnit,
+                      isLeftUnitSelected,
                     ),
                   ],
                 ],

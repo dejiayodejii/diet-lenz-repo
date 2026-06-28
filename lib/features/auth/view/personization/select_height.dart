@@ -20,7 +20,7 @@ class SelectHeightScreen extends ConsumerWidget {
       maxValue: 300,
       minLeftValue: 2,
       maxLeftValue: 9,
-      initialValue: 170.0,
+      initialValue: 180.0,
       initialLeftUnitSelected: false, // Start with CM
       leftToRightConverter: (val) => val * 30.48,
       rightToLeftConverter: (val) => val / 30.48,

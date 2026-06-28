@@ -13,6 +13,7 @@ import 'package:diet_lenz/features/auth/view/forgot_password.dart';
 import 'package:diet_lenz/features/auth/view/use_referral.dart';
 import 'package:diet_lenz/features/auth/view/widgets/social_signup.dart';
 import 'package:diet_lenz/features/bottom_nav/bottom.dart';
+import 'package:diet_lenz/features/onboarding/view/splash_screen.dart';
 import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -142,12 +143,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     NavigationService.pushAndRemoveUntil(
                                         child: const BottomNavScreen());
                                   } else {
+                                    ref.read(toastProvider).showError(
+                                        "You need to create an account first");
                                     //no account, go and create account.
-                                    // NavigationService.push(
-                                    //   child: ReferralScreen(
-                                    //       email: emailController.text,
-                                    //       isSocialLogin: true),
-                                    // );
+                                    NavigationService.push(
+                                      child: const SplashScreen(),
+                                    );
                                   }
                                 }
                               } else {

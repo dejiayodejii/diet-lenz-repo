@@ -32,8 +32,8 @@ class _LoginScreenState extends ConsumerState<QuizScreen> {
 
   final options = [
     'A. 250 - 300 kcal',
-    'B. 350 - 450 kcal',
-    'C. 500 - 650 kcal',
+    'B. 400 - 500 kcal',
+    'C. 600 - 700 kcal',
   ];
 
   @override

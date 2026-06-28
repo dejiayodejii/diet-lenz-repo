@@ -382,14 +382,15 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
         state.copyWith(isLoading: true, userRecipes: null, recipesError: null);
 
     try {
-      final response =
-          await _apiService.foodLoggingApi.getMealLogsForDate(date: date);
+      final response = await _apiService.foodLoggingApi
+          .getMealLogs(date: date, size: 20, page: 0);
 
       if (response != null) {
-        _recipesCache[key] = response;
+        final mealLogs = response.content;
+        _recipesCache[key] = mealLogs;
         state = state.copyWith(
           isLoading: false,
-          userRecipes: response,
+          userRecipes: mealLogs,
           recipesError: null,
         );
         return true;
@@ -401,14 +402,14 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
         return false;
       }
     } on ApiException catch (e) {
-      print(e.toString());
+      log(e.toString());
       state = state.copyWith(
         isLoading: false,
         recipesError: _parseApiError(e),
       );
       return false;
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
       state = state.copyWith(
         isLoading: false,
         recipesError: 'An unexpected error occurred',
@@ -427,12 +428,13 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
     state = state.copyWith(isLoading: true, allRecipesError: null);
 
     try {
-      final response = await _apiService.foodLoggingApi.getMealLogsForDate();
+      final response =
+          await _apiService.foodLoggingApi.getMealLogs(size: 20, page: 0);
 
       if (response != null) {
         state = state.copyWith(
           isLoading: false,
-          allRecipes: response,
+          allRecipes: response.content,
           allRecipesError: null,
         );
         return true;
@@ -444,14 +446,14 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
         return false;
       }
     } on ApiException catch (e) {
-      print(e.toString());
+      log(e.toString());
       state = state.copyWith(
         isLoading: false,
         allRecipesError: _parseApiError(e),
       );
       return false;
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
       state = state.copyWith(
         isLoading: false,
         allRecipesError: 'An unexpected error occurred',

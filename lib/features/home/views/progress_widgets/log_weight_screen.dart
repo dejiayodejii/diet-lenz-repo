@@ -108,7 +108,9 @@ class _LogWeightScreenState extends ConsumerState<LogWeightScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Log Weight'),
+        title: const Text(
+          'Current Weight',
+        ),
         centerTitle: false,
       ),
       body: SafeArea(
@@ -119,16 +121,6 @@ class _LogWeightScreenState extends ConsumerState<LogWeightScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Current Weight',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontFamily: AppFonts.lato,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 8),
                 const Text(
                   'Add your latest weight so your progress chart stays accurate.',
                   style: TextStyle(

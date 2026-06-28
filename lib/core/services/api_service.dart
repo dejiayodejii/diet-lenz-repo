@@ -272,6 +272,7 @@ class ApiService {
     await _storageRepository.saveRefreshToken('');
     await _storageRepository.clearAuthResponse();
     await _storageRepository.clearUserProfile();
+    await _storageRepository.clearDatabaseLoggedHistory();
     // Remove the authorization header entirely
     _apiClient.defaultHeaderMap.remove('Authorization');
   }

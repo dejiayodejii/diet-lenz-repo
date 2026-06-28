@@ -256,8 +256,8 @@ class _BottomNavState extends ConsumerState<BottomNavScreen> {
       child: Container(
         height: 72,
         width: 72,
-        decoration: const BoxDecoration(
-          color: AppColors.primaryColor,
+        decoration: BoxDecoration(
+          color: _isActionMenuOpen ? AppColors.primaryColor : Colors.white,
           shape: BoxShape.circle,
         ),
         child: Center(
@@ -265,12 +265,15 @@ class _BottomNavState extends ConsumerState<BottomNavScreen> {
             height: 40,
             width: 40,
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.white, width: 1.5),
+              border: Border.all(
+                  color:
+                      _isActionMenuOpen ? Colors.white : AppColors.primaryColor,
+                  width: 1.5),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               _isActionMenuOpen ? Icons.close_rounded : Icons.add_rounded,
-              color: Colors.white,
+              color: _isActionMenuOpen ? Colors.white : AppColors.primaryColor,
               size: 30,
             ),
           ),

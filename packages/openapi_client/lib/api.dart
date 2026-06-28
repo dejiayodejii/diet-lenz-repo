@@ -70,6 +70,7 @@ part 'model/message_response.dart';
 part 'model/onboarding_survey_request.dart';
 part 'model/onboarding_survey_response.dart';
 part 'model/page_metadata.dart';
+part 'model/paged_model_meal_log_response_dto.dart';
 part 'model/paged_model_user_notification.dart';
 part 'model/password_changed_response.dart';
 part 'model/percentages.dart';
@@ -98,7 +99,6 @@ part 'model/weight_entry.dart';
 part 'model/weight_log_request.dart';
 part 'model/weight_progress_response.dart';
 
-
 /// An [ApiClient] instance that uses the default values obtained from
 /// the OpenAPI specification file.
 var defaultApiClient = ApiClient();
@@ -111,4 +111,5 @@ final _regList = RegExp(r'^List<(.*)>$');
 final _regSet = RegExp(r'^Set<(.*)>$');
 final _regMap = RegExp(r'^Map<String,(.*)>$');
 
-bool _isEpochMarker(String? pattern) => pattern == _dateEpochMarker || pattern == '/$_dateEpochMarker/';
+bool _isEpochMarker(String? pattern) =>
+    pattern == _dateEpochMarker || pattern == '/$_dateEpochMarker/';

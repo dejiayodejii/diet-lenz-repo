@@ -336,6 +336,12 @@ class _PlanSetUpScreenState extends ConsumerState<PlanFinishedScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Text(
+                      "Welcome to",
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 25),
                     SvgPicture.asset(AppImages.dietLenzLogoAlt),
                     const SizedBox(height: 60),
                     SvgPicture.asset(AppImages.text6),
@@ -351,7 +357,7 @@ class _PlanSetUpScreenState extends ConsumerState<PlanFinishedScreen> {
                 isLoading: _isSubmitting,
                 fontSize: 16,
                 weight: FontWeight.w600,
-                text: "Let's Start",
+                text: "Continue",
                 onPressed: _submitProfile,
               ),
               const SizedBox(height: 20),

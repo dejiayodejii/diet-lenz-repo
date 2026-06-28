@@ -18,18 +18,21 @@ class AllegiesScreen extends ConsumerStatefulWidget {
 }
 
 class _AllergiesScreenState extends ConsumerState<AllegiesScreen> {
+  static const String _noneAllergy = 'None';
   static const List<String> _commonAllergies = [
-    'Peanuts',
-    'Gluten',
-    'Caffeine',
-    'Dairy',
-    'Eggs',
-    'Fish',
-    'Calcium',
-    'Tree Nuts',
-    'Halal',
-    'Shellfish',
-    'Creatine',
+    _noneAllergy,
+    "Peanuts",
+    "Tree Nuts",
+    "Milk",
+    "Eggs",
+    "Fish",
+    "Shellfish",
+    "Soy",
+    "Wheat",
+    "Gluten",
+    "Sesame",
+    "Lactose",
+    "Mustard",
   ];
 
   final TextEditingController _otherAllergyController = TextEditingController();
@@ -62,6 +65,18 @@ class _AllergiesScreenState extends ConsumerState<AllegiesScreen> {
 
   void _toggleAllergy(String allergy) {
     setState(() {
+      if (allergy == _noneAllergy) {
+        if (_selectedAllergies.contains(_noneAllergy)) {
+          _selectedAllergies.remove(_noneAllergy);
+        } else {
+          _selectedAllergies
+            ..clear()
+            ..add(_noneAllergy);
+        }
+        return;
+      }
+
+      _selectedAllergies.remove(_noneAllergy);
       if (!_selectedAllergies.add(allergy)) {
         _selectedAllergies.remove(allergy);
       }
@@ -79,6 +94,7 @@ class _AllergiesScreenState extends ConsumerState<AllegiesScreen> {
 
     if (existingValue == null) {
       setState(() {
+        _selectedAllergies.remove(_noneAllergy);
         _selectedAllergies.add(value);
       });
     }
@@ -89,6 +105,7 @@ class _AllergiesScreenState extends ConsumerState<AllegiesScreen> {
 
   void _continue() {
     final allergies = _selectedAllergies
+        .where((allergy) => allergy != _noneAllergy)
         .map((allergy) => allergy.toLowerCase())
         .toList()
       ..sort();

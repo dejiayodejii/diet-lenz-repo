@@ -114,7 +114,7 @@ class _SplashBackground extends StatelessWidget {
           colors: [
             Color(0xFF101010),
             Color(0xFF121110),
-            Color(0xFF3A1C0F),
+            Color.fromRGBO(246, 111, 30, 0.3)
           ],
           stops: [0, 0.48, 1],
         ),

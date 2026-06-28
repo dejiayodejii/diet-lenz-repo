@@ -55,7 +55,7 @@ class _LoginScreenState extends ConsumerState<QuizAnswerScreen> {
                 children: [
                   const Padding(
                     padding: EdgeInsets.only(top: 50),
-                    child: Text("Most people \nunderestimated that",
+                    child: Text("You're not alone if \nyou missed that",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 24,
@@ -83,7 +83,7 @@ class _LoginScreenState extends ConsumerState<QuizAnswerScreen> {
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
                                 color: const Color.fromRGBO(57, 60, 67, 1)),
-                            child: const Text("C. 500 - 650 kcal",
+                            child: const Text("C. 600 - 700 kcal",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: 22,
@@ -96,7 +96,7 @@ class _LoginScreenState extends ConsumerState<QuizAnswerScreen> {
                             text: const TextSpan(
                               children: [
                                 TextSpan(
-                                  text: '550',
+                                  text: '650',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 60,
