@@ -21,8 +21,8 @@ class SelectWeightScreen extends ConsumerWidget {
       initialValue: 50.0,
       nextScreen: const SelectHeightScreen(),
       onContinue: (value, unit, isLeftUnit) {
-        // Save weight data
-        NavigationService.push(child: ActivityLevelScreen());
+        ref.read(onboardingProfileProvider.notifier).updateWeight(value, unit);
+        NavigationService.push(child: const ActivityLevelScreen());
       },
     );
   }

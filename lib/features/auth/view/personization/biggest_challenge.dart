@@ -5,6 +5,7 @@ import 'package:diet_lenz/core/utils/functions.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/features/auth/view/personization/not_punishment.dart';
 import 'package:diet_lenz/features/auth/view/personization/quiz_screen.dart';
 import 'package:diet_lenz/features/auth/view/personization/select_macro_target.dart';
 import 'package:flutter/material.dart';
@@ -89,7 +90,7 @@ class _LoginScreenState extends ConsumerState<BiggestChallengeScreen> {
                 text: "Continue",
                 iconWidget: SvgPicture.asset(AppImages.arrowRight),
                 onPressed: () {
-                  NavigationService.push(child: const QuizScreen());
+                  NavigationService.push(child: NotPunishment());
                 }),
             SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
           ],

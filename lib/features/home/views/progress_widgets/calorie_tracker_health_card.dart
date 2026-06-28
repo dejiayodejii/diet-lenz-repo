@@ -94,7 +94,7 @@ class _CalorieBurnLineChart extends StatelessWidget {
     }).toList();
     final maxValue =
         spots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
-    final maxY = maxValue <= 0 ? 600.0 : (maxValue * 1.4).clamp(100.0, 1000.0);
+    final maxY = _roundedChartMax(maxValue);
     final maxX = spots.length > 1 ? (spots.length - 1).toDouble() : 1.0;
 
     return Stack(
@@ -135,11 +135,11 @@ class _CalorieBurnLineChart extends StatelessWidget {
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  reservedSize: 36,
+                  reservedSize: 44,
                   interval: maxY / 4,
                   getTitlesWidget: (value, meta) {
                     return Text(
-                      value.round().toString(),
+                      _formatAxisValue(value),
                       style: const TextStyle(
                         color: AppColors.textLightGrey,
                         fontFamily: AppFonts.lato,
@@ -248,6 +248,30 @@ class _CalorieBurnLineChart extends StatelessWidget {
       ],
     );
   }
+
+  double _roundedChartMax(double value) {
+    if (value <= 0) return 600;
+
+    final scaled = (value * 1.25).ceilToDouble();
+    final step = scaled <= 1000
+        ? 100
+        : scaled <= 5000
+            ? 500
+            : 1000;
+    final rounded = (scaled / step).ceil() * step;
+    return rounded < 600 ? 600 : rounded.toDouble();
+  }
+
+  String _formatAxisValue(double value) {
+    if (value >= 1000) {
+      final thousands = value / 1000;
+      return thousands % 1 == 0
+          ? '${thousands.toInt()}k'
+          : '${thousands.toStringAsFixed(1)}k';
+    }
+
+    return value.round().toString();
+  }
 }
 
 class _HealthMetricTileRow extends StatelessWidget {
@@ -312,7 +336,7 @@ class _HealthMetricTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 108,
+      height: 120,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       decoration: BoxDecoration(
         color: const Color.fromRGBO(43, 49, 58, 1),

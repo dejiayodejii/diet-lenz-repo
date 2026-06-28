@@ -57,7 +57,7 @@ class PushNotificationService {
   /// Initialize FCM and local notifications. Call once after Firebase.initializeApp().
   Future<void> initialize() async {
     // 1. Request permission (iOS shows a prompt; Android 13+ also requires it)
-    await _requestPermission();
+    await requestPermission();
 
     // 2. Set up the Android notification channel
     await _localNotifications
@@ -139,7 +139,7 @@ class PushNotificationService {
   }
 
   /// Request notification permission from the user.
-  Future<void> _requestPermission() async {
+  Future<NotificationSettings> requestPermission() async {
     final settings = await _messaging.requestPermission(
       alert: true,
       announcement: false,
@@ -150,6 +150,7 @@ class PushNotificationService {
       sound: true,
     );
     print('🔔 Notification permission: ${settings.authorizationStatus}');
+    return settings;
   }
 
   /// Show a local notification when a message arrives while the app is in

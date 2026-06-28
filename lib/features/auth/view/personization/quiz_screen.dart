@@ -79,9 +79,11 @@ class _LoginScreenState extends ConsumerState<QuizScreen> {
                         color: AppColors.white,
                         fontWeight: FontWeight.w400),
                   ),
+                  const SizedBox(height: 20),
                   Image.asset(
                     AppImages.quiz,
                     scale: 2,
+                    height: 250,
                   ),
                   const SizedBox(height: 40),
                   ...List.generate(options.length, (index) {

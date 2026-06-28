@@ -4,7 +4,6 @@ import 'package:diet_lenz/component/personalization_stepper.dart';
 import 'package:diet_lenz/component/unit_toggle_widget.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
-import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/main2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -148,8 +147,8 @@ class _MeasurementSelectionScreenState
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: const PersonalizationStepper(
-          currentStep: 6,
+        title: PersonalizationStepper(
+          currentStep: widget.currentStep,
         ),
       ),
       body: Padding(
@@ -205,7 +204,7 @@ class _MeasurementSelectionScreenState
                 ],
               ),
             ),
-            SizedBox(height: 100),
+            const SizedBox(height: 100),
             CustomYafButton(
               fontSize: 16,
               weight: FontWeight.w600,

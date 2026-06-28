@@ -9,6 +9,7 @@ import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
 import 'package:diet_lenz/features/auth/view/personization/plan_setup.dart';
+import 'package:diet_lenz/features/auth/view/personization/setup_finished.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -184,7 +185,7 @@ class _VerifyOTPScreenState extends ConsumerState<VerifyOTPScreen> {
                           );
 
                       if (success) {
-                        NavigationService.push(child: const PlanSetUpScreen());
+                        NavigationService.push(child: const PlanFinishedScreen());
                       } else {
                         ref.read(toastProvider).showError(
                             ref.read(authViewModelProvider).errorMessage ??

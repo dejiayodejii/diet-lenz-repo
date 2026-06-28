@@ -456,6 +456,63 @@ class FoodLoggingControllerApi {
     return null;
   }
 
+  /// Performs an HTTP 'GET /api/v1/food/meal-logs' operation and returns the [Response].
+  /// Parameters:
+  ///
+  /// * [DateTime] date:
+  Future<Response> getMealLogsForDateWithHttpInfo({ DateTime? date, }) async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/food/meal-logs';
+
+    // ignore: prefer_final_locals
+    Object? postBody;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    if (date != null) {
+      final dateStr = '${date.year.toString().padLeft(4, '0')}-'
+          '${date.month.toString().padLeft(2, '0')}-'
+          '${date.day.toString().padLeft(2, '0')}';
+      queryParams.addAll(_queryParams('', 'date', dateStr));
+    }
+
+    const contentTypes = <String>[];
+
+
+    return apiClient.invokeAPI(
+      path,
+      'GET',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Parameters:
+  ///
+  /// * [DateTime] date:
+  Future<List<MealLogResponseDto>?> getMealLogsForDate({ DateTime? date, }) async {
+    final response = await getMealLogsForDateWithHttpInfo( date: date, );
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+    // When a remote server returns no body with a status of 204, we shall not decode it.
+    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
+    // FormatException when trying to decode an empty string.
+    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+      final responseBody = await _decodeBodyBytes(response);
+      return (await apiClient.deserializeAsync(responseBody, 'List<MealLogResponseDto>') as List)
+        .cast<MealLogResponseDto>()
+        .toList(growable: false);
+
+    }
+    return null;
+  }
+
   /// Performs an HTTP 'GET /api/v1/food/trends/weekly' operation and returns the [Response].
   /// Parameters:
   ///

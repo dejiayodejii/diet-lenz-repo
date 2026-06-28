@@ -26,10 +26,14 @@ class AppImages {
   static const String tiktok = '$_onboardingPath/tiktok.png';
   static const String youtube = '$_onboardingPath/youtube.png';
 
-   static const String quiz = '$_onboardingPath/quiz.png';
-    static const String slow = '$_onboardingPath/slow.png';
-     static const String optimal = '$_onboardingPath/optimal.png';
-      static const String fast = '$_onboardingPath/fast.png';
+  static const String quiz = '$_onboardingPath/quiz.jpeg';
+  static const String slow = '$_onboardingPath/slow.png';
+  static const String optimal = '$_onboardingPath/optimal.png';
+  static const String fast = '$_onboardingPath/fast.png';
+  static const String body = '$_onboardingPath/body.png';
+  static const String confetti = '$_onboardingPath/confetti.png';
+
+  static const String graph = '$_onboardingPath/graph.png';
 
   //progress assets
   static const String step = '$_imagesPath/step.png';

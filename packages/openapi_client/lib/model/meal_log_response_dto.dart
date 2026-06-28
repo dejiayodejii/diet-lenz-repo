@@ -16,6 +16,7 @@ class MealLogResponseDto {
     this.id,
     this.recipeId,
     this.foodName,
+    this.imageUrl,
     this.mealType,
     this.loggedDate,
     this.loggedTime,
@@ -48,6 +49,14 @@ class MealLogResponseDto {
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
   String? foodName;
+
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  String? imageUrl;
 
   MealLogResponseDtoMealTypeEnum? mealType;
 
@@ -104,6 +113,7 @@ class MealLogResponseDto {
     other.id == id &&
     other.recipeId == recipeId &&
     other.foodName == foodName &&
+    other.imageUrl == imageUrl &&
     other.mealType == mealType &&
     other.loggedDate == loggedDate &&
     other.loggedTime == loggedTime &&
@@ -118,6 +128,7 @@ class MealLogResponseDto {
     (id == null ? 0 : id!.hashCode) +
     (recipeId == null ? 0 : recipeId!.hashCode) +
     (foodName == null ? 0 : foodName!.hashCode) +
+    (imageUrl == null ? 0 : imageUrl!.hashCode) +
     (mealType == null ? 0 : mealType!.hashCode) +
     (loggedDate == null ? 0 : loggedDate!.hashCode) +
     (loggedTime == null ? 0 : loggedTime!.hashCode) +
@@ -127,7 +138,7 @@ class MealLogResponseDto {
     (isFavorite == null ? 0 : isFavorite!.hashCode);
 
   @override
-  String toString() => 'MealLogResponseDto[id=$id, recipeId=$recipeId, foodName=$foodName, mealType=$mealType, loggedDate=$loggedDate, loggedTime=$loggedTime, servingMultiplier=$servingMultiplier, consumedMacros=$consumedMacros, notes=$notes, isFavorite=$isFavorite]';
+  String toString() => 'MealLogResponseDto[id=$id, recipeId=$recipeId, foodName=$foodName, imageUrl=$imageUrl, mealType=$mealType, loggedDate=$loggedDate, loggedTime=$loggedTime, servingMultiplier=$servingMultiplier, consumedMacros=$consumedMacros, notes=$notes, isFavorite=$isFavorite]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -145,6 +156,11 @@ class MealLogResponseDto {
       json[r'foodName'] = this.foodName;
     } else {
       json[r'foodName'] = null;
+    }
+    if (this.imageUrl != null) {
+      json[r'imageUrl'] = this.imageUrl;
+    } else {
+      json[r'imageUrl'] = null;
     }
     if (this.mealType != null) {
       json[r'mealType'] = this.mealType;
@@ -206,6 +222,7 @@ class MealLogResponseDto {
         id: mapValueOfType<String>(json, r'id'),
         recipeId: mapValueOfType<String>(json, r'recipeId'),
         foodName: mapValueOfType<String>(json, r'foodName'),
+        imageUrl: mapValueOfType<String>(json, r'imageUrl'),
         mealType: MealLogResponseDtoMealTypeEnum.fromJson(json[r'mealType']),
         loggedDate: mapDateTime(json, r'loggedDate', r''),
         loggedTime: mapValueOfType<String>(json, r'loggedTime'),
@@ -341,5 +358,4 @@ class MealLogResponseDtoMealTypeEnumTypeTransformer {
   /// Singleton [MealLogResponseDtoMealTypeEnumTypeTransformer] instance.
   static MealLogResponseDtoMealTypeEnumTypeTransformer? _instance;
 }
-
 

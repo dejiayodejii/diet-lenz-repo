@@ -13,8 +13,8 @@ class FoodLoggingState {
   final DashboardResponseDto? dashboard;
   final StreakInfoDto? streak;
   final WeeklyTrendDto? weeklyTrend;
-  final List<RecipeResponseDto>? userRecipes;
-  final List<RecipeResponseDto>? allRecipes;
+  final List<MealLogResponseDto>? userRecipes;
+  final List<MealLogResponseDto>? allRecipes;
   final List<RecipeResponseDto>? searchResults;
   final List<RecipeResponseDto>? recommendations;
   final List<FavoriteRecipeResponseDto>? favorites;
@@ -50,8 +50,8 @@ class FoodLoggingState {
     DashboardResponseDto? dashboard,
     StreakInfoDto? streak,
     WeeklyTrendDto? weeklyTrend,
-    List<RecipeResponseDto>? userRecipes,
-    List<RecipeResponseDto>? allRecipes,
+    List<MealLogResponseDto>? userRecipes,
+    List<MealLogResponseDto>? allRecipes,
     List<RecipeResponseDto>? searchResults,
     List<RecipeResponseDto>? recommendations,
     List<FavoriteRecipeResponseDto>? favorites,
@@ -103,7 +103,7 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
   final Ref _ref;
 
   /// In-memory caches keyed by date string (yyyy-MM-dd)
-  final Map<String, List<RecipeResponseDto>> _recipesCache = {};
+  final Map<String, List<MealLogResponseDto>> _recipesCache = {};
   final Map<String, DashboardResponseDto> _dashboardCache = {};
 
   /// Helper to format a date key for caching
@@ -383,7 +383,7 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
 
     try {
       final response =
-          await _apiService.foodLoggingApi.getUserRecipes(date: date);
+          await _apiService.foodLoggingApi.getMealLogsForDate(date: date);
 
       if (response != null) {
         _recipesCache[key] = response;
@@ -420,14 +420,14 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
   /// Get all user recipes (no date filter) — used by "See All" screen
   Future<bool> getAllRecipes() async {
     // Don't refetch if we already have all recipes loaded
-    if (state.allRecipes != null && state.allRecipes!.isNotEmpty) {
-      return true;
-    }
+    // if (state.allRecipes != null && state.allRecipes!.isNotEmpty) {
+    //   return true;
+    // }
 
     state = state.copyWith(isLoading: true, allRecipesError: null);
 
     try {
-      final response = await _apiService.foodLoggingApi.getUserRecipes();
+      final response = await _apiService.foodLoggingApi.getMealLogsForDate();
 
       if (response != null) {
         state = state.copyWith(
@@ -673,49 +673,52 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
 
   /// Toggle favorite status locally for a recipe in userRecipes, allRecipes and favorites
   Future<bool> toggleFavoriteLocally(String recipeId) async {
-    RecipeResponseDto? targetRecipe;
+    MealLogResponseDto? targetRecipe;
 
     // Find the recipe in userRecipes first, then fall back to allRecipes
     if (state.userRecipes != null) {
       final found = state.userRecipes!.firstWhere(
-        (recipe) => recipe.id == recipeId,
-        orElse: () => RecipeResponseDto(),
+        (recipe) => recipe.recipeId == recipeId,
+        orElse: () => MealLogResponseDto(),
       );
-      if (found.id != null) targetRecipe = found;
+      if (found.recipeId != null) targetRecipe = found;
     }
     if (targetRecipe == null && state.allRecipes != null) {
       final found = state.allRecipes!.firstWhere(
-        (recipe) => recipe.id == recipeId,
-        orElse: () => RecipeResponseDto(),
+        (recipe) => recipe.recipeId == recipeId,
+        orElse: () => MealLogResponseDto(),
       );
-      if (found.id != null) targetRecipe = found;
+      if (found.recipeId != null) targetRecipe = found;
     }
     log("Found recipe $recipeId: ${targetRecipe?.foodName}");
 
-    RecipeResponseDto _toggled(RecipeResponseDto recipe) => RecipeResponseDto(
+    MealLogResponseDto toggled(MealLogResponseDto recipe) => MealLogResponseDto(
           id: recipe.id,
+          recipeId: recipe.recipeId,
           foodName: recipe.foodName,
-          description: recipe.description,
-          macros: recipe.macros,
           imageUrl: recipe.imageUrl,
-          usageCount: recipe.usageCount,
+          mealType: recipe.mealType,
+          loggedDate: recipe.loggedDate,
+          loggedTime: recipe.loggedTime,
+          servingMultiplier: recipe.servingMultiplier,
+          consumedMacros: recipe.consumedMacros,
+          notes: recipe.notes,
           isFavorite: !(recipe.isFavorite ?? false),
-          createdAt: recipe.createdAt,
         );
 
     // Optimistically update userRecipes
-    List<RecipeResponseDto>? updatedUserRecipes;
+    List<MealLogResponseDto>? updatedUserRecipes;
     if (state.userRecipes != null) {
       updatedUserRecipes = state.userRecipes!
-          .map((r) => r.id == recipeId ? _toggled(r) : r)
+          .map((r) => r.recipeId == recipeId ? toggled(r) : r)
           .toList();
     }
 
     // Optimistically update allRecipes
-    List<RecipeResponseDto>? updatedAllRecipes;
+    List<MealLogResponseDto>? updatedAllRecipes;
     if (state.allRecipes != null) {
       updatedAllRecipes = state.allRecipes!
-          .map((r) => r.id == recipeId ? _toggled(r) : r)
+          .map((r) => r.recipeId == recipeId ? toggled(r) : r)
           .toList();
     }
 
@@ -723,15 +726,20 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
     List<FavoriteRecipeResponseDto>? updatedFavorites = state.favorites;
     final isFavorite = targetRecipe?.isFavorite ?? false;
 
-    if (!isFavorite && targetRecipe?.id != null) {
+    if (!isFavorite && targetRecipe?.recipeId != null) {
       // Adding to favorites
       final newFavorite = FavoriteRecipeResponseDto(
-        recipeId: targetRecipe!.id,
+        recipeId: targetRecipe!.recipeId,
         foodName: targetRecipe.foodName,
-        description: targetRecipe.description,
-        macros: targetRecipe.macros,
+        description: targetRecipe.notes,
         imageUrl: targetRecipe.imageUrl,
-        usageCount: targetRecipe.usageCount,
+        macros: MacroInfoDto(
+          calories: targetRecipe.consumedMacros?.calories,
+          proteinGrams: targetRecipe.consumedMacros?.proteinGrams,
+          carbsGrams: targetRecipe.consumedMacros?.carbsGrams,
+          fatGrams: targetRecipe.consumedMacros?.fatGrams,
+          fiberGrams: targetRecipe.consumedMacros?.fiberGrams,
+        ),
         favoritedAt: DateTime.now(),
       );
       updatedFavorites = [...?state.favorites, newFavorite];
@@ -753,17 +761,17 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
       return true;
     } catch (e) {
       // Revert all updates on error
-      List<RecipeResponseDto>? revertedUserRecipes;
+      List<MealLogResponseDto>? revertedUserRecipes;
       if (state.userRecipes != null) {
         revertedUserRecipes = state.userRecipes!
-            .map((r) => r.id == recipeId ? _toggled(r) : r)
+            .map((r) => r.recipeId == recipeId ? toggled(r) : r)
             .toList();
       }
 
-      List<RecipeResponseDto>? revertedAllRecipes;
+      List<MealLogResponseDto>? revertedAllRecipes;
       if (state.allRecipes != null) {
         revertedAllRecipes = state.allRecipes!
-            .map((r) => r.id == recipeId ? _toggled(r) : r)
+            .map((r) => r.recipeId == recipeId ? toggled(r) : r)
             .toList();
       }
 
@@ -772,12 +780,17 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
       if (isFavorite) {
         // Was removing, add it back
         final newFavorite = FavoriteRecipeResponseDto(
-          recipeId: targetRecipe!.id,
+          recipeId: targetRecipe!.recipeId,
           foodName: targetRecipe.foodName,
-          description: targetRecipe.description,
-          macros: targetRecipe.macros,
+          description: targetRecipe.notes,
           imageUrl: targetRecipe.imageUrl,
-          usageCount: targetRecipe.usageCount,
+          macros: MacroInfoDto(
+            calories: targetRecipe.consumedMacros?.calories,
+            proteinGrams: targetRecipe.consumedMacros?.proteinGrams,
+            carbsGrams: targetRecipe.consumedMacros?.carbsGrams,
+            fatGrams: targetRecipe.consumedMacros?.fatGrams,
+            fiberGrams: targetRecipe.consumedMacros?.fiberGrams,
+          ),
           favoritedAt: DateTime.now(),
         );
         revertedFavorites = [...?state.favorites, newFavorite];

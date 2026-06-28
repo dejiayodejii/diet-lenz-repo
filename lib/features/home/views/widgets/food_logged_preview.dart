@@ -8,25 +8,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:openapi/api.dart';
 
 class FoodLoggedPreview extends ConsumerWidget {
-  final RecipeResponseDto recipe;
-  final bool fromFavourites;
+  final MealLogResponseDto loggedMeal;
 
   const FoodLoggedPreview({
     super.key,
-    required this.recipe,
-    this.fromFavourites = false,
+    required this.loggedMeal,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isFavorite = recipe.isFavorite ?? false;
+    final isFavorite = loggedMeal.isFavorite ?? false;
 
     return GestureDetector(
       onTap: () {
         NavigationService.push(
           child: FoodLogDetail(
-            recipe: recipe,
-            fromFavorite: fromFavourites,
+            loggedMeal: loggedMeal,
           ),
         );
       },
@@ -37,9 +34,9 @@ class FoodLoggedPreview extends ConsumerWidget {
             width: double.infinity,
             child: Stack(
               children: [
-                recipe.imageUrl != null && recipe.imageUrl!.isNotEmpty
+                loggedMeal.imageUrl != null && loggedMeal.imageUrl!.isNotEmpty
                     ? Image.network(
-                        recipe.imageUrl!,
+                        loggedMeal.imageUrl!,
                         height: 200,
                         width: double.infinity,
                         fit: BoxFit.cover,
@@ -64,10 +61,10 @@ class FoodLoggedPreview extends ConsumerWidget {
                   right: 10,
                   child: GestureDetector(
                     onTap: () async {
-                      if (recipe.id != null) {
+                      if (loggedMeal.recipeId != null) {
                         await ref
                             .read(foodLoggingViewModelProvider.notifier)
-                            .toggleFavoriteLocally(recipe.id!);
+                            .toggleFavoriteLocally(loggedMeal.recipeId!);
                       }
                     },
                     child: Container(
@@ -89,7 +86,7 @@ class FoodLoggedPreview extends ConsumerWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            recipe.foodName ?? "Unknown Food",
+            loggedMeal.foodName ?? "Unknown Food",
             style: const TextStyle(
               fontFamily: AppFonts.lato,
               fontSize: 18,
@@ -102,7 +99,7 @@ class FoodLoggedPreview extends ConsumerWidget {
               children: [
                 TextSpan(
                   text:
-                      '${recipe.macros?.calories?.toStringAsFixed(0) ?? "0"} kcal',
+                      '${loggedMeal.consumedMacros?.calories?.toStringAsFixed(0) ?? "0"} kcal',
                   style: const TextStyle(
                     fontFamily: AppFonts.spaceGrotesk,
                     color: Colors.white,
@@ -120,7 +117,7 @@ class FoodLoggedPreview extends ConsumerWidget {
                 ),
                 TextSpan(
                   text:
-                      'Protein: ${recipe.macros?.proteinGrams?.toStringAsFixed(0) ?? "0"}g',
+                      'Protein: ${loggedMeal.consumedMacros?.proteinGrams?.toStringAsFixed(0) ?? "0"}g',
                   style: const TextStyle(
                     fontFamily: AppFonts.spaceGrotesk,
                     color: Colors.white,
@@ -138,7 +135,7 @@ class FoodLoggedPreview extends ConsumerWidget {
                 ),
                 TextSpan(
                   text:
-                      'Carbs: ${recipe.macros?.carbsGrams?.toStringAsFixed(0) ?? "0"}g',
+                      'Carbs: ${loggedMeal.consumedMacros?.carbsGrams?.toStringAsFixed(0) ?? "0"}g',
                   style: const TextStyle(
                     fontFamily: AppFonts.spaceGrotesk,
                     color: Colors.white,
@@ -156,7 +153,7 @@ class FoodLoggedPreview extends ConsumerWidget {
                 ),
                 TextSpan(
                   text:
-                      'Fat: ${recipe.macros?.fatGrams?.toStringAsFixed(0) ?? "0"}g',
+                      'Fat: ${loggedMeal.consumedMacros?.fatGrams?.toStringAsFixed(0) ?? "0"}g',
                   style: const TextStyle(
                     fontFamily: AppFonts.spaceGrotesk,
                     color: Colors.white,

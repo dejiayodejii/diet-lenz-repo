@@ -1,6 +1,8 @@
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/component/custom_textfield.dart';
+import 'package:diet_lenz/component/personalization_stepper.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
+import 'package:diet_lenz/core/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/core/utils/loader.dart';
@@ -120,118 +122,131 @@ class _LoginScreenState extends ConsumerState<SignUpScreen> {
     return BlurryModalProgressHUD(
       inAsyncCall: authState.isLoading,
       child: Scaffold(
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 50),
-                          SvgPicture.asset(AppImages.dietLenzLogoAlt),
-                          const SizedBox(height: 20),
-                          const Text(
-                            "Sign Up",
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.w600),
+        appBar: AppBar(
+          automaticallyImplyLeading: true,
+          title: const PersonalizationStepper(
+            currentStep: 12,
+            width: 13,
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 50),
+                        // SvgPicture.asset(AppImages.dietLenzLogoAlt),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Save your personalized plan",
+                          style: TextStyle(
+                              fontSize: 28, fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 15),
+                        const Text(
+                          "Create a free account to keep your results.",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
                           ),
-                          const SizedBox(height: 20),
-                          LabelTextFormField(
-                            hintText: "First Name",
-                            controller: firstNameController,
-                            validator: _validateFirstName,
-                            textCapitalization: TextCapitalization.words,
-                          ),
-                          LabelTextFormField(
-                            hintText: "Last Name",
-                            controller: lastNameController,
-                            validator: _validateLastName,
-                            textCapitalization: TextCapitalization.words,
-                          ),
-                          LabelTextFormField(
-                            hintText: "Email",
-                            controller: emailController,
-                            validator: _validateEmail,
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          LabelTextFormField(
-                            controller: passwordController,
-                            hintText: "Enter Password",
-                            obscureText: _obscurePassword,
-                            validator: _validatePassword,
-                            suffixIcon: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
-                              child: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                                color: Colors.grey,
-                              ),
+                        ),
+                        const SizedBox(height: 20),
+                        LabelTextFormField(
+                          hintText: "First Name",
+                          controller: firstNameController,
+                          validator: _validateFirstName,
+                          textCapitalization: TextCapitalization.words,
+                        ),
+                        LabelTextFormField(
+                          hintText: "Last Name",
+                          controller: lastNameController,
+                          validator: _validateLastName,
+                          textCapitalization: TextCapitalization.words,
+                        ),
+                        LabelTextFormField(
+                          hintText: "Email",
+                          controller: emailController,
+                          validator: _validateEmail,
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        LabelTextFormField(
+                          controller: passwordController,
+                          hintText: "Enter Password",
+                          obscureText: _obscurePassword,
+                          validator: _validatePassword,
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                            child: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Colors.grey,
                             ),
                           ),
-                          LabelTextFormField(
-                            controller: confirmPasswordController,
-                            hintText: "Confirm Password",
-                            obscureText: _obscureConfirmPassword,
-                            validator: _validateConfirmPassword,
-                            suffixIcon: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _obscureConfirmPassword =
-                                      !_obscureConfirmPassword;
-                                });
-                              },
-                              child: Icon(
-                                _obscureConfirmPassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                                color: Colors.grey,
-                              ),
+                        ),
+                        LabelTextFormField(
+                          controller: confirmPasswordController,
+                          hintText: "Confirm Password",
+                          obscureText: _obscureConfirmPassword,
+                          validator: _validateConfirmPassword,
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
+                              });
+                            },
+                            child: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Colors.grey,
                             ),
                           ),
-                          const SizedBox(height: 20),
-                          CustomYafButton(
-                              text: "Sign Up",
-                              onPressed: () async {
-                                if (_formKey.currentState!.validate()) {
-                                  final response =
-                                      await authController.register(
+                        ),
+                        const SizedBox(height: 20),
+                        CustomYafButton(
+                            text: "Sign Up",
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                final response = await authController.register(
+                                  email: emailController.text.trim(),
+                                  password: passwordController.text,
+                                  firstName: firstNameController.text.trim(),
+                                  lastName: lastNameController.text.trim(),
+                                );
+                                if (response) {
+                                  NavigationService.push(
+                                      child: VerifyOTPScreen(
                                     email: emailController.text.trim(),
-                                    password: passwordController.text,
-                                    firstName: firstNameController.text.trim(),
-                                    lastName: lastNameController.text.trim(),
-                                  );
-                                  if (response) {
-                                    NavigationService.push(
-                                        child: ReferralScreen(
-                                      email: emailController.text.trim(),
-                                    ));
-                                  } else {
-                                    //show error
-                                    ref.read(toastProvider).showError(ref
-                                        .read(authViewModelProvider)
-                                        .errorMessage);
-                                  }
+                                  ));
+                                } else {
+                                  //show error
+                                  ref.read(toastProvider).showError(ref
+                                      .read(authViewModelProvider)
+                                      .errorMessage);
                                 }
-                              }),
-                          const SizedBox(height: 40),
-                          const SocialSignUp(),
-                        ],
-                      ),
+                              }
+                            }),
+                        const SizedBox(height: 40),
+                        const SocialSignUp(),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

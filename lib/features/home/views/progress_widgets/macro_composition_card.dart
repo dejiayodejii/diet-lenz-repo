@@ -126,6 +126,16 @@ class _MacroSlice {
   final double? grams;
   final Color color;
   final Color textColor;
+
+  _MacroSlice copyWith({int? percentage}) {
+    return _MacroSlice(
+      label: label,
+      percentage: percentage ?? this.percentage,
+      grams: grams,
+      color: color,
+      textColor: textColor,
+    );
+  }
 }
 
 class _MacroPieChart extends StatelessWidget {
@@ -135,14 +145,15 @@ class _MacroPieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final normalizedSlices = _normalizedSlices();
+
     return PieChart(
       PieChartData(
         sectionsSpace: 0,
         centerSpaceRadius: 0,
         startDegreeOffset: -90,
         pieTouchData: PieTouchData(enabled: false),
-        sections: slices
-            .where((slice) => slice.percentage > 0)
+        sections: normalizedSlices
             .map(
               (slice) => PieChartSectionData(
                 value: slice.percentage.toDouble(),
@@ -160,6 +171,45 @@ class _MacroPieChart extends StatelessWidget {
             .toList(),
       ),
     );
+  }
+
+  List<_MacroSlice> _normalizedSlices() {
+    final activeSlices = slices.where((slice) => slice.percentage > 0).toList();
+    final total = activeSlices.fold<int>(
+      0,
+      (sum, slice) => sum + slice.percentage,
+    );
+
+    if (total <= 0) return const [];
+    if (total == 100) return activeSlices;
+
+    final normalizedValues = activeSlices.map((slice) {
+      return slice.percentage * 100 / total;
+    }).toList();
+    final roundedValues =
+        normalizedValues.map((value) => value.floor()).toList();
+    var remaining =
+        100 - roundedValues.fold<int>(0, (sum, value) => sum + value);
+
+    final indexesByRemainder = List<int>.generate(activeSlices.length, (index) {
+      return index;
+    })
+      ..sort((a, b) {
+        final bRemainder = normalizedValues[b] - normalizedValues[b].floor();
+        final aRemainder = normalizedValues[a] - normalizedValues[a].floor();
+        return bRemainder.compareTo(aRemainder);
+      });
+
+    var cursor = 0;
+    while (remaining > 0 && indexesByRemainder.isNotEmpty) {
+      roundedValues[indexesByRemainder[cursor % indexesByRemainder.length]]++;
+      remaining--;
+      cursor++;
+    }
+
+    return List<_MacroSlice>.generate(activeSlices.length, (index) {
+      return activeSlices[index].copyWith(percentage: roundedValues[index]);
+    });
   }
 }
 

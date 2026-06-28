@@ -1,6 +1,6 @@
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
-import 'package:diet_lenz/features/auth/view/personization/setup_finished.dart';
+import 'package:diet_lenz/features/auth/view/personization/notification_request.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
@@ -182,7 +182,8 @@ class _CountrySelectionScreenState
                   ref
                       .read(onboardingProfileProvider.notifier)
                       .updateCountry(_selectedCountry ?? '');
-                  NavigationService.push(child: const PlanFinishedScreen());
+                  NavigationService.push(
+                      child: const NotificationRequestScreen());
                 }),
           ),
           SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),

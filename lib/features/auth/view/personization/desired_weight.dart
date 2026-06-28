@@ -2,8 +2,7 @@ import 'package:diet_lenz/component/measurement_selection_screen.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
 import 'package:diet_lenz/features/auth/view/personization/activity_level.dart';
-import 'package:diet_lenz/features/auth/view/personization/biggest_challenge.dart';
-import 'package:diet_lenz/features/auth/view/personization/diet-prefernce.dart';
+import 'package:diet_lenz/features/auth/view/personization/realistic_target.dart';
 import 'package:diet_lenz/pace.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,12 +22,13 @@ class DesiredWeightScreen extends ConsumerWidget {
       initialValue: 65.0,
       nextScreen: const ActivityLevelScreen(),
       onContinue: (value, unit, isLeftUnit) {
-        // Save desired weight
-        // ref
-        //     .read(onboardingProfileProvider.notifier)
-        //     .updateDesiredWeight(value, unit);
+        ref
+            .read(onboardingProfileProvider.notifier)
+            .updateDesiredWeight(value, unit);
         NavigationService.push(
-            child: const GoalPaceScreen(targetWeightKg: 80));
+            child: GoalPaceScreen(
+          targetWeightKg: value,
+        ));
       },
     );
   }

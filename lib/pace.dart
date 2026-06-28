@@ -4,6 +4,7 @@ import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/core/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/view/personization/biggest_challenge.dart';
+import 'package:diet_lenz/features/auth/view/personization/realistic_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -154,7 +155,7 @@ class _GoalPaceScreenState extends State<GoalPaceScreen> {
                 text: "Continue",
                 iconWidget: SvgPicture.asset(AppImages.arrowRight),
                 onPressed: () {
-                  NavigationService.push(child: BiggestChallengeScreen());
+                  NavigationService.push(child: const RealisticTargetScreen());
                 }),
           ),
         ],

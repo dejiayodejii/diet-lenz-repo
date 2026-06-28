@@ -75,7 +75,10 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
       widget.favorite?.description ??
       "No description available";
 
-  String? get imageUrl => widget.recipe?.imageUrl ?? widget.favorite?.imageUrl;
+  String? get imageUrl =>
+      _loggedMeal?.imageUrl ??
+      widget.recipe?.imageUrl ??
+      widget.favorite?.imageUrl;
 
   MacroInfoDto? get macros => widget.recipe?.macros ?? widget.favorite?.macros;
 
@@ -417,18 +420,17 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
                           );
                         },
                       )
-                    : 
-                   Container(
+                    : Container(
                         width: double.infinity,
                         height: 200,
                         color: AppColors.surfaceGrey,
-                        child: Icon(
+                        child: const Icon(
                           Icons.restaurant_rounded,
                           color: AppColors.primaryColor,
                           size: 58,
                         ),
                       ),
-                
+
                 const SizedBox(height: 20),
                 Text(
                   foodName,
