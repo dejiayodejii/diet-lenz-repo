@@ -4,6 +4,7 @@ import 'package:diet_lenz/component/snapping_calendar_picker.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
 import 'package:diet_lenz/features/auth/view/personization/desired_weight.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,6 +30,9 @@ class _SelectEventDateScreenState extends ConsumerState<SelectEventDateScreen> {
   }
 
   void _continue() {
+    ref
+        .read(onboardingProfileProvider.notifier)
+        .updateTargetEventDate(_selectedDate);
     NavigationService.push(child: const DesiredWeightScreen());
   }
 

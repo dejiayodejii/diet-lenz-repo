@@ -5,7 +5,7 @@ import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/push_notification_service.dart';
-import 'package:diet_lenz/features/auth/view/personization/setup_finished.dart';
+import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
 import 'package:diet_lenz/features/auth/view/register.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,9 +23,12 @@ class _NotificationRequestScreenState
     extends ConsumerState<NotificationRequestScreen> {
   bool _isRequestingPermission = false;
 
-  void _continue() {
-    // NavigationService.push(child: const PlanFinishedScreen());
-    NavigationService.push(child: SignUpScreen());
+  void _continue({required bool notificationsEnabled}) {
+    ref.read(onboardingProfileProvider.notifier).updateNotifications(
+          notificationsEnabled: notificationsEnabled,
+          mealRemindersEnabled: notificationsEnabled,
+        );
+    NavigationService.push(child: const SignUpScreen());
   }
 
   Future<void> _enableNotifications() async {
@@ -35,10 +38,10 @@ class _NotificationRequestScreenState
     try {
       await ref.read(pushNotificationServiceProvider).requestPermission();
       if (!mounted) return;
-      _continue();
+      _continue(notificationsEnabled: true);
     } catch (_) {
       if (!mounted) return;
-      _continue();
+      _continue(notificationsEnabled: false);
     } finally {
       if (mounted) {
         setState(() => _isRequestingPermission = false);
@@ -112,7 +115,7 @@ class _NotificationRequestScreenState
             ),
             // const SizedBox(height: 28),
             TextButton(
-              onPressed: _continue,
+              onPressed: () => _continue(notificationsEnabled: false),
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.white,
                 textStyle: const TextStyle(

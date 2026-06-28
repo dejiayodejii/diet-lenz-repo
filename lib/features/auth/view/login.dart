@@ -142,11 +142,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     NavigationService.pushAndRemoveUntil(
                                         child: const BottomNavScreen());
                                   } else {
-                                    NavigationService.push(
-                                      child: ReferralScreen(
-                                          email: emailController.text,
-                                          isSocialLogin: true),
-                                    );
+                                    //no account, go and create account.
+                                    // NavigationService.push(
+                                    //   child: ReferralScreen(
+                                    //       email: emailController.text,
+                                    //       isSocialLogin: true),
+                                    // );
                                   }
                                 }
                               } else {

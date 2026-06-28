@@ -28,7 +28,8 @@ class SelectHeightScreen extends ConsumerWidget {
       useCompoundLeftUnit: true,
       nextScreen: const SelectAgeScreen(),
       onContinue: (value, unit, isLeftUnit) {
-         NavigationService.push(child: SelectWeightScreen());
+        ref.read(onboardingProfileProvider.notifier).updateHeight(value, unit);
+        NavigationService.push(child: const SelectWeightScreen());
       },
     );
   }

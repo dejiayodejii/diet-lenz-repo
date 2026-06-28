@@ -5,7 +5,6 @@ import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
-import 'package:diet_lenz/features/auth/view/personization/select_country.dart';
 import 'package:diet_lenz/features/auth/view/personization/target_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -94,7 +93,7 @@ class _AllergiesScreenState extends ConsumerState<AllegiesScreen> {
         .toList()
       ..sort();
 
-    // ref.read(onboardingProfileProvider.notifier).updateAllergies(allergies);
+    ref.read(onboardingProfileProvider.notifier).updateAllergies(allergies);
     NavigationService.push(child: const TargetEventScreen());
   }
 

@@ -3,7 +3,6 @@ import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/view/personization/notification_request.dart';
-import 'package:diet_lenz/features/auth/view/personization/quiz_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -30,16 +29,15 @@ class _NotPunishmentState extends State<NotPunishment> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
+                  const Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 25),
-                      const Text(
-                          "Your goals shouldn't feel like a punishment. ",
+                      SizedBox(height: 25),
+                      Text("Your goals shouldn't feel like a punishment. ",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontSize: 24,
-                              letterSpacing: 0,
+                              // letterSpacing: 0,
                               color: AppColors.white,
                               fontWeight: FontWeight.w600)),
                       //
@@ -47,13 +45,15 @@ class _NotPunishmentState extends State<NotPunishment> {
                   ),
                   Image.asset(AppImages.graph, scale: 2),
                   const Text(
-                      "True progress happens when your tracker fits your lifestyle. Dietlenz removes the friction from calorie  tracking to help you effortlessly reach your target weight without the mental battle.",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 16,
-                          // letterSpacing: 0,
-                          color: AppColors.white,
-                          fontWeight: FontWeight.w400)),
+                    // "",
+                    "True progress happens when your tracker fits your lifestyle. Dietlenz removes the friction from calorie tracking to help you effortlessly reach your target weight without the mental battle.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 14,
+                        // letterSpacing: 0,
+                        color: AppColors.white,
+                        fontWeight: FontWeight.w400),
+                  ),
                 ],
               ),
             ),
@@ -63,7 +63,8 @@ class _NotPunishmentState extends State<NotPunishment> {
                 text: "Continue",
                 iconWidget: SvgPicture.asset(AppImages.arrowRight),
                 onPressed: () {
-                  NavigationService.push(child: NotificationRequestScreen());
+                  NavigationService.push(
+                      child: const NotificationRequestScreen());
                 }),
             SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
           ],

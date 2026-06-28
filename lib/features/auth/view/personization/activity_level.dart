@@ -16,8 +16,7 @@ class ActivityLevelScreen extends ConsumerStatefulWidget {
 }
 
 class _ActivityLevelScreenState extends ConsumerState<ActivityLevelScreen> {
-  // Track which option is selected. 0 is the default (Sedentary).
-  int _selectedIndex = 0;
+  int? _selectedIndex;
 
   // The data for the options
   final List<Map<String, String>> _activityOptions = [
@@ -115,18 +114,13 @@ class _ActivityLevelScreenState extends ConsumerState<ActivityLevelScreen> {
             padding: const EdgeInsets.all(24.0),
             child: CustomYafButton(
                 text: "Continue",
+                isDisabled: _selectedIndex == null,
                 onPressed: () {
-                  // Save activity level (map index to enum value)
-                  // final activityLevels = [
-                  //   'SEDENTARY',
-                  //   'LIGHTLY_ACTIVE',
-                  //   'MODERATELY_ACTIVE',
-                  //   'VERY_ACTIVE',
-                  //   'EXTRA_ACTIVE'
-                  // ];
-                  // ref
-                  //     .read(onboardingProfileProvider.notifier)
-                  //     .updateActivityLevel(activityLevels[_selectedIndex]);
+                  final activityLevel =
+                      _activityOptions[_selectedIndex!]['title']!;
+                  ref
+                      .read(onboardingProfileProvider.notifier)
+                      .updateActivityLevel(activityLevel);
                   NavigationService.push(child: const AllegiesScreen());
                 }),
           ),

@@ -5,8 +5,8 @@ import 'package:diet_lenz/core/utils/functions.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
 import 'package:diet_lenz/features/auth/view/personization/quiz_screen.dart';
-import 'package:diet_lenz/features/auth/view/personization/select_macro_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -19,7 +19,7 @@ class SelectGoalScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<SelectGoalScreen> {
-  int selectedIndex = 0; // default selection: first goal
+  int? selectedIndex;
 
   @override
   void initState() {
@@ -84,8 +84,12 @@ class _LoginScreenState extends ConsumerState<SelectGoalScreen> {
             CustomYafButton(
                 iconPositionLeft: false,
                 text: "Continue",
+                isDisabled: selectedIndex == null,
                 iconWidget: SvgPicture.asset(AppImages.arrowRight),
                 onPressed: () {
+                  ref
+                      .read(onboardingProfileProvider.notifier)
+                      .updateGoal(goals[selectedIndex!]);
                   NavigationService.push(child: const QuizScreen());
                 }),
             SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),

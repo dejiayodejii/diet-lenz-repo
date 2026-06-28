@@ -3,15 +3,14 @@ import 'package:diet_lenz/component/personalization_stepper.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/core/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
-import 'package:diet_lenz/features/auth/view/personization/biggest_challenge.dart';
+import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
 import 'package:diet_lenz/features/auth/view/personization/realistic_target.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
 // ─── Design tokens (shared with Screen 1) ─────
-const _bg = Color(0xFF1A1A1A);
 const _surface = Color(0xFF2A2A2A);
-const _surfaceLight = Color(0xFF333333);
 const _orange = Color(0xFFFF6B00);
 const _textPrimary = Colors.white;
 const _textSecondary = Color(0xFF9E9E9E);
@@ -27,7 +26,9 @@ class _PreviewApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(fontFamily: 'Roboto'),
-        home: const GoalPaceScreen(targetWeightKg: 80),
+        home: const ProviderScope(
+          child: GoalPaceScreen(targetWeightKg: 80),
+        ),
       );
 }
 
@@ -76,20 +77,20 @@ const _paces = [
 /// ─────────────────────────────────────────────
 ///  MAIN SCREEN
 /// ─────────────────────────────────────────────
-class GoalPaceScreen extends StatefulWidget {
+class GoalPaceScreen extends ConsumerStatefulWidget {
   final double targetWeightKg;
 
   const GoalPaceScreen({super.key, required this.targetWeightKg});
 
   @override
-  State<GoalPaceScreen> createState() => _GoalPaceScreenState();
+  ConsumerState<GoalPaceScreen> createState() => _GoalPaceScreenState();
 }
 
-class _GoalPaceScreenState extends State<GoalPaceScreen> {
-  // Index into _paces. Starts at Optimal (index 1).
-  int _selectedIndex = 1;
+class _GoalPaceScreenState extends ConsumerState<GoalPaceScreen> {
+  int? _selectedIndex;
 
-  PaceOption get _pace => _paces[_selectedIndex];
+  PaceOption? get _pace =>
+      _selectedIndex == null ? null : _paces[_selectedIndex!];
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +120,6 @@ class _GoalPaceScreenState extends State<GoalPaceScreen> {
                           color: AppColors.white,
                           fontWeight: FontWeight.w600)),
 
- 
                   Column(
                     children: [
                       _PaceIconRow(selectedIndex: _selectedIndex),
@@ -139,7 +139,9 @@ class _GoalPaceScreenState extends State<GoalPaceScreen> {
 
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: _ResultCard(pace: _pace),
+                    child: _pace == null
+                        ? const _PacePromptCard()
+                        : _ResultCard(pace: _pace!),
                   ),
                 ],
               ),
@@ -153,8 +155,12 @@ class _GoalPaceScreenState extends State<GoalPaceScreen> {
                 weight: FontWeight.w600,
                 iconPositionLeft: false,
                 text: "Continue",
+                isDisabled: _selectedIndex == null,
                 iconWidget: SvgPicture.asset(AppImages.arrowRight),
                 onPressed: () {
+                  ref
+                      .read(onboardingProfileProvider.notifier)
+                      .updateGoalPace(_pace!.label);
                   NavigationService.push(child: const RealisticTargetScreen());
                 }),
           ),
@@ -173,7 +179,7 @@ class _GoalPaceScreenState extends State<GoalPaceScreen> {
 ///  — only the selected one glows.
 /// ─────────────────────────────────────────────
 class _PaceIconRow extends StatelessWidget {
-  final int selectedIndex;
+  final int? selectedIndex;
   const _PaceIconRow({required this.selectedIndex});
 
   @override
@@ -190,9 +196,12 @@ class _PaceIconRow extends StatelessWidget {
           //   shape: BoxShape.circle,
           //   color: active ? _orange.withOpacity(0.15) : Colors.transparent,
           // ),
-          child: Image.asset(
-            _paces[i].icon,
-            scale: 2,
+          child: Opacity(
+            opacity: active ? 1 : 0.45,
+            child: Image.asset(
+              _paces[i].icon,
+              scale: 2,
+            ),
           ),
         );
       }),
@@ -212,7 +221,7 @@ class _PaceIconRow extends StatelessWidget {
 ///  far you've turned it up.
 /// ─────────────────────────────────────────────
 class _PaceSlider extends StatelessWidget {
-  final int selectedIndex;
+  final int? selectedIndex;
   final ValueChanged<int> onChanged;
 
   const _PaceSlider({required this.selectedIndex, required this.onChanged});
@@ -229,7 +238,7 @@ class _PaceSlider extends StatelessWidget {
         // Thumb — the draggable circle
         thumbColor: _orange,
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 14),
-        overlayColor: _orange.withOpacity(0.15),
+        overlayColor: _orange.withValues(alpha: 0.15),
         overlayShape: const RoundSliderOverlayShape(overlayRadius: 24),
 
         // No tick marks needed — icons serve that role
@@ -237,7 +246,7 @@ class _PaceSlider extends StatelessWidget {
       ),
       child: Slider(
         padding: EdgeInsets.zero,
-        value: selectedIndex.toDouble(),
+        value: (selectedIndex ?? 1).toDouble(),
         min: 0,
         max: 2,
         // divisions: 2 means Flutter auto-snaps to 0, 1, 2
@@ -335,69 +344,25 @@ class _ResultCard extends StatelessWidget {
   }
 }
 
-/// ─────────────────────────────────────────────
-///  SHARED WIDGETS (copy from Screen 1 or share
-///  in a common file)
-/// ─────────────────────────────────────────────
-class _StepProgressBar extends StatelessWidget {
-  final int totalSteps;
-  final int currentStep;
-
-  const _StepProgressBar({required this.totalSteps, required this.currentStep});
+class _PacePromptCard extends StatelessWidget {
+  const _PacePromptCard();
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-      child: Row(
-        children: List.generate(totalSteps, (i) {
-          final filled = i < currentStep;
-          return Expanded(
-            child: Container(
-              margin: EdgeInsets.only(right: i < totalSteps - 1 ? 4 : 0),
-              height: 4,
-              decoration: BoxDecoration(
-                color: filled ? _orange : _surface,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          );
-        }),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: _surface,
+        borderRadius: BorderRadius.circular(20),
       ),
-    );
-  }
-}
-
-class _ContinueButton extends StatelessWidget {
-  final VoidCallback onTap;
-  const _ContinueButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        height: 56,
-        decoration: BoxDecoration(
-          color: _orange,
-          borderRadius: BorderRadius.circular(30),
-        ),
-        alignment: Alignment.center,
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Continue',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(width: 10),
-            Icon(Icons.arrow_forward, color: Colors.white, size: 20),
-          ],
+      child: const Text(
+        'Choose a pace to continue',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: _textSecondary,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

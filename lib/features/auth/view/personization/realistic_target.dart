@@ -6,8 +6,6 @@ import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
 import 'package:diet_lenz/features/auth/view/personization/biggest_challenge.dart';
-import 'package:diet_lenz/features/auth/view/personization/select_gender.dart';
-import 'package:diet_lenz/pace.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -21,23 +19,6 @@ class RealisticTargetScreen extends ConsumerStatefulWidget {
 }
 
 class _RealisticTargetScreenState extends ConsumerState<RealisticTargetScreen> {
-  bool _hasNavigated = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // Future<void>.delayed(const Duration(seconds: 3), _continue);
-  }
-
-  void _continue() {
-    if (!mounted || _hasNavigated) return;
-    _hasNavigated = true;
-    final projection = _projectionFrom(ref.read(onboardingProfileProvider));
-    NavigationService.push(
-      child: GoalPaceScreen(targetWeightKg: projection.targetWeightKg),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final projection = _projectionFrom(ref.watch(onboardingProfileProvider));
@@ -84,7 +65,7 @@ class _RealisticTargetScreenState extends ConsumerState<RealisticTargetScreen> {
                 text: "Continue",
                 iconWidget: SvgPicture.asset(AppImages.arrowRight),
                 onPressed: () {
-                  NavigationService.push(child: BiggestChallengeScreen());
+                  NavigationService.push(child: const BiggestChallengeScreen());
                 }),
             SizedBox(height: 15 + MediaQuery.of(context).padding.bottom),
           ],

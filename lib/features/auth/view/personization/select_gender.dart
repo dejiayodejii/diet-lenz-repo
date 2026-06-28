@@ -4,7 +4,7 @@ import 'package:diet_lenz/component/selectable_option_tile.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
-import 'package:diet_lenz/features/auth/view/personization/from_where.dart';
+import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
 import 'package:diet_lenz/features/auth/view/personization/select_age.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,7 +18,7 @@ class GenderScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<GenderScreen> {
-  bool isMale = true;
+  bool? isMale;
   @override
   void initState() {
     super.initState();
@@ -68,7 +68,7 @@ class _LoginScreenState extends ConsumerState<GenderScreen> {
                   SelectableOptionTile(
                     label: "Male",
                     leading: SvgPicture.asset(AppImages.male),
-                    isSelected: isMale,
+                    isSelected: isMale == true,
                     onTap: () {
                       setState(() {
                         isMale = true;
@@ -79,7 +79,7 @@ class _LoginScreenState extends ConsumerState<GenderScreen> {
                   SelectableOptionTile(
                     label: "Female",
                     leading: SvgPicture.asset(AppImages.female),
-                    isSelected: !isMale,
+                    isSelected: isMale == false,
                     onTap: () {
                       setState(() {
                         isMale = false;
@@ -108,8 +108,12 @@ class _LoginScreenState extends ConsumerState<GenderScreen> {
                 weight: FontWeight.w600,
                 iconPositionLeft: false,
                 text: "Continue",
+                isDisabled: isMale == null,
                 iconWidget: SvgPicture.asset(AppImages.arrowRight),
                 onPressed: () {
+                  ref
+                      .read(onboardingProfileProvider.notifier)
+                      .updateGender(isMale! ? 'MALE' : 'FEMALE');
                   NavigationService.push(child: const SelectAgeScreen());
                 }),
             SizedBox(height: 5 + MediaQuery.of(context).padding.bottom),

@@ -152,7 +152,6 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
               'API response format mismatch. The backend may have changed. Please contact support.',
           hasProfile: false,
         );
-       
       } else {
         state = state.copyWith(
           isLoading: false,
@@ -195,7 +194,6 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
         return false;
       }
     } on ApiException catch (e) {
-
       // Check if it's a deserialization error (Swagger spec mismatch)
       if (e.message != null && e.message!.contains('FormatException')) {
         state = state.copyWith(
@@ -203,7 +201,6 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
           errorMessage:
               'API response format mismatch. The backend may have changed. Please contact support.',
         );
-       
       } else {
         state = state.copyWith(
           isLoading: false,
@@ -212,7 +209,34 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
       }
       return false;
     } catch (e) {
-      print('❌ Unexpected error in updateUserProfile: ${e.toString()}');
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'An unexpected error occurred: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+
+  /// Submit onboarding survey answers collected before registration.
+  Future<bool> submitOnboardingSurvey(
+      OnboardingSurveyRequest onboardingSurveyRequest) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      await _apiService.userApi.submitOnboardingSurvey(onboardingSurveyRequest);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: null,
+        hasProfile: true,
+      );
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _parseApiError(e),
+      );
+      return false;
+    } catch (e) {
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'An unexpected error occurred: ${e.toString()}',

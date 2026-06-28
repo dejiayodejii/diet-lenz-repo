@@ -170,6 +170,7 @@ class _CountrySelectionScreenState
             child: CustomYafButton(
                 iconPositionLeft: false,
                 text: "Continue",
+                isDisabled: _selectedCountryCode == null,
                 iconWidget: SvgPicture.asset(AppImages.arrowRight),
                 onPressed: () {
                   // Save selected allergies
@@ -179,9 +180,10 @@ class _CountrySelectionScreenState
                     return;
                   }
 
-                  ref
-                      .read(onboardingProfileProvider.notifier)
-                      .updateCountry(_selectedCountry ?? '');
+                  ref.read(onboardingProfileProvider.notifier).updateCountry(
+                        _selectedCountry ?? '',
+                        countryCode: _selectedCountryCode,
+                      );
                   NavigationService.push(
                       child: const NotificationRequestScreen());
                 }),

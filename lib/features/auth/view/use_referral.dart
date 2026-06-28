@@ -7,9 +7,8 @@ import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/core/utils/loader.dart';
-import 'package:diet_lenz/features/auth/view/personization/plan_setup.dart';
+import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
 import 'package:diet_lenz/features/auth/view/personization/select_goal.dart';
-import 'package:diet_lenz/features/auth/view/verify_otp.dart';
 import 'package:diet_lenz/features/subscription/controller/subscription_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,10 +35,18 @@ class _LoginScreenState extends ConsumerState<ReferralScreen> {
   }
 
   void _navigateToNextScreen() {
+    final referralCode = _referralController.text.trim();
+    if (referralCode.isNotEmpty) {
+      ref
+          .read(onboardingProfileProvider.notifier)
+          .updateReferralCode(referralCode);
+    }
     NavigationService.push(child: const SelectGoalScreen());
   }
 
   Future<void> _applyReferral() async {
+    NavigationService.push(child: const SelectGoalScreen());
+    return;
     if (_referralController.text.isEmpty) {
       ref
           .read(toastProvider)

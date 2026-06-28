@@ -5,9 +5,9 @@ import 'package:diet_lenz/core/utils/functions.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
+import 'package:diet_lenz/features/auth/view/personization/desired_weight.dart';
 import 'package:diet_lenz/features/auth/view/personization/event_date.dart';
-import 'package:diet_lenz/features/auth/view/personization/quiz_screen.dart';
-import 'package:diet_lenz/features/auth/view/personization/select_macro_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -20,7 +20,7 @@ class TargetEventScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<TargetEventScreen> {
-  int selectedIndex = 0; // default selection: first goal
+  int? selectedIndex;
 
   @override
   void initState() {
@@ -31,7 +31,12 @@ class _LoginScreenState extends ConsumerState<TargetEventScreen> {
     });
   }
 
-  final goals = ['Vacation', 'Wedding', 'Birthday', "Personal Milestone"];
+  final goals = [
+    'Vacation',
+    'Wedding',
+    'Birthday',
+    'Personal Milestone',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -76,15 +81,24 @@ class _LoginScreenState extends ConsumerState<TargetEventScreen> {
                     );
                   }),
                   const SizedBox(height: 15),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text("I don’t have a specific event",
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: AppColors.primaryColor,
-                              fontWeight: FontWeight.w400)),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = -1;
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text("I don’t have a specific event",
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: selectedIndex == -1
+                                    ? AppColors.white
+                                    : AppColors.primaryColor,
+                                fontWeight: FontWeight.w400)),
+                      ),
                     ),
                   ),
                 ],
@@ -93,9 +107,20 @@ class _LoginScreenState extends ConsumerState<TargetEventScreen> {
             CustomYafButton(
                 iconPositionLeft: false,
                 text: "Continue",
+                isDisabled: selectedIndex == null,
                 iconWidget: SvgPicture.asset(AppImages.arrowRight),
                 onPressed: () {
-                  NavigationService.push(child: const SelectEventDateScreen());
+                  final targetEvent =
+                      selectedIndex == -1 ? 'None' : goals[selectedIndex!];
+                  ref
+                      .read(onboardingProfileProvider.notifier)
+                      .updateTargetEvent(targetEvent);
+                  if (targetEvent == 'None') {
+                    NavigationService.push(child: const DesiredWeightScreen());
+                  } else {
+                    NavigationService.push(
+                        child: const SelectEventDateScreen());
+                  }
                 }),
             SizedBox(height: 20 + MediaQuery.of(context).padding.bottom),
           ],

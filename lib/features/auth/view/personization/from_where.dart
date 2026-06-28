@@ -4,6 +4,7 @@ import 'package:diet_lenz/component/selectable_option_tile.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
 import 'package:diet_lenz/features/auth/view/use_referral.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -61,7 +62,10 @@ class _FromWhereScreenState extends ConsumerState<FromWhereScreen> {
             isDisabled: selectedIndex == null,
             iconWidget: SvgPicture.asset(AppImages.arrowRight),
             onPressed: () {
-              NavigationService.push(child: ReferralScreen(email: ''));
+              ref
+                  .read(onboardingProfileProvider.notifier)
+                  .updateHearAboutUs(fromWhere[selectedIndex!]);
+              NavigationService.push(child: const ReferralScreen(email: ''));
             }),
       ),
       body: Padding(
