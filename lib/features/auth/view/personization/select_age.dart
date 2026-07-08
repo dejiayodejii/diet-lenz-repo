@@ -72,7 +72,7 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 40),
+            const SizedBox(height: 10),
             const Text(
               "When is your \nbirthday?",
               textAlign: TextAlign.center,
@@ -83,7 +83,7 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
                 height: 1.3,
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
             const Text(
               "Your age shapes your metabolic rate.",
               style: TextStyle(
@@ -93,7 +93,7 @@ class _SelectAgeScreenState extends ConsumerState<SelectAgeScreen> {
                 fontWeight: FontWeight.w400,
               ),
             ),
-            const SizedBox(height: 56),
+            const SizedBox(height: 20),
             SnappingCalendarPicker(
               initialDate: _selectedDate,
               startYear: _startYear,

@@ -1,7 +1,5 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:diet_lenz/constants/app_assets.dart';
-import 'package:diet_lenz/core/constants/app_assets.dart';
 import 'package:diet_lenz/core/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
@@ -23,7 +21,7 @@ import 'package:path_provider/path_provider.dart'; // Add path_provider
 
 class AICameraScreen extends ConsumerStatefulWidget {
   final CameraDescription? camera;
-  const AICameraScreen({Key? key, this.camera}) : super(key: key);
+  const AICameraScreen({super.key, this.camera});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _AICameraScreenState();
@@ -55,6 +53,11 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
     // Added Suggest mode
   ];
   int selectedModeIndex = 0;
+
+  bool get _isBarcodeMode => selectedModeIndex == 2;
+  bool get _isLabelMode => selectedModeIndex == 3;
+  bool get _usesScannerGuide => _isBarcodeMode || _isLabelMode;
+  bool _showScannerGuideHints = true;
 
   // Selected image for preview (used in Upload mode)
   File? _selectedImageFile;
@@ -482,6 +485,10 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(recipeViewModelProvider);
+    final showScannerMode = _usesScannerGuide && _selectedImageFile == null;
+    final showStandardScanMode = selectedModeIndex != 4 &&
+        _selectedImageFile == null &&
+        !showScannerMode;
 
     return BlurryModalProgressHUD(
       inAsyncCall: state.isLoading || isLoading,
@@ -502,11 +509,25 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
                     children: [
                       // 1. CAMERA FEED OR PLACEHOLDER
                       Positioned.fill(
-                        child: _buildCameraView(),
+                        child: showScannerMode || showStandardScanMode
+                            ? Container(color: Colors.black)
+                            : _buildCameraView(),
                       ),
 
-                      // 2. DARK OVERLAY WITH CUTOUT + CORNERS (hide in upload mode or when image selected)
-                      if (selectedModeIndex != 4 && _selectedImageFile == null)
+                      if (showStandardScanMode)
+                        Positioned(
+                          top: scanBoxTop,
+                          left: (size.width - scanBoxSize) / 2,
+                          width: scanBoxSize,
+                          height: scanBoxSize,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: _buildCameraView(),
+                          ),
+                        ),
+
+                      // 2. DARK OVERLAY WITH CUTOUT + CORNERS (hide in upload mode, scanner guide modes or when image selected)
+                      if (showStandardScanMode)
                         Positioned.fill(
                           child: CustomPaint(
                             painter: ScannerOverlayPainter(
@@ -521,8 +542,8 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
                           ),
                         ),
 
-                      // 3. SCANNING LINE ANIMATION (hide in upload mode or when image selected)
-                      if (selectedModeIndex != 4 && _selectedImageFile == null)
+                      // 3. SCANNING LINE ANIMATION (hide in upload mode, scanner guide modes or when image selected)
+                      if (showStandardScanMode)
                         Positioned(
                           top: scanBoxTop,
                           left: (size.width - scanBoxSize) / 2,
@@ -564,31 +585,13 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
                           ),
                         ),
 
-                      // 4. TOP BAR
-                      const SafeArea(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // _buildCircleButton(
-                              //     Icons.arrow_back_ios_new, () {}),
-                              SizedBox(width: 40),
-                              Text(
-                                "AI Camera",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              // Invisible icon to balance the row
-                              SizedBox(width: 40),
-                            ],
-                          ),
+                      if (showScannerMode)
+                        Positioned.fill(
+                          child: _buildScannerGuide(context),
                         ),
-                      ),
+
+                      // 4. TOP BAR
+                      SafeArea(child: _buildTopBar()),
                     ],
                   );
                 },
@@ -604,6 +607,231 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
   }
 
   // --- WIDGET BUILDERS ---
+
+  Widget _buildTopBar() {
+    final title = _isBarcodeMode
+        ? 'Barcode Scanner'
+        : _isLabelMode
+            ? 'Label Scanner'
+            : 'AI Camera';
+
+    // if (_usesScannerGuide) {
+    //   return Padding(
+    //     padding: const EdgeInsets.fromLTRB(24, 18, 24, 0),
+    //     child: Row(
+    //       children: [
+    //         GestureDetector(
+    //           onTap: () => Navigator.of(context).maybePop(),
+    //           child: Container(
+    //             width: 50,
+    //             height: 50,
+    //             decoration: BoxDecoration(
+    //               color: Colors.white.withValues(alpha: 0.12),
+    //               shape: BoxShape.circle,
+    //             ),
+    //             child: const Icon(
+    //               Icons.arrow_back_ios_new_rounded,
+    //               color: Colors.white,
+    //               size: 20,
+    //             ),
+    //           ),
+    //         ),
+    //         const SizedBox(width: 26),
+    //         Flexible(
+    //           child: Text(
+    //             title,
+    //             maxLines: 1,
+    //             overflow: TextOverflow.ellipsis,
+    //             style: const TextStyle(
+    //               color: Colors.white,
+    //               fontSize: 28,
+    //               fontWeight: FontWeight.w700,
+    //             ),
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    // }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const SizedBox(width: 40),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(width: 40),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScannerGuide(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final contentHeight = constraints.maxHeight;
+        final topOffset =
+            _isBarcodeMode ? contentHeight * 0.34 : contentHeight * 0.23;
+
+        return Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            Positioned(
+              top: topOffset,
+              left: 0,
+              right: 0,
+              child: _isBarcodeMode
+                  ? _buildBarcodeGuide(context)
+                  : _buildLabelGuide(context),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildBarcodeGuide(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final frameWidth = width * 0.78;
+    final frameHeight = frameWidth * 0.52;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            SizedBox(
+              width: frameWidth,
+              height: frameHeight,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(32),
+                child: _buildCameraView(),
+              ),
+            ),
+            if (_showScannerGuideHints)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: BarcodeGuidePainter(showBarcodeSample: true),
+                  ),
+                ),
+              )
+            else
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: BarcodeGuidePainter(showBarcodeSample: false),
+                  ),
+                ),
+              ),
+            _buildDismissGuideButton(),
+          ],
+        ),
+        if (_showScannerGuideHints) ...[
+          const SizedBox(height: 34),
+          const Text(
+            'Align the barcode within the frame',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 0,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildLabelGuide(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(36),
+              child: SizedBox(
+                width: width * 0.48,
+                height: width * 0.78,
+                child: _buildCameraView(),
+              ),
+            ),
+            if (_showScannerGuideHints)
+              Positioned.fill(
+                child: Center(
+                  child: IgnorePointer(
+                    child: CustomPaint(
+                      size: Size(width * 0.36, width * 0.5),
+                      painter: NutritionLabelPainter(),
+                    ),
+                  ),
+                ),
+              ),
+            _buildDismissGuideButton(),
+          ],
+        ),
+        if (_showScannerGuideHints) ...[
+          const SizedBox(height: 48),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 42),
+            child: Text(
+              'Get nutrition details from any label to\ntrack your intake accurately',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                height: 1.35,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildDismissGuideButton() {
+    if (!_showScannerGuideHints) return const SizedBox.shrink();
+
+    return Positioned(
+      top: -12,
+      right: -12,
+      child: GestureDetector(
+        onTap: () => setState(() => _showScannerGuideHints = false),
+        child: Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.72),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.22),
+            ),
+          ),
+          child: const Icon(
+            Icons.close_rounded,
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildCameraView() {
     // Show selected image preview (when image is picked from gallery)
@@ -752,7 +980,10 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
                     String mode = entry.value;
                     final isSelected = index == selectedModeIndex;
                     return GestureDetector(
-                      onTap: () => setState(() => selectedModeIndex = index),
+                      onTap: () => setState(() {
+                        selectedModeIndex = index;
+                        _showScannerGuideHints = true;
+                      }),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Column(
@@ -861,6 +1092,237 @@ class ScannerOverlayPainter extends CustomPainter {
         radius: Radius.circular(r));
     bl.lineTo(scanBoxRect.left, scanBoxRect.bottom - cornerLength);
     canvas.drawPath(bl, cornerPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class BarcodeGuidePainter extends CustomPainter {
+  BarcodeGuidePainter({required this.showBarcodeSample});
+
+  final bool showBarcodeSample;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (showBarcodeSample) {
+      final scrimPaint = Paint()..color = Colors.black.withValues(alpha: 0.34);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Offset.zero & size,
+          const Radius.circular(32),
+        ),
+        scrimPaint,
+      );
+
+      final highlightPaint = Paint()
+        ..color = Colors.white.withValues(alpha: 0.06)
+        ..strokeWidth = 1;
+      canvas.drawLine(
+        Offset(size.width * 0.08, size.height * 0.48),
+        Offset(size.width * 0.92, size.height * 0.48),
+        highlightPaint,
+      );
+
+      _drawBarcode(canvas, size);
+    }
+
+    _drawFrameCorners(canvas, size);
+  }
+
+  void _drawBarcode(Canvas canvas, Size size) {
+    final paint = Paint()..color = Colors.black;
+    final barcodeHeight = size.height * 0.43;
+    final top = size.height * 0.285;
+    final left = size.width * 0.22;
+    final widths = <double>[5, 3, 6, 2, 8, 4, 5, 2, 7, 3, 4, 6, 3, 8, 5];
+    var x = left;
+
+    for (var i = 0; i < widths.length; i++) {
+      final barWidth = widths[i];
+      canvas.drawRect(
+        Rect.fromLTWH(x, top, barWidth, barcodeHeight),
+        paint,
+      );
+      x += barWidth + (i.isEven ? 7 : 4);
+    }
+  }
+
+  void _drawFrameCorners(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.square;
+
+    const radius = 28.0;
+    final length = size.width * 0.26;
+
+    void drawCorner(Path path) => canvas.drawPath(path, paint);
+
+    final tl = Path()
+      ..moveTo(0, size.height * 0.31)
+      ..lineTo(0, radius)
+      ..arcToPoint(
+        const Offset(radius, 0),
+        radius: const Radius.circular(radius),
+      )
+      ..lineTo(length, 0);
+    drawCorner(tl);
+
+    final tr = Path()
+      ..moveTo(size.width - length, 0)
+      ..lineTo(size.width - radius, 0)
+      ..arcToPoint(
+        Offset(size.width, radius),
+        radius: const Radius.circular(radius),
+      )
+      ..lineTo(size.width, size.height * 0.31);
+    drawCorner(tr);
+
+    final br = Path()
+      ..moveTo(size.width, size.height * 0.69)
+      ..lineTo(size.width, size.height - radius)
+      ..arcToPoint(
+        Offset(size.width - radius, size.height),
+        radius: const Radius.circular(radius),
+      )
+      ..lineTo(size.width - length, size.height);
+    drawCorner(br);
+
+    final bl = Path()
+      ..moveTo(length, size.height)
+      ..lineTo(radius, size.height)
+      ..arcToPoint(
+        Offset(0, size.height - radius),
+        radius: const Radius.circular(radius),
+      )
+      ..lineTo(0, size.height * 0.69);
+    drawCorner(bl);
+  }
+
+  @override
+  bool shouldRepaint(covariant BarcodeGuidePainter oldDelegate) {
+    return oldDelegate.showBarcodeSample != showBarcodeSample;
+  }
+}
+
+class NutritionLabelPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final backgroundPaint = Paint()..color = Colors.white;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(rect, const Radius.circular(5)),
+      backgroundPaint,
+    );
+
+    final titlePainter = TextPainter(
+      text: const TextSpan(
+        text: 'Nutrition Facts',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 22,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout(maxWidth: size.width - 20);
+    titlePainter.paint(canvas, const Offset(10, 8));
+
+    final thinPaint = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 1;
+    final thickPaint = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 6;
+
+    _drawSmallText(canvas, 'Serving Size oz.', Offset(10, size.height * 0.16),
+        size.width - 20);
+    _drawSmallText(canvas, 'Serving Per Container',
+        Offset(10, size.height * 0.21), size.width - 20);
+    canvas.drawLine(
+      Offset(8, size.height * 0.275),
+      Offset(size.width - 8, size.height * 0.275),
+      thickPaint,
+    );
+    _drawSmallText(canvas, 'Amount Per Serving:',
+        Offset(10, size.height * 0.305), size.width - 20);
+    canvas.drawLine(
+      Offset(8, size.height * 0.365),
+      Offset(size.width - 8, size.height * 0.365),
+      thinPaint,
+    );
+    _drawSmallText(
+        canvas, 'Calories', Offset(10, size.height * 0.39), size.width * 0.42);
+    _drawSmallText(canvas, 'Calories From Fat',
+        Offset(size.width * 0.43, size.height * 0.39), size.width * 0.48);
+    canvas.drawLine(
+      Offset(8, size.height * 0.455),
+      Offset(size.width - 8, size.height * 0.455),
+      thickPaint,
+    );
+    _drawSmallText(canvas, '% Daily value*',
+        Offset(size.width * 0.64, size.height * 0.475), size.width * 0.3);
+
+    final rows = [
+      'Total Fat',
+      '  Saturated Fat',
+      '  Trans Fat',
+      'Cholesterol',
+      'Sodium',
+      'Total Carbohydrate',
+      '  Dietary Fiber',
+      '  Sugars',
+      'Protein',
+    ];
+    final startY = size.height * 0.535;
+    final rowHeight = size.height * 0.061;
+
+    for (var i = 0; i < rows.length; i++) {
+      final y = startY + (i * rowHeight);
+      _drawSmallText(canvas, rows[i], Offset(10, y), size.width * 0.62);
+      if (i < rows.length - 1) {
+        _drawSmallText(
+            canvas, '%', Offset(size.width * 0.86, y), size.width * 0.08);
+        canvas.drawLine(
+          Offset(8, y + rowHeight * 0.78),
+          Offset(size.width - 8, y + rowHeight * 0.78),
+          thinPaint,
+        );
+      }
+    }
+
+    canvas.drawLine(
+      Offset(8, size.height - 8),
+      Offset(size.width - 8, size.height - 8),
+      thickPaint,
+    );
+  }
+
+  void _drawSmallText(
+    Canvas canvas,
+    String text,
+    Offset offset,
+    double maxWidth,
+  ) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 9.5,
+          height: 1,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout(maxWidth: maxWidth);
+    painter.paint(canvas, offset);
   }
 
   @override

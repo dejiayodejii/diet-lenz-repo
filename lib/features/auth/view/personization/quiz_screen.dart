@@ -50,7 +50,7 @@ class _LoginScreenState extends ConsumerState<QuizScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const SizedBox(height: 25),
+            // const SizedBox(height: 25),
             const Text("Quick Challenge",
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -66,7 +66,7 @@ class _LoginScreenState extends ConsumerState<QuizScreen> {
                     letterSpacing: 0,
                     color: AppColors.white,
                     fontWeight: FontWeight.w600)),
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -83,25 +83,30 @@ class _LoginScreenState extends ConsumerState<QuizScreen> {
                   Image.asset(
                     AppImages.quiz,
                     scale: 2,
-                    height: 250,
+                    height: 150,
                   ),
-                  const SizedBox(height: 40),
-                  ...List.generate(options.length, (index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: SelectableOptionTile(
-                        label: capitalizeFirstLetter(
-                          removeUnderscores(options[index]),
-                        ),
-                        isSelected: selectedIndex == index,
-                        onTap: () {
-                          setState(() {
-                            selectedIndex = index;
-                          });
-                        },
-                      ),
-                    );
-                  }),
+                  const SizedBox(height: 20),
+                  Expanded(
+                      child: Column(
+                    children: [
+                      ...List.generate(options.length, (index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: SelectableOptionTile(
+                            label: capitalizeFirstLetter(
+                              removeUnderscores(options[index]),
+                            ),
+                            isSelected: selectedIndex == index,
+                            onTap: () {
+                              setState(() {
+                                selectedIndex = index;
+                              });
+                            },
+                          ),
+                        );
+                      }),
+                    ],
+                  ))
                 ],
               ),
             ),
@@ -112,7 +117,7 @@ class _LoginScreenState extends ConsumerState<QuizScreen> {
                 onPressed: () {
                   NavigationService.push(child: const QuizAnswerScreen());
                 }),
-            SizedBox(height: 5 + MediaQuery.of(context).padding.bottom),
+            SizedBox(height: 0 + MediaQuery.of(context).padding.bottom),
           ],
         ),
       ),

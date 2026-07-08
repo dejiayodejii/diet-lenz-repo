@@ -29,7 +29,7 @@ class _BottomNavState extends ConsumerState<BottomNavScreen> {
   @override
   void initState() {
     _screens = [
-      const ProgressScreen(),
+      const ProgressScreen(), 
       const HomeScreen(),
       const SetttingsScreen(),
       const AICameraScreen()

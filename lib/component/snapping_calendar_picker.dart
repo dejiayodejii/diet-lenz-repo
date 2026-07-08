@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../constants/app_colors.dart';
 
@@ -111,7 +112,13 @@ class _SnappingCalendarPickerState extends State<SnappingCalendarPicker> {
     widget.onDateChanged?.call(selectedDate);
   }
 
+  void _selectionHaptic() {
+    HapticFeedback.selectionClick();
+  }
+
   void _setMonth(int index) {
+    if (index == _monthIndex) return;
+    _selectionHaptic();
     setState(() {
       _monthIndex = index;
       _dayIndex = _dayIndex.clamp(0, _daysInSelectedMonth - 1);
@@ -120,11 +127,15 @@ class _SnappingCalendarPickerState extends State<SnappingCalendarPicker> {
   }
 
   void _setDay(int index) {
+    if (index == _dayIndex) return;
+    _selectionHaptic();
     setState(() => _dayIndex = index);
     _notifyDateChanged();
   }
 
   void _setYear(int index) {
+    if (index == _yearIndex) return;
+    _selectionHaptic();
     setState(() {
       _yearIndex = index;
       _dayIndex = _dayIndex.clamp(0, _daysInSelectedMonth - 1);

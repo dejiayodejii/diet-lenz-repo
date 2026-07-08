@@ -23,6 +23,15 @@ class _SelectEventDateScreenState extends ConsumerState<SelectEventDateScreen> {
 
   int get _startYear => DateTime.now().year;
 
+  String _eventName(String? targetEvent) {
+    final event = targetEvent?.trim();
+    if (event == null || event.isEmpty || event.toLowerCase() == 'none') {
+      return 'event';
+    }
+
+    return event.replaceAll('_', ' ').toLowerCase();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -38,6 +47,11 @@ class _SelectEventDateScreenState extends ConsumerState<SelectEventDateScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final targetEvent = ref.watch(
+      onboardingProfileProvider.select((data) => data.targetEvent),
+    );
+    final eventName = _eventName(targetEvent);
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
@@ -49,10 +63,10 @@ class _SelectEventDateScreenState extends ConsumerState<SelectEventDateScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 40),
-            const Text(
-              "When is your \nwedding?",
+            Text(
+              "When is your \n$eventName?",
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,

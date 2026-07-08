@@ -57,19 +57,19 @@ const _paces = [
   PaceOption(
     label: 'Slow',
     modeLabel: 'Relaxed Pace',
-    kgPerWeek: -0.35,
+    kgPerWeek: -0.30,
     icon: AppImages.slow,
   ),
   PaceOption(
     label: 'Optimal',
     modeLabel: 'Balanced Pace',
-    kgPerWeek: -0.70,
+    kgPerWeek: -0.50,
     icon: AppImages.optimal,
   ),
   PaceOption(
     label: 'Fast',
     modeLabel: 'Aggressive Pace',
-    kgPerWeek: -1.10,
+    kgPerWeek: -0.70,
     icon: AppImages.fast,
   ),
 ];

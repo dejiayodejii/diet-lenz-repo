@@ -6,6 +6,7 @@ import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/main2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 
 typedef MeasurementExtraBuilder = Widget Function(
@@ -131,9 +132,18 @@ class _MeasurementSelectionScreenState
   double get currentStep =>
       isLeftUnitSelected ? (widget.leftStep ?? 1.0) : (widget.rightStep ?? 1.0);
 
+  int _stepIndexFor(double value, double min, double step) {
+    return ((value - min) / step).round();
+  }
+
+  void _selectionHaptic() {
+    HapticFeedback.selectionClick();
+  }
+
   void _switchUnit(bool toLeft) {
     if (isLeftUnitSelected == toLeft) return;
 
+    _selectionHaptic();
     setState(() {
       isLeftUnitSelected = toLeft;
       if (toLeft) {
@@ -173,7 +183,7 @@ class _MeasurementSelectionScreenState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const SizedBox(height: 60),
+            const SizedBox(height: 30),
             Text(
               widget.title,
               textAlign: TextAlign.center,
@@ -196,7 +206,7 @@ class _MeasurementSelectionScreenState
                     onLeftTap: () => _switchUnit(true),
                     onRightTap: () => _switchUnit(false),
                   ),
-                  SizedBox(height: isCompoundMode ? 24 : 80),
+                  SizedBox(height: isCompoundMode ? 24 : 40),
                   if (isCompoundMode)
                     ..._buildCompoundFeetInches()
                   else ...[
@@ -212,6 +222,19 @@ class _MeasurementSelectionScreenState
                       step: currentStep,
                       initialValue: selectedValue,
                       onValueChanged: (value) {
+                        final previousIndex = _stepIndexFor(
+                          selectedValue,
+                          currentMin,
+                          currentStep,
+                        );
+                        final nextIndex = _stepIndexFor(
+                          value,
+                          currentMin,
+                          currentStep,
+                        );
+                        if (previousIndex != nextIndex) {
+                          _selectionHaptic();
+                        }
                         setState(() {
                           selectedValue = value;
                         });
@@ -219,7 +242,7 @@ class _MeasurementSelectionScreenState
                     ),
                   ],
                   if (widget.extraBuilder != null) ...[
-                    const SizedBox(height: 50),
+                    const SizedBox(height: 30),
                     widget.extraBuilder!(
                       context,
                       selectedValue,
@@ -230,7 +253,7 @@ class _MeasurementSelectionScreenState
                 ],
               ),
             ),
-            const SizedBox(height: 100),
+            const SizedBox(height: 60),
             CustomYafButton(
               fontSize: 16,
               weight: FontWeight.w600,
@@ -324,8 +347,12 @@ class _MeasurementSelectionScreenState
         majorTickInterval: 1,
         height: 90,
         onValueChanged: (val) {
+          final nextFeetValue = val.round();
+          if (nextFeetValue != _feetValue) {
+            _selectionHaptic();
+          }
           setState(() {
-            _feetValue = val.round();
+            _feetValue = nextFeetValue;
             selectedValue = _feetValue + _inchesValue / 12.0;
           });
         },
@@ -353,8 +380,12 @@ class _MeasurementSelectionScreenState
         majorTickInterval: 3,
         height: 90,
         onValueChanged: (val) {
+          final nextInchesValue = val.round();
+          if (nextInchesValue != _inchesValue) {
+            _selectionHaptic();
+          }
           setState(() {
-            _inchesValue = val.round();
+            _inchesValue = nextInchesValue;
             selectedValue = _feetValue + _inchesValue / 12.0;
           });
         },
