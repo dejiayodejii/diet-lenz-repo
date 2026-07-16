@@ -91,32 +91,35 @@ class ReferralHistoryResponse {
   DateTime? createdAt;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is ReferralHistoryResponse &&
-    other.referralId == referralId &&
-    other.refereeEmail == refereeEmail &&
-    other.codeUsed == codeUsed &&
-    other.status == status &&
-    other.rewardAmount == rewardAmount &&
-    other.rewardCurrency == rewardCurrency &&
-    other.isPaid == isPaid &&
-    other.paidAt == paidAt &&
-    other.createdAt == createdAt;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ReferralHistoryResponse &&
+          other.referralId == referralId &&
+          other.refereeEmail == refereeEmail &&
+          other.codeUsed == codeUsed &&
+          other.status == status &&
+          other.rewardAmount == rewardAmount &&
+          other.rewardCurrency == rewardCurrency &&
+          other.isPaid == isPaid &&
+          other.paidAt == paidAt &&
+          other.createdAt == createdAt;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (referralId == null ? 0 : referralId!.hashCode) +
-    (refereeEmail == null ? 0 : refereeEmail!.hashCode) +
-    (codeUsed == null ? 0 : codeUsed!.hashCode) +
-    (status == null ? 0 : status!.hashCode) +
-    (rewardAmount == null ? 0 : rewardAmount!.hashCode) +
-    (rewardCurrency == null ? 0 : rewardCurrency!.hashCode) +
-    (isPaid == null ? 0 : isPaid!.hashCode) +
-    (paidAt == null ? 0 : paidAt!.hashCode) +
-    (createdAt == null ? 0 : createdAt!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (referralId == null ? 0 : referralId!.hashCode) +
+      (refereeEmail == null ? 0 : refereeEmail!.hashCode) +
+      (codeUsed == null ? 0 : codeUsed!.hashCode) +
+      (status == null ? 0 : status!.hashCode) +
+      (rewardAmount == null ? 0 : rewardAmount!.hashCode) +
+      (rewardCurrency == null ? 0 : rewardCurrency!.hashCode) +
+      (isPaid == null ? 0 : isPaid!.hashCode) +
+      (paidAt == null ? 0 : paidAt!.hashCode) +
+      (createdAt == null ? 0 : createdAt!.hashCode);
 
   @override
-  String toString() => 'ReferralHistoryResponse[referralId=$referralId, refereeEmail=$refereeEmail, codeUsed=$codeUsed, status=$status, rewardAmount=$rewardAmount, rewardCurrency=$rewardCurrency, isPaid=$isPaid, paidAt=$paidAt, createdAt=$createdAt]';
+  String toString() =>
+      'ReferralHistoryResponse[referralId=$referralId, refereeEmail=$refereeEmail, codeUsed=$codeUsed, status=$status, rewardAmount=$rewardAmount, rewardCurrency=$rewardCurrency, isPaid=$isPaid, paidAt=$paidAt, createdAt=$createdAt]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -180,8 +183,10 @@ class ReferralHistoryResponse {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "ReferralHistoryResponse[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "ReferralHistoryResponse[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "ReferralHistoryResponse[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "ReferralHistoryResponse[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -201,7 +206,10 @@ class ReferralHistoryResponse {
     return null;
   }
 
-  static List<ReferralHistoryResponse> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<ReferralHistoryResponse> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <ReferralHistoryResponse>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -229,23 +237,27 @@ class ReferralHistoryResponse {
   }
 
   // maps a json object with a list of ReferralHistoryResponse-objects as value to a dart map
-  static Map<String, List<ReferralHistoryResponse>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<ReferralHistoryResponse>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<ReferralHistoryResponse>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = ReferralHistoryResponse.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = ReferralHistoryResponse.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-
 
 class ReferralHistoryResponseStatusEnum {
   /// Instantiate a new enum with the provided [value].
@@ -270,9 +282,13 @@ class ReferralHistoryResponseStatusEnum {
     FRAUD,
   ];
 
-  static ReferralHistoryResponseStatusEnum? fromJson(dynamic value) => ReferralHistoryResponseStatusEnumTypeTransformer().decode(value);
+  static ReferralHistoryResponseStatusEnum? fromJson(dynamic value) =>
+      ReferralHistoryResponseStatusEnumTypeTransformer().decode(value);
 
-  static List<ReferralHistoryResponseStatusEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<ReferralHistoryResponseStatusEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <ReferralHistoryResponseStatusEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -289,7 +305,8 @@ class ReferralHistoryResponseStatusEnum {
 /// Transformation class that can [encode] an instance of [ReferralHistoryResponseStatusEnum] to String,
 /// and [decode] dynamic data back to [ReferralHistoryResponseStatusEnum].
 class ReferralHistoryResponseStatusEnumTypeTransformer {
-  factory ReferralHistoryResponseStatusEnumTypeTransformer() => _instance ??= const ReferralHistoryResponseStatusEnumTypeTransformer._();
+  factory ReferralHistoryResponseStatusEnumTypeTransformer() =>
+      _instance ??= const ReferralHistoryResponseStatusEnumTypeTransformer._();
 
   const ReferralHistoryResponseStatusEnumTypeTransformer._();
 
@@ -303,12 +320,16 @@ class ReferralHistoryResponseStatusEnumTypeTransformer {
   ///
   /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
   /// and users are still using an old app with the old code.
-  ReferralHistoryResponseStatusEnum? decode(dynamic data, {bool allowNull = true}) {
+  ReferralHistoryResponseStatusEnum? decode(dynamic data,
+      {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'PENDING': return ReferralHistoryResponseStatusEnum.PENDING;
-        case r'COMPLETED': return ReferralHistoryResponseStatusEnum.COMPLETED;
-        case r'FRAUD': return ReferralHistoryResponseStatusEnum.FRAUD;
+        case r'PENDING':
+          return ReferralHistoryResponseStatusEnum.PENDING;
+        case r'COMPLETED':
+          return ReferralHistoryResponseStatusEnum.COMPLETED;
+        case r'FRAUD':
+          return ReferralHistoryResponseStatusEnum.FRAUD;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -321,5 +342,3 @@ class ReferralHistoryResponseStatusEnumTypeTransformer {
   /// Singleton [ReferralHistoryResponseStatusEnumTypeTransformer] instance.
   static ReferralHistoryResponseStatusEnumTypeTransformer? _instance;
 }
-
-

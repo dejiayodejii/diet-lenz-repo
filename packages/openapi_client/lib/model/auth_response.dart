@@ -97,32 +97,35 @@ class AuthResponse {
   String? profilePhoto;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is AuthResponse &&
-    other.message == message &&
-    other.accessToken == accessToken &&
-    other.refreshToken == refreshToken &&
-    other.userId == userId &&
-    other.email == email &&
-    other.firstName == firstName &&
-    other.lastName == lastName &&
-    other.emailVerified == emailVerified &&
-    other.profilePhoto == profilePhoto;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AuthResponse &&
+          other.message == message &&
+          other.accessToken == accessToken &&
+          other.refreshToken == refreshToken &&
+          other.userId == userId &&
+          other.email == email &&
+          other.firstName == firstName &&
+          other.lastName == lastName &&
+          other.emailVerified == emailVerified &&
+          other.profilePhoto == profilePhoto;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (message == null ? 0 : message!.hashCode) +
-    (accessToken == null ? 0 : accessToken!.hashCode) +
-    (refreshToken == null ? 0 : refreshToken!.hashCode) +
-    (userId == null ? 0 : userId!.hashCode) +
-    (email == null ? 0 : email!.hashCode) +
-    (firstName == null ? 0 : firstName!.hashCode) +
-    (lastName == null ? 0 : lastName!.hashCode) +
-    (emailVerified == null ? 0 : emailVerified!.hashCode) +
-    (profilePhoto == null ? 0 : profilePhoto!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (message == null ? 0 : message!.hashCode) +
+      (accessToken == null ? 0 : accessToken!.hashCode) +
+      (refreshToken == null ? 0 : refreshToken!.hashCode) +
+      (userId == null ? 0 : userId!.hashCode) +
+      (email == null ? 0 : email!.hashCode) +
+      (firstName == null ? 0 : firstName!.hashCode) +
+      (lastName == null ? 0 : lastName!.hashCode) +
+      (emailVerified == null ? 0 : emailVerified!.hashCode) +
+      (profilePhoto == null ? 0 : profilePhoto!.hashCode);
 
   @override
-  String toString() => 'AuthResponse[message=$message, accessToken=$accessToken, refreshToken=$refreshToken, userId=$userId, email=$email, firstName=$firstName, lastName=$lastName, emailVerified=$emailVerified, profilePhoto=$profilePhoto]';
+  String toString() =>
+      'AuthResponse[message=$message, accessToken=$accessToken, refreshToken=$refreshToken, userId=$userId, email=$email, firstName=$firstName, lastName=$lastName, emailVerified=$emailVerified, profilePhoto=$profilePhoto]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -186,8 +189,10 @@ class AuthResponse {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "AuthResponse[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "AuthResponse[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "AuthResponse[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "AuthResponse[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -207,7 +212,10 @@ class AuthResponse {
     return null;
   }
 
-  static List<AuthResponse> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<AuthResponse> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <AuthResponse>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -235,20 +243,24 @@ class AuthResponse {
   }
 
   // maps a json object with a list of AuthResponse-objects as value to a dart map
-  static Map<String, List<AuthResponse>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<AuthResponse>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<AuthResponse>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = AuthResponse.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = AuthResponse.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

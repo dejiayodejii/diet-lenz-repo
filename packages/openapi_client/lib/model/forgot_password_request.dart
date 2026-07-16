@@ -19,20 +19,21 @@ class ForgotPasswordRequest {
   String email;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is ForgotPasswordRequest &&
-    other.email == email;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ForgotPasswordRequest && other.email == email;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (email.hashCode);
+      // ignore: unnecessary_parenthesis
+      (email.hashCode);
 
   @override
   String toString() => 'ForgotPasswordRequest[email=$email]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-      json[r'email'] = this.email;
+    json[r'email'] = this.email;
     return json;
   }
 
@@ -48,8 +49,10 @@ class ForgotPasswordRequest {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "ForgotPasswordRequest[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "ForgotPasswordRequest[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "ForgotPasswordRequest[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "ForgotPasswordRequest[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -61,7 +64,10 @@ class ForgotPasswordRequest {
     return null;
   }
 
-  static List<ForgotPasswordRequest> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<ForgotPasswordRequest> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <ForgotPasswordRequest>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -89,13 +95,19 @@ class ForgotPasswordRequest {
   }
 
   // maps a json object with a list of ForgotPasswordRequest-objects as value to a dart map
-  static Map<String, List<ForgotPasswordRequest>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<ForgotPasswordRequest>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<ForgotPasswordRequest>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = ForgotPasswordRequest.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = ForgotPasswordRequest.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
@@ -106,4 +118,3 @@ class ForgotPasswordRequest {
     'email',
   };
 }
-

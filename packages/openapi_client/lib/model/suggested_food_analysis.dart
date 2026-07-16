@@ -49,24 +49,27 @@ class SuggestedFoodAnalysis {
   List<String> recipeSteps;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is SuggestedFoodAnalysis &&
-    other.foodName == foodName &&
-    other.description == description &&
-    _deepEquality.equals(other.ingredients, ingredients) &&
-    other.totalMacros == totalMacros &&
-    _deepEquality.equals(other.recipeSteps, recipeSteps);
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SuggestedFoodAnalysis &&
+          other.foodName == foodName &&
+          other.description == description &&
+          _deepEquality.equals(other.ingredients, ingredients) &&
+          other.totalMacros == totalMacros &&
+          _deepEquality.equals(other.recipeSteps, recipeSteps);
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (foodName == null ? 0 : foodName!.hashCode) +
-    (description == null ? 0 : description!.hashCode) +
-    (ingredients.hashCode) +
-    (totalMacros == null ? 0 : totalMacros!.hashCode) +
-    (recipeSteps.hashCode);
+      // ignore: unnecessary_parenthesis
+      (foodName == null ? 0 : foodName!.hashCode) +
+      (description == null ? 0 : description!.hashCode) +
+      (ingredients.hashCode) +
+      (totalMacros == null ? 0 : totalMacros!.hashCode) +
+      (recipeSteps.hashCode);
 
   @override
-  String toString() => 'SuggestedFoodAnalysis[foodName=$foodName, description=$description, ingredients=$ingredients, totalMacros=$totalMacros, recipeSteps=$recipeSteps]';
+  String toString() =>
+      'SuggestedFoodAnalysis[foodName=$foodName, description=$description, ingredients=$ingredients, totalMacros=$totalMacros, recipeSteps=$recipeSteps]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -80,13 +83,13 @@ class SuggestedFoodAnalysis {
     } else {
       json[r'description'] = null;
     }
-      json[r'ingredients'] = this.ingredients;
+    json[r'ingredients'] = this.ingredients;
     if (this.totalMacros != null) {
       json[r'totalMacros'] = this.totalMacros;
     } else {
       json[r'totalMacros'] = null;
     }
-      json[r'recipeSteps'] = this.recipeSteps;
+    json[r'recipeSteps'] = this.recipeSteps;
     return json;
   }
 
@@ -102,8 +105,10 @@ class SuggestedFoodAnalysis {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "SuggestedFoodAnalysis[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "SuggestedFoodAnalysis[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "SuggestedFoodAnalysis[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "SuggestedFoodAnalysis[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -114,14 +119,19 @@ class SuggestedFoodAnalysis {
         ingredients: IngredientDto.listFromJson(json[r'ingredients']),
         totalMacros: MacroNutrientsDto.fromJson(json[r'totalMacros']),
         recipeSteps: json[r'recipeSteps'] is Iterable
-            ? (json[r'recipeSteps'] as Iterable).cast<String>().toList(growable: false)
+            ? (json[r'recipeSteps'] as Iterable)
+                .cast<String>()
+                .toList(growable: false)
             : const [],
       );
     }
     return null;
   }
 
-  static List<SuggestedFoodAnalysis> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<SuggestedFoodAnalysis> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <SuggestedFoodAnalysis>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -149,20 +159,24 @@ class SuggestedFoodAnalysis {
   }
 
   // maps a json object with a list of SuggestedFoodAnalysis-objects as value to a dart map
-  static Map<String, List<SuggestedFoodAnalysis>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<SuggestedFoodAnalysis>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<SuggestedFoodAnalysis>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = SuggestedFoodAnalysis.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = SuggestedFoodAnalysis.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

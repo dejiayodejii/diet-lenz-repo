@@ -45,9 +45,9 @@ class PagedModelMealLogResponseDto {
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-    json[r'content'] = content;
-    if (page != null) {
-      json[r'page'] = page;
+    json[r'content'] = this.content;
+    if (this.page != null) {
+      json[r'page'] = this.page;
     } else {
       json[r'page'] = null;
     }

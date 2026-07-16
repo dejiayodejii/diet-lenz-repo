@@ -43,30 +43,33 @@ class RegisterRequest {
   String? referralCode;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is RegisterRequest &&
-    other.email == email &&
-    other.password == password &&
-    other.firstName == firstName &&
-    other.lastName == lastName &&
-    other.referralCode == referralCode;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RegisterRequest &&
+          other.email == email &&
+          other.password == password &&
+          other.firstName == firstName &&
+          other.lastName == lastName &&
+          other.referralCode == referralCode;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (email.hashCode) +
-    (password.hashCode) +
-    (firstName.hashCode) +
-    (lastName == null ? 0 : lastName!.hashCode) +
-    (referralCode == null ? 0 : referralCode!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (email.hashCode) +
+      (password.hashCode) +
+      (firstName.hashCode) +
+      (lastName == null ? 0 : lastName!.hashCode) +
+      (referralCode == null ? 0 : referralCode!.hashCode);
 
   @override
-  String toString() => 'RegisterRequest[email=$email, password=$password, firstName=$firstName, lastName=$lastName, referralCode=$referralCode]';
+  String toString() =>
+      'RegisterRequest[email=$email, password=$password, firstName=$firstName, lastName=$lastName, referralCode=$referralCode]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-      json[r'email'] = this.email;
-      json[r'password'] = this.password;
-      json[r'firstName'] = this.firstName;
+    json[r'email'] = this.email;
+    json[r'password'] = this.password;
+    json[r'firstName'] = this.firstName;
     if (this.lastName != null) {
       json[r'lastName'] = this.lastName;
     } else {
@@ -92,8 +95,10 @@ class RegisterRequest {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "RegisterRequest[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "RegisterRequest[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "RegisterRequest[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "RegisterRequest[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -109,7 +114,10 @@ class RegisterRequest {
     return null;
   }
 
-  static List<RegisterRequest> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<RegisterRequest> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <RegisterRequest>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -137,13 +145,19 @@ class RegisterRequest {
   }
 
   // maps a json object with a list of RegisterRequest-objects as value to a dart map
-  static Map<String, List<RegisterRequest>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<RegisterRequest>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<RegisterRequest>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = RegisterRequest.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = RegisterRequest.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
@@ -156,4 +170,3 @@ class RegisterRequest {
     'firstName',
   };
 }
-

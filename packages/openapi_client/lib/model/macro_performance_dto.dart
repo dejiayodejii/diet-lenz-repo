@@ -61,24 +61,27 @@ class MacroPerformanceDto {
   double? fiberPercentage;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is MacroPerformanceDto &&
-    other.caloriesPercentage == caloriesPercentage &&
-    other.proteinPercentage == proteinPercentage &&
-    other.carbsPercentage == carbsPercentage &&
-    other.fatPercentage == fatPercentage &&
-    other.fiberPercentage == fiberPercentage;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MacroPerformanceDto &&
+          other.caloriesPercentage == caloriesPercentage &&
+          other.proteinPercentage == proteinPercentage &&
+          other.carbsPercentage == carbsPercentage &&
+          other.fatPercentage == fatPercentage &&
+          other.fiberPercentage == fiberPercentage;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (caloriesPercentage == null ? 0 : caloriesPercentage!.hashCode) +
-    (proteinPercentage == null ? 0 : proteinPercentage!.hashCode) +
-    (carbsPercentage == null ? 0 : carbsPercentage!.hashCode) +
-    (fatPercentage == null ? 0 : fatPercentage!.hashCode) +
-    (fiberPercentage == null ? 0 : fiberPercentage!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (caloriesPercentage == null ? 0 : caloriesPercentage!.hashCode) +
+      (proteinPercentage == null ? 0 : proteinPercentage!.hashCode) +
+      (carbsPercentage == null ? 0 : carbsPercentage!.hashCode) +
+      (fatPercentage == null ? 0 : fatPercentage!.hashCode) +
+      (fiberPercentage == null ? 0 : fiberPercentage!.hashCode);
 
   @override
-  String toString() => 'MacroPerformanceDto[caloriesPercentage=$caloriesPercentage, proteinPercentage=$proteinPercentage, carbsPercentage=$carbsPercentage, fatPercentage=$fatPercentage, fiberPercentage=$fiberPercentage]';
+  String toString() =>
+      'MacroPerformanceDto[caloriesPercentage=$caloriesPercentage, proteinPercentage=$proteinPercentage, carbsPercentage=$carbsPercentage, fatPercentage=$fatPercentage, fiberPercentage=$fiberPercentage]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -122,8 +125,10 @@ class MacroPerformanceDto {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "MacroPerformanceDto[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "MacroPerformanceDto[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "MacroPerformanceDto[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "MacroPerformanceDto[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -139,7 +144,10 @@ class MacroPerformanceDto {
     return null;
   }
 
-  static List<MacroPerformanceDto> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<MacroPerformanceDto> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <MacroPerformanceDto>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -167,20 +175,24 @@ class MacroPerformanceDto {
   }
 
   // maps a json object with a list of MacroPerformanceDto-objects as value to a dart map
-  static Map<String, List<MacroPerformanceDto>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<MacroPerformanceDto>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<MacroPerformanceDto>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = MacroPerformanceDto.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = MacroPerformanceDto.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

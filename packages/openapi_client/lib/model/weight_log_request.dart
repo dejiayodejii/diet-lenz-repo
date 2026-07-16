@@ -32,25 +32,25 @@ class WeightLogRequest {
   DateTime? date;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is WeightLogRequest &&
-    other.value == value &&
-    other.unit == unit &&
-    other.date == date;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WeightLogRequest &&
+          other.value == value &&
+          other.unit == unit &&
+          other.date == date;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (value.hashCode) +
-    (unit.hashCode) +
-    (date == null ? 0 : date!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (value.hashCode) + (unit.hashCode) + (date == null ? 0 : date!.hashCode);
 
   @override
   String toString() => 'WeightLogRequest[value=$value, unit=$unit, date=$date]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-      json[r'value'] = this.value;
-      json[r'unit'] = this.unit;
+    json[r'value'] = this.value;
+    json[r'unit'] = this.unit;
     if (this.date != null) {
       json[r'date'] = _dateFormatter.format(this.date!.toUtc());
     } else {
@@ -71,8 +71,10 @@ class WeightLogRequest {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "WeightLogRequest[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "WeightLogRequest[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "WeightLogRequest[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "WeightLogRequest[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -86,7 +88,10 @@ class WeightLogRequest {
     return null;
   }
 
-  static List<WeightLogRequest> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<WeightLogRequest> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <WeightLogRequest>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -114,13 +119,19 @@ class WeightLogRequest {
   }
 
   // maps a json object with a list of WeightLogRequest-objects as value to a dart map
-  static Map<String, List<WeightLogRequest>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<WeightLogRequest>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<WeightLogRequest>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = WeightLogRequest.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = WeightLogRequest.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
@@ -132,7 +143,6 @@ class WeightLogRequest {
     'unit',
   };
 }
-
 
 class WeightLogRequestUnitEnum {
   /// Instantiate a new enum with the provided [value].
@@ -155,9 +165,13 @@ class WeightLogRequestUnitEnum {
     POUNDS,
   ];
 
-  static WeightLogRequestUnitEnum? fromJson(dynamic value) => WeightLogRequestUnitEnumTypeTransformer().decode(value);
+  static WeightLogRequestUnitEnum? fromJson(dynamic value) =>
+      WeightLogRequestUnitEnumTypeTransformer().decode(value);
 
-  static List<WeightLogRequestUnitEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<WeightLogRequestUnitEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <WeightLogRequestUnitEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -174,7 +188,8 @@ class WeightLogRequestUnitEnum {
 /// Transformation class that can [encode] an instance of [WeightLogRequestUnitEnum] to String,
 /// and [decode] dynamic data back to [WeightLogRequestUnitEnum].
 class WeightLogRequestUnitEnumTypeTransformer {
-  factory WeightLogRequestUnitEnumTypeTransformer() => _instance ??= const WeightLogRequestUnitEnumTypeTransformer._();
+  factory WeightLogRequestUnitEnumTypeTransformer() =>
+      _instance ??= const WeightLogRequestUnitEnumTypeTransformer._();
 
   const WeightLogRequestUnitEnumTypeTransformer._();
 
@@ -191,8 +206,10 @@ class WeightLogRequestUnitEnumTypeTransformer {
   WeightLogRequestUnitEnum? decode(dynamic data, {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'KG': return WeightLogRequestUnitEnum.KG;
-        case r'POUNDS': return WeightLogRequestUnitEnum.POUNDS;
+        case r'KG':
+          return WeightLogRequestUnitEnum.KG;
+        case r'POUNDS':
+          return WeightLogRequestUnitEnum.POUNDS;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -205,5 +222,3 @@ class WeightLogRequestUnitEnumTypeTransformer {
   /// Singleton [WeightLogRequestUnitEnumTypeTransformer] instance.
   static WeightLogRequestUnitEnumTypeTransformer? _instance;
 }
-
-

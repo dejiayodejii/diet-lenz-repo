@@ -19,20 +19,23 @@ class AppleSubscriptionVerifyRequest {
   String receiptData;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is AppleSubscriptionVerifyRequest &&
-    other.receiptData == receiptData;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AppleSubscriptionVerifyRequest &&
+          other.receiptData == receiptData;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (receiptData.hashCode);
+      // ignore: unnecessary_parenthesis
+      (receiptData.hashCode);
 
   @override
-  String toString() => 'AppleSubscriptionVerifyRequest[receiptData=$receiptData]';
+  String toString() =>
+      'AppleSubscriptionVerifyRequest[receiptData=$receiptData]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-      json[r'receiptData'] = this.receiptData;
+    json[r'receiptData'] = this.receiptData;
     return json;
   }
 
@@ -48,8 +51,10 @@ class AppleSubscriptionVerifyRequest {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "AppleSubscriptionVerifyRequest[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "AppleSubscriptionVerifyRequest[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "AppleSubscriptionVerifyRequest[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "AppleSubscriptionVerifyRequest[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -61,7 +66,10 @@ class AppleSubscriptionVerifyRequest {
     return null;
   }
 
-  static List<AppleSubscriptionVerifyRequest> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<AppleSubscriptionVerifyRequest> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <AppleSubscriptionVerifyRequest>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -89,13 +97,19 @@ class AppleSubscriptionVerifyRequest {
   }
 
   // maps a json object with a list of AppleSubscriptionVerifyRequest-objects as value to a dart map
-  static Map<String, List<AppleSubscriptionVerifyRequest>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<AppleSubscriptionVerifyRequest>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<AppleSubscriptionVerifyRequest>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = AppleSubscriptionVerifyRequest.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = AppleSubscriptionVerifyRequest.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
@@ -106,4 +120,3 @@ class AppleSubscriptionVerifyRequest {
     'receiptData',
   };
 }
-

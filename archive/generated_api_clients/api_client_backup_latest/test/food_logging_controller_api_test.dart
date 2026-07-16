@@ -47,6 +47,11 @@ void main() {
       // TODO
     });
 
+    //Future<PagedModelMealLogResponseDto> getMealLogs({ DateTime date, String search, int page, int size }) async
+    test('test getMealLogs', () async {
+      // TODO
+    });
+
     //Future<RecipeResponseDto> getRecipeById(String recipeId) async
     test('test getRecipeById', () async {
       // TODO

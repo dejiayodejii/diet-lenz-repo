@@ -46,22 +46,25 @@ class UserSubscriptionDto {
   String? planName;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is UserSubscriptionDto &&
-    other.status == status &&
-    other.expiresAt == expiresAt &&
-    other.autoRenewing == autoRenewing &&
-    other.planName == planName;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UserSubscriptionDto &&
+          other.status == status &&
+          other.expiresAt == expiresAt &&
+          other.autoRenewing == autoRenewing &&
+          other.planName == planName;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (status == null ? 0 : status!.hashCode) +
-    (expiresAt == null ? 0 : expiresAt!.hashCode) +
-    (autoRenewing == null ? 0 : autoRenewing!.hashCode) +
-    (planName == null ? 0 : planName!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (status == null ? 0 : status!.hashCode) +
+      (expiresAt == null ? 0 : expiresAt!.hashCode) +
+      (autoRenewing == null ? 0 : autoRenewing!.hashCode) +
+      (planName == null ? 0 : planName!.hashCode);
 
   @override
-  String toString() => 'UserSubscriptionDto[status=$status, expiresAt=$expiresAt, autoRenewing=$autoRenewing, planName=$planName]';
+  String toString() =>
+      'UserSubscriptionDto[status=$status, expiresAt=$expiresAt, autoRenewing=$autoRenewing, planName=$planName]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -100,8 +103,10 @@ class UserSubscriptionDto {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "UserSubscriptionDto[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "UserSubscriptionDto[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "UserSubscriptionDto[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "UserSubscriptionDto[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -116,7 +121,10 @@ class UserSubscriptionDto {
     return null;
   }
 
-  static List<UserSubscriptionDto> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<UserSubscriptionDto> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <UserSubscriptionDto>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -144,23 +152,27 @@ class UserSubscriptionDto {
   }
 
   // maps a json object with a list of UserSubscriptionDto-objects as value to a dart map
-  static Map<String, List<UserSubscriptionDto>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<UserSubscriptionDto>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<UserSubscriptionDto>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = UserSubscriptionDto.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = UserSubscriptionDto.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-
 
 class UserSubscriptionDtoStatusEnum {
   /// Instantiate a new enum with the provided [value].
@@ -187,9 +199,13 @@ class UserSubscriptionDtoStatusEnum {
     GRACE_PERIOD,
   ];
 
-  static UserSubscriptionDtoStatusEnum? fromJson(dynamic value) => UserSubscriptionDtoStatusEnumTypeTransformer().decode(value);
+  static UserSubscriptionDtoStatusEnum? fromJson(dynamic value) =>
+      UserSubscriptionDtoStatusEnumTypeTransformer().decode(value);
 
-  static List<UserSubscriptionDtoStatusEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<UserSubscriptionDtoStatusEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <UserSubscriptionDtoStatusEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -206,7 +222,8 @@ class UserSubscriptionDtoStatusEnum {
 /// Transformation class that can [encode] an instance of [UserSubscriptionDtoStatusEnum] to String,
 /// and [decode] dynamic data back to [UserSubscriptionDtoStatusEnum].
 class UserSubscriptionDtoStatusEnumTypeTransformer {
-  factory UserSubscriptionDtoStatusEnumTypeTransformer() => _instance ??= const UserSubscriptionDtoStatusEnumTypeTransformer._();
+  factory UserSubscriptionDtoStatusEnumTypeTransformer() =>
+      _instance ??= const UserSubscriptionDtoStatusEnumTypeTransformer._();
 
   const UserSubscriptionDtoStatusEnumTypeTransformer._();
 
@@ -223,10 +240,14 @@ class UserSubscriptionDtoStatusEnumTypeTransformer {
   UserSubscriptionDtoStatusEnum? decode(dynamic data, {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'ACTIVE': return UserSubscriptionDtoStatusEnum.ACTIVE;
-        case r'EXPIRED': return UserSubscriptionDtoStatusEnum.EXPIRED;
-        case r'CANCELED': return UserSubscriptionDtoStatusEnum.CANCELED;
-        case r'GRACE_PERIOD': return UserSubscriptionDtoStatusEnum.GRACE_PERIOD;
+        case r'ACTIVE':
+          return UserSubscriptionDtoStatusEnum.ACTIVE;
+        case r'EXPIRED':
+          return UserSubscriptionDtoStatusEnum.EXPIRED;
+        case r'CANCELED':
+          return UserSubscriptionDtoStatusEnum.CANCELED;
+        case r'GRACE_PERIOD':
+          return UserSubscriptionDtoStatusEnum.GRACE_PERIOD;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -239,5 +260,3 @@ class UserSubscriptionDtoStatusEnumTypeTransformer {
   /// Singleton [UserSubscriptionDtoStatusEnumTypeTransformer] instance.
   static UserSubscriptionDtoStatusEnumTypeTransformer? _instance;
 }
-
-

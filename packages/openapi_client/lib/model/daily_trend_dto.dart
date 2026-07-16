@@ -70,26 +70,29 @@ class DailyTrendDto {
   bool? macroGoalMet;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is DailyTrendDto &&
-    other.date == date &&
-    other.actuals == actuals &&
-    other.performance == performance &&
-    other.mealsLogged == mealsLogged &&
-    other.basicGoalMet == basicGoalMet &&
-    other.macroGoalMet == macroGoalMet;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DailyTrendDto &&
+          other.date == date &&
+          other.actuals == actuals &&
+          other.performance == performance &&
+          other.mealsLogged == mealsLogged &&
+          other.basicGoalMet == basicGoalMet &&
+          other.macroGoalMet == macroGoalMet;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (date == null ? 0 : date!.hashCode) +
-    (actuals == null ? 0 : actuals!.hashCode) +
-    (performance == null ? 0 : performance!.hashCode) +
-    (mealsLogged == null ? 0 : mealsLogged!.hashCode) +
-    (basicGoalMet == null ? 0 : basicGoalMet!.hashCode) +
-    (macroGoalMet == null ? 0 : macroGoalMet!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (date == null ? 0 : date!.hashCode) +
+      (actuals == null ? 0 : actuals!.hashCode) +
+      (performance == null ? 0 : performance!.hashCode) +
+      (mealsLogged == null ? 0 : mealsLogged!.hashCode) +
+      (basicGoalMet == null ? 0 : basicGoalMet!.hashCode) +
+      (macroGoalMet == null ? 0 : macroGoalMet!.hashCode);
 
   @override
-  String toString() => 'DailyTrendDto[date=$date, actuals=$actuals, performance=$performance, mealsLogged=$mealsLogged, basicGoalMet=$basicGoalMet, macroGoalMet=$macroGoalMet]';
+  String toString() =>
+      'DailyTrendDto[date=$date, actuals=$actuals, performance=$performance, mealsLogged=$mealsLogged, basicGoalMet=$basicGoalMet, macroGoalMet=$macroGoalMet]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -138,8 +141,10 @@ class DailyTrendDto {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "DailyTrendDto[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "DailyTrendDto[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "DailyTrendDto[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "DailyTrendDto[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -156,7 +161,10 @@ class DailyTrendDto {
     return null;
   }
 
-  static List<DailyTrendDto> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<DailyTrendDto> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <DailyTrendDto>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -184,20 +192,24 @@ class DailyTrendDto {
   }
 
   // maps a json object with a list of DailyTrendDto-objects as value to a dart map
-  static Map<String, List<DailyTrendDto>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<DailyTrendDto>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<DailyTrendDto>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = DailyTrendDto.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = DailyTrendDto.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

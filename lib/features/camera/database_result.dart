@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:math' as math;
 
 import 'package:diet_lenz/component/custom_button.dart';
@@ -128,7 +129,7 @@ class _DatabaseResultDetailState extends ConsumerState<DatabaseResultDetail> {
       foodName: widget.analysis.foodName,
       description: widget.analysis.description,
       imageBase64: widget.analysis.imageBase64,
-      measures: widget.analysis.measures,
+      measures: [_selectedMeasure],
       totalMacros: MacroNutrientsDto(
         calories: _calories,
         protein: QuantityDto(
@@ -155,8 +156,13 @@ class _DatabaseResultDetailState extends ConsumerState<DatabaseResultDetail> {
       mealType: _selectedMealType,
       // The analysis already contains the totals displayed in the UI.
       // Keep this at one so the backend does not scale them a second time.
-      servingMultiplier: 1.0,
+      servingMultiplier: _amount,
+      source_: LogMealRequestDtoSource_Enum.SEARCH,
     );
+
+    log("request is $request");
+
+    // return;
 
     final foodLoggingViewModel =
         ref.read(foodLoggingViewModelProvider.notifier);

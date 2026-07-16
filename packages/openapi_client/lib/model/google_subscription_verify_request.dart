@@ -22,23 +22,25 @@ class GoogleSubscriptionVerifyRequest {
   String productId;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is GoogleSubscriptionVerifyRequest &&
-    other.purchaseToken == purchaseToken &&
-    other.productId == productId;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GoogleSubscriptionVerifyRequest &&
+          other.purchaseToken == purchaseToken &&
+          other.productId == productId;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (purchaseToken.hashCode) +
-    (productId.hashCode);
+      // ignore: unnecessary_parenthesis
+      (purchaseToken.hashCode) + (productId.hashCode);
 
   @override
-  String toString() => 'GoogleSubscriptionVerifyRequest[purchaseToken=$purchaseToken, productId=$productId]';
+  String toString() =>
+      'GoogleSubscriptionVerifyRequest[purchaseToken=$purchaseToken, productId=$productId]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-      json[r'purchaseToken'] = this.purchaseToken;
-      json[r'productId'] = this.productId;
+    json[r'purchaseToken'] = this.purchaseToken;
+    json[r'productId'] = this.productId;
     return json;
   }
 
@@ -54,8 +56,10 @@ class GoogleSubscriptionVerifyRequest {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "GoogleSubscriptionVerifyRequest[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "GoogleSubscriptionVerifyRequest[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "GoogleSubscriptionVerifyRequest[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "GoogleSubscriptionVerifyRequest[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -68,7 +72,10 @@ class GoogleSubscriptionVerifyRequest {
     return null;
   }
 
-  static List<GoogleSubscriptionVerifyRequest> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<GoogleSubscriptionVerifyRequest> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <GoogleSubscriptionVerifyRequest>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -81,7 +88,8 @@ class GoogleSubscriptionVerifyRequest {
     return result.toList(growable: growable);
   }
 
-  static Map<String, GoogleSubscriptionVerifyRequest> mapFromJson(dynamic json) {
+  static Map<String, GoogleSubscriptionVerifyRequest> mapFromJson(
+      dynamic json) {
     final map = <String, GoogleSubscriptionVerifyRequest>{};
     if (json is Map && json.isNotEmpty) {
       json = json.cast<String, dynamic>(); // ignore: parameter_assignments
@@ -96,13 +104,19 @@ class GoogleSubscriptionVerifyRequest {
   }
 
   // maps a json object with a list of GoogleSubscriptionVerifyRequest-objects as value to a dart map
-  static Map<String, List<GoogleSubscriptionVerifyRequest>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<GoogleSubscriptionVerifyRequest>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<GoogleSubscriptionVerifyRequest>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = GoogleSubscriptionVerifyRequest.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = GoogleSubscriptionVerifyRequest.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
@@ -114,4 +128,3 @@ class GoogleSubscriptionVerifyRequest {
     'productId',
   };
 }
-

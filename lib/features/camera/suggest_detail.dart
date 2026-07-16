@@ -89,7 +89,7 @@ class _SuggestMealDetailScreenState
       0.0;
 
   double get _amount =>
-      math.max(0, double.tryParse(_amountController.text.trim()) ?? 0);
+      math.max(0, double.tryParse(_amountController.text.trim()) ?? 1);
 
   double get _servingMultiplier {
     final selectedMeasure = _selectedMeasure;
@@ -131,7 +131,7 @@ class _SuggestMealDetailScreenState
       description:
           _reAnalyzedResult?.description ?? widget.suggestion.description,
       imageBase64: _reAnalyzedResult?.imageBase64,
-      measures: _measures,
+       measures: _selectedMeasure != null ? [_selectedMeasure!] : [],
       totalMacros: MacroNutrientsDto(
         calories: _scaledCalories,
         protein: QuantityDto(
@@ -159,7 +159,8 @@ class _SuggestMealDetailScreenState
       mealType: _selectedMealType!,
       // The analysis already contains the totals displayed in the UI.
       // Keep this at one so the backend does not scale them a second time.
-      servingMultiplier: 1.0,
+      servingMultiplier: _amount,
+       source_: LogMealRequestDtoSource_Enum.AI_IMAGE
     );
 
     // Log the meal

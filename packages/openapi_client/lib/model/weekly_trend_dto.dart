@@ -46,22 +46,25 @@ class WeeklyTrendDto {
   AverageMacrosDto? averages;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is WeeklyTrendDto &&
-    other.startDate == startDate &&
-    other.endDate == endDate &&
-    _deepEquality.equals(other.dailyTrends, dailyTrends) &&
-    other.averages == averages;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WeeklyTrendDto &&
+          other.startDate == startDate &&
+          other.endDate == endDate &&
+          _deepEquality.equals(other.dailyTrends, dailyTrends) &&
+          other.averages == averages;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (startDate == null ? 0 : startDate!.hashCode) +
-    (endDate == null ? 0 : endDate!.hashCode) +
-    (dailyTrends.hashCode) +
-    (averages == null ? 0 : averages!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (startDate == null ? 0 : startDate!.hashCode) +
+      (endDate == null ? 0 : endDate!.hashCode) +
+      (dailyTrends.hashCode) +
+      (averages == null ? 0 : averages!.hashCode);
 
   @override
-  String toString() => 'WeeklyTrendDto[startDate=$startDate, endDate=$endDate, dailyTrends=$dailyTrends, averages=$averages]';
+  String toString() =>
+      'WeeklyTrendDto[startDate=$startDate, endDate=$endDate, dailyTrends=$dailyTrends, averages=$averages]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -75,7 +78,7 @@ class WeeklyTrendDto {
     } else {
       json[r'endDate'] = null;
     }
-      json[r'dailyTrends'] = this.dailyTrends;
+    json[r'dailyTrends'] = this.dailyTrends;
     if (this.averages != null) {
       json[r'averages'] = this.averages;
     } else {
@@ -96,8 +99,10 @@ class WeeklyTrendDto {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "WeeklyTrendDto[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "WeeklyTrendDto[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "WeeklyTrendDto[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "WeeklyTrendDto[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -112,7 +117,10 @@ class WeeklyTrendDto {
     return null;
   }
 
-  static List<WeeklyTrendDto> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<WeeklyTrendDto> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <WeeklyTrendDto>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -140,20 +148,24 @@ class WeeklyTrendDto {
   }
 
   // maps a json object with a list of WeeklyTrendDto-objects as value to a dart map
-  static Map<String, List<WeeklyTrendDto>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<WeeklyTrendDto>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<WeeklyTrendDto>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = WeeklyTrendDto.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = WeeklyTrendDto.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

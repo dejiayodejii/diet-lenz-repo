@@ -265,6 +265,7 @@ class UserNotificationTypeEnum {
   static const SYSTEM_UPDATE = UserNotificationTypeEnum._(r'SYSTEM_UPDATE');
   static const RECIPE_SAVED = UserNotificationTypeEnum._(r'RECIPE_SAVED');
   static const WEEKLY_SUMMARY = UserNotificationTypeEnum._(r'WEEKLY_SUMMARY');
+  static const WEIGH_IN_REMINDER = UserNotificationTypeEnum._(r'WEIGH_IN_REMINDER');
 
   /// List of all possible values in this [enum][UserNotificationTypeEnum].
   static const values = <UserNotificationTypeEnum>[
@@ -274,6 +275,7 @@ class UserNotificationTypeEnum {
     SYSTEM_UPDATE,
     RECIPE_SAVED,
     WEEKLY_SUMMARY,
+    WEIGH_IN_REMINDER,
   ];
 
   static UserNotificationTypeEnum? fromJson(dynamic value) => UserNotificationTypeEnumTypeTransformer().decode(value);
@@ -318,6 +320,7 @@ class UserNotificationTypeEnumTypeTransformer {
         case r'SYSTEM_UPDATE': return UserNotificationTypeEnum.SYSTEM_UPDATE;
         case r'RECIPE_SAVED': return UserNotificationTypeEnum.RECIPE_SAVED;
         case r'WEEKLY_SUMMARY': return UserNotificationTypeEnum.WEEKLY_SUMMARY;
+        case r'WEIGH_IN_REMINDER': return UserNotificationTypeEnum.WEIGH_IN_REMINDER;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');

@@ -82,30 +82,33 @@ class DashboardResponseDto {
   bool? macroGoalMet;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is DashboardResponseDto &&
-    other.date == date &&
-    other.targets == targets &&
-    other.actuals == actuals &&
-    other.performance == performance &&
-    _deepEquality.equals(other.mealsToday, mealsToday) &&
-    other.streaks == streaks &&
-    other.basicGoalMet == basicGoalMet &&
-    other.macroGoalMet == macroGoalMet;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DashboardResponseDto &&
+          other.date == date &&
+          other.targets == targets &&
+          other.actuals == actuals &&
+          other.performance == performance &&
+          _deepEquality.equals(other.mealsToday, mealsToday) &&
+          other.streaks == streaks &&
+          other.basicGoalMet == basicGoalMet &&
+          other.macroGoalMet == macroGoalMet;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (date == null ? 0 : date!.hashCode) +
-    (targets == null ? 0 : targets!.hashCode) +
-    (actuals == null ? 0 : actuals!.hashCode) +
-    (performance == null ? 0 : performance!.hashCode) +
-    (mealsToday.hashCode) +
-    (streaks == null ? 0 : streaks!.hashCode) +
-    (basicGoalMet == null ? 0 : basicGoalMet!.hashCode) +
-    (macroGoalMet == null ? 0 : macroGoalMet!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (date == null ? 0 : date!.hashCode) +
+      (targets == null ? 0 : targets!.hashCode) +
+      (actuals == null ? 0 : actuals!.hashCode) +
+      (performance == null ? 0 : performance!.hashCode) +
+      (mealsToday.hashCode) +
+      (streaks == null ? 0 : streaks!.hashCode) +
+      (basicGoalMet == null ? 0 : basicGoalMet!.hashCode) +
+      (macroGoalMet == null ? 0 : macroGoalMet!.hashCode);
 
   @override
-  String toString() => 'DashboardResponseDto[date=$date, targets=$targets, actuals=$actuals, performance=$performance, mealsToday=$mealsToday, streaks=$streaks, basicGoalMet=$basicGoalMet, macroGoalMet=$macroGoalMet]';
+  String toString() =>
+      'DashboardResponseDto[date=$date, targets=$targets, actuals=$actuals, performance=$performance, mealsToday=$mealsToday, streaks=$streaks, basicGoalMet=$basicGoalMet, macroGoalMet=$macroGoalMet]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -129,7 +132,7 @@ class DashboardResponseDto {
     } else {
       json[r'performance'] = null;
     }
-      json[r'mealsToday'] = this.mealsToday;
+    json[r'mealsToday'] = this.mealsToday;
     if (this.streaks != null) {
       json[r'streaks'] = this.streaks;
     } else {
@@ -160,8 +163,10 @@ class DashboardResponseDto {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "DashboardResponseDto[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "DashboardResponseDto[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "DashboardResponseDto[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "DashboardResponseDto[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -180,7 +185,10 @@ class DashboardResponseDto {
     return null;
   }
 
-  static List<DashboardResponseDto> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<DashboardResponseDto> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <DashboardResponseDto>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -208,20 +216,24 @@ class DashboardResponseDto {
   }
 
   // maps a json object with a list of DashboardResponseDto-objects as value to a dart map
-  static Map<String, List<DashboardResponseDto>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<DashboardResponseDto>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<DashboardResponseDto>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = DashboardResponseDto.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = DashboardResponseDto.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

@@ -10,9 +10,9 @@
 
 part of openapi.api;
 
-
 class SubscriptionControllerApi {
-  SubscriptionControllerApi([ApiClient? apiClient]) : apiClient = apiClient ?? defaultApiClient;
+  SubscriptionControllerApi([ApiClient? apiClient])
+      : apiClient = apiClient ?? defaultApiClient;
 
   final ApiClient apiClient;
 
@@ -20,7 +20,9 @@ class SubscriptionControllerApi {
   /// Parameters:
   ///
   /// * [ReferralApplyRequest] referralApplyRequest (required):
-  Future<Response> applyReferralWithHttpInfo(ReferralApplyRequest referralApplyRequest,) async {
+  Future<Response> applyReferralWithHttpInfo(
+    ReferralApplyRequest referralApplyRequest,
+  ) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/referrals/apply';
 
@@ -33,7 +35,6 @@ class SubscriptionControllerApi {
 
     const contentTypes = <String>['application/json'];
 
-
     return apiClient.invokeAPI(
       path,
       'POST',
@@ -48,17 +49,24 @@ class SubscriptionControllerApi {
   /// Parameters:
   ///
   /// * [ReferralApplyRequest] referralApplyRequest (required):
-  Future<MessageResponse?> applyReferral(ReferralApplyRequest referralApplyRequest,) async {
-    final response = await applyReferralWithHttpInfo(referralApplyRequest,);
+  Future<MessageResponse?> applyReferral(
+    ReferralApplyRequest referralApplyRequest,
+  ) async {
+    final response = await applyReferralWithHttpInfo(
+      referralApplyRequest,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'MessageResponse',) as MessageResponse;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'MessageResponse',
+      ) as MessageResponse;
     }
     return null;
   }
@@ -67,10 +75,12 @@ class SubscriptionControllerApi {
   /// Parameters:
   ///
   /// * [String] subscriptionId (required):
-  Future<Response> cancelSubscriptionWithHttpInfo(String subscriptionId,) async {
+  Future<Response> cancelSubscriptionWithHttpInfo(
+    String subscriptionId,
+  ) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/subscriptions/{subscriptionId}/cancel'
-      .replaceAll('{subscriptionId}', subscriptionId);
+        .replaceAll('{subscriptionId}', subscriptionId);
 
     // ignore: prefer_final_locals
     Object? postBody;
@@ -80,7 +90,6 @@ class SubscriptionControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -96,17 +105,24 @@ class SubscriptionControllerApi {
   /// Parameters:
   ///
   /// * [String] subscriptionId (required):
-  Future<MessageResponse?> cancelSubscription(String subscriptionId,) async {
-    final response = await cancelSubscriptionWithHttpInfo(subscriptionId,);
+  Future<MessageResponse?> cancelSubscription(
+    String subscriptionId,
+  ) async {
+    final response = await cancelSubscriptionWithHttpInfo(
+      subscriptionId,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'MessageResponse',) as MessageResponse;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'MessageResponse',
+      ) as MessageResponse;
     }
     return null;
   }
@@ -124,7 +140,6 @@ class SubscriptionControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -145,9 +160,12 @@ class SubscriptionControllerApi {
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'UserSubscriptionStatusResponse',) as UserSubscriptionStatusResponse;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'UserSubscriptionStatusResponse',
+      ) as UserSubscriptionStatusResponse;
     }
     return null;
   }
@@ -156,7 +174,9 @@ class SubscriptionControllerApi {
   /// Parameters:
   ///
   /// * [String] country:
-  Future<Response> getPlansWithHttpInfo({ String? country, }) async {
+  Future<Response> getPlansWithHttpInfo({
+    String? country,
+  }) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/plans';
 
@@ -173,7 +193,6 @@ class SubscriptionControllerApi {
 
     const contentTypes = <String>[];
 
-
     return apiClient.invokeAPI(
       path,
       'GET',
@@ -188,20 +207,25 @@ class SubscriptionControllerApi {
   /// Parameters:
   ///
   /// * [String] country:
-  Future<List<SubscriptionPlanDto>?> getPlans({ String? country, }) async {
-    final response = await getPlansWithHttpInfo( country: country, );
+  Future<List<SubscriptionPlanDto>?> getPlans({
+    String? country,
+  }) async {
+    final response = await getPlansWithHttpInfo(
+      country: country,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
       final responseBody = await _decodeBodyBytes(response);
-      return (await apiClient.deserializeAsync(responseBody, 'List<SubscriptionPlanDto>') as List)
-        .cast<SubscriptionPlanDto>()
-        .toList(growable: false);
-
+      return (await apiClient.deserializeAsync(
+              responseBody, 'List<SubscriptionPlanDto>') as List)
+          .cast<SubscriptionPlanDto>()
+          .toList(growable: false);
     }
     return null;
   }
@@ -219,7 +243,6 @@ class SubscriptionControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -240,9 +263,12 @@ class SubscriptionControllerApi {
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'PricingResponse',) as PricingResponse;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'PricingResponse',
+      ) as PricingResponse;
     }
     return null;
   }
@@ -260,7 +286,6 @@ class SubscriptionControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -281,9 +306,12 @@ class SubscriptionControllerApi {
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'ReferralEarningsResponse',) as ReferralEarningsResponse;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'ReferralEarningsResponse',
+      ) as ReferralEarningsResponse;
     }
     return null;
   }
@@ -301,7 +329,6 @@ class SubscriptionControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -322,12 +349,13 @@ class SubscriptionControllerApi {
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
       final responseBody = await _decodeBodyBytes(response);
-      return (await apiClient.deserializeAsync(responseBody, 'List<ReferralHistoryResponse>') as List)
-        .cast<ReferralHistoryResponse>()
-        .toList(growable: false);
-
+      return (await apiClient.deserializeAsync(
+              responseBody, 'List<ReferralHistoryResponse>') as List)
+          .cast<ReferralHistoryResponse>()
+          .toList(growable: false);
     }
     return null;
   }
@@ -345,7 +373,6 @@ class SubscriptionControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -366,9 +393,12 @@ class SubscriptionControllerApi {
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'MessageResponse',) as MessageResponse;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'MessageResponse',
+      ) as MessageResponse;
     }
     return null;
   }
@@ -377,7 +407,9 @@ class SubscriptionControllerApi {
   /// Parameters:
   ///
   /// * [AppleSubscriptionVerifyRequest] appleSubscriptionVerifyRequest (required):
-  Future<Response> verifyAppleSubscriptionWithHttpInfo(AppleSubscriptionVerifyRequest appleSubscriptionVerifyRequest,) async {
+  Future<Response> verifyAppleSubscriptionWithHttpInfo(
+    AppleSubscriptionVerifyRequest appleSubscriptionVerifyRequest,
+  ) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/subscriptions/verify/apple';
 
@@ -390,7 +422,6 @@ class SubscriptionControllerApi {
 
     const contentTypes = <String>['application/json'];
 
-
     return apiClient.invokeAPI(
       path,
       'POST',
@@ -405,17 +436,24 @@ class SubscriptionControllerApi {
   /// Parameters:
   ///
   /// * [AppleSubscriptionVerifyRequest] appleSubscriptionVerifyRequest (required):
-  Future<UserSubscriptionDto?> verifyAppleSubscription(AppleSubscriptionVerifyRequest appleSubscriptionVerifyRequest,) async {
-    final response = await verifyAppleSubscriptionWithHttpInfo(appleSubscriptionVerifyRequest,);
+  Future<UserSubscriptionDto?> verifyAppleSubscription(
+    AppleSubscriptionVerifyRequest appleSubscriptionVerifyRequest,
+  ) async {
+    final response = await verifyAppleSubscriptionWithHttpInfo(
+      appleSubscriptionVerifyRequest,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'UserSubscriptionDto',) as UserSubscriptionDto;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'UserSubscriptionDto',
+      ) as UserSubscriptionDto;
     }
     return null;
   }
@@ -424,7 +462,9 @@ class SubscriptionControllerApi {
   /// Parameters:
   ///
   /// * [GoogleSubscriptionVerifyRequest] googleSubscriptionVerifyRequest (required):
-  Future<Response> verifyGoogleSubscriptionWithHttpInfo(GoogleSubscriptionVerifyRequest googleSubscriptionVerifyRequest,) async {
+  Future<Response> verifyGoogleSubscriptionWithHttpInfo(
+    GoogleSubscriptionVerifyRequest googleSubscriptionVerifyRequest,
+  ) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/subscriptions/verify/google';
 
@@ -436,7 +476,6 @@ class SubscriptionControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>['application/json'];
-
 
     return apiClient.invokeAPI(
       path,
@@ -452,17 +491,24 @@ class SubscriptionControllerApi {
   /// Parameters:
   ///
   /// * [GoogleSubscriptionVerifyRequest] googleSubscriptionVerifyRequest (required):
-  Future<UserSubscriptionDto?> verifyGoogleSubscription(GoogleSubscriptionVerifyRequest googleSubscriptionVerifyRequest,) async {
-    final response = await verifyGoogleSubscriptionWithHttpInfo(googleSubscriptionVerifyRequest,);
+  Future<UserSubscriptionDto?> verifyGoogleSubscription(
+    GoogleSubscriptionVerifyRequest googleSubscriptionVerifyRequest,
+  ) async {
+    final response = await verifyGoogleSubscriptionWithHttpInfo(
+      googleSubscriptionVerifyRequest,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'UserSubscriptionDto',) as UserSubscriptionDto;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'UserSubscriptionDto',
+      ) as UserSubscriptionDto;
     }
     return null;
   }
@@ -480,7 +526,6 @@ class SubscriptionControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>[];
-
 
     return apiClient.invokeAPI(
       path,
@@ -501,9 +546,12 @@ class SubscriptionControllerApi {
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'UserSubscriptionDto',) as UserSubscriptionDto;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'UserSubscriptionDto',
+      ) as UserSubscriptionDto;
     }
     return null;
   }

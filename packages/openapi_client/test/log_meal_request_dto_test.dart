@@ -26,6 +26,11 @@ void main() {
       // TODO
     });
 
+    // String source_
+    test('to test the property `source_`', () async {
+      // TODO
+    });
+
     // String mealType
     test('to test the property `mealType`', () async {
       // TODO

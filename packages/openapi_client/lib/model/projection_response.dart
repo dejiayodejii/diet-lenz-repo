@@ -82,30 +82,33 @@ class ProjectionResponse {
   List<ProjectionPoint> points;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is ProjectionResponse &&
-    other.bucket == bucket &&
-    other.unit == unit &&
-    other.currentWeight == currentWeight &&
-    other.targetWeight == targetWeight &&
-    other.ratePerWeek == ratePerWeek &&
-    other.projectedGoalDate == projectedGoalDate &&
-    other.headline == headline &&
-    _deepEquality.equals(other.points, points);
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ProjectionResponse &&
+          other.bucket == bucket &&
+          other.unit == unit &&
+          other.currentWeight == currentWeight &&
+          other.targetWeight == targetWeight &&
+          other.ratePerWeek == ratePerWeek &&
+          other.projectedGoalDate == projectedGoalDate &&
+          other.headline == headline &&
+          _deepEquality.equals(other.points, points);
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (bucket == null ? 0 : bucket!.hashCode) +
-    (unit == null ? 0 : unit!.hashCode) +
-    (currentWeight == null ? 0 : currentWeight!.hashCode) +
-    (targetWeight == null ? 0 : targetWeight!.hashCode) +
-    (ratePerWeek == null ? 0 : ratePerWeek!.hashCode) +
-    (projectedGoalDate == null ? 0 : projectedGoalDate!.hashCode) +
-    (headline == null ? 0 : headline!.hashCode) +
-    (points.hashCode);
+      // ignore: unnecessary_parenthesis
+      (bucket == null ? 0 : bucket!.hashCode) +
+      (unit == null ? 0 : unit!.hashCode) +
+      (currentWeight == null ? 0 : currentWeight!.hashCode) +
+      (targetWeight == null ? 0 : targetWeight!.hashCode) +
+      (ratePerWeek == null ? 0 : ratePerWeek!.hashCode) +
+      (projectedGoalDate == null ? 0 : projectedGoalDate!.hashCode) +
+      (headline == null ? 0 : headline!.hashCode) +
+      (points.hashCode);
 
   @override
-  String toString() => 'ProjectionResponse[bucket=$bucket, unit=$unit, currentWeight=$currentWeight, targetWeight=$targetWeight, ratePerWeek=$ratePerWeek, projectedGoalDate=$projectedGoalDate, headline=$headline, points=$points]';
+  String toString() =>
+      'ProjectionResponse[bucket=$bucket, unit=$unit, currentWeight=$currentWeight, targetWeight=$targetWeight, ratePerWeek=$ratePerWeek, projectedGoalDate=$projectedGoalDate, headline=$headline, points=$points]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -135,7 +138,8 @@ class ProjectionResponse {
       json[r'ratePerWeek'] = null;
     }
     if (this.projectedGoalDate != null) {
-      json[r'projectedGoalDate'] = _dateFormatter.format(this.projectedGoalDate!.toUtc());
+      json[r'projectedGoalDate'] =
+          _dateFormatter.format(this.projectedGoalDate!.toUtc());
     } else {
       json[r'projectedGoalDate'] = null;
     }
@@ -144,7 +148,7 @@ class ProjectionResponse {
     } else {
       json[r'headline'] = null;
     }
-      json[r'points'] = this.points;
+    json[r'points'] = this.points;
     return json;
   }
 
@@ -160,8 +164,10 @@ class ProjectionResponse {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "ProjectionResponse[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "ProjectionResponse[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "ProjectionResponse[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "ProjectionResponse[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -180,7 +186,10 @@ class ProjectionResponse {
     return null;
   }
 
-  static List<ProjectionResponse> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<ProjectionResponse> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <ProjectionResponse>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -208,20 +217,24 @@ class ProjectionResponse {
   }
 
   // maps a json object with a list of ProjectionResponse-objects as value to a dart map
-  static Map<String, List<ProjectionResponse>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<ProjectionResponse>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<ProjectionResponse>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = ProjectionResponse.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = ProjectionResponse.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

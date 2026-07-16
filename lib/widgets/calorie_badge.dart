@@ -20,7 +20,7 @@ class CalorieBadge extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
     this.borderRadius = 20.0,
     this.fontSize = 14,
-    this.width = 60,
+    this.width = 120,
     this.fontWeight = FontWeight.w600,
   }) : super(key: key);
 

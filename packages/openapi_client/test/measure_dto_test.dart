@@ -3,20 +3,30 @@
 //
 // @dart=2.18
 
+// ignore_for_file: unused_element, unused_import
+// ignore_for_file: always_put_required_named_parameters_first
+// ignore_for_file: constant_identifier_names
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'package:openapi/api.dart';
 import 'package:test/test.dart';
 
+// tests for MeasureDto
 void main() {
-  group('test MeasureDto', () {
-    test('deserializes label and weightGrams', () {
-      final result = MeasureDto.fromJson({
-        'label': 'Ounce',
-        'weightGrams': 28.349523125,
-      });
+  // final instance = MeasureDto();
 
-      expect(result, isNotNull);
-      expect(result!.label, 'Ounce');
-      expect(result.weightGrams, 28.349523125);
+  group('test MeasureDto', () {
+    // String label
+    test('to test the property `label`', () async {
+      // TODO
     });
+
+    // double weightGrams
+    test('to test the property `weightGrams`', () async {
+      // TODO
+    });
+
+
   });
+
 }

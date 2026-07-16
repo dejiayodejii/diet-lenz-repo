@@ -97,32 +97,35 @@ class HealthSyncSettingsDto {
   bool? writeFat;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is HealthSyncSettingsDto &&
-    other.readSteps == readSteps &&
-    other.readActiveCalories == readActiveCalories &&
-    other.readWeight == readWeight &&
-    other.readHeartRate == readHeartRate &&
-    other.readSleep == readSleep &&
-    other.writeDietaryEnergy == writeDietaryEnergy &&
-    other.writeProtein == writeProtein &&
-    other.writeCarbohydrate == writeCarbohydrate &&
-    other.writeFat == writeFat;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HealthSyncSettingsDto &&
+          other.readSteps == readSteps &&
+          other.readActiveCalories == readActiveCalories &&
+          other.readWeight == readWeight &&
+          other.readHeartRate == readHeartRate &&
+          other.readSleep == readSleep &&
+          other.writeDietaryEnergy == writeDietaryEnergy &&
+          other.writeProtein == writeProtein &&
+          other.writeCarbohydrate == writeCarbohydrate &&
+          other.writeFat == writeFat;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (readSteps == null ? 0 : readSteps!.hashCode) +
-    (readActiveCalories == null ? 0 : readActiveCalories!.hashCode) +
-    (readWeight == null ? 0 : readWeight!.hashCode) +
-    (readHeartRate == null ? 0 : readHeartRate!.hashCode) +
-    (readSleep == null ? 0 : readSleep!.hashCode) +
-    (writeDietaryEnergy == null ? 0 : writeDietaryEnergy!.hashCode) +
-    (writeProtein == null ? 0 : writeProtein!.hashCode) +
-    (writeCarbohydrate == null ? 0 : writeCarbohydrate!.hashCode) +
-    (writeFat == null ? 0 : writeFat!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (readSteps == null ? 0 : readSteps!.hashCode) +
+      (readActiveCalories == null ? 0 : readActiveCalories!.hashCode) +
+      (readWeight == null ? 0 : readWeight!.hashCode) +
+      (readHeartRate == null ? 0 : readHeartRate!.hashCode) +
+      (readSleep == null ? 0 : readSleep!.hashCode) +
+      (writeDietaryEnergy == null ? 0 : writeDietaryEnergy!.hashCode) +
+      (writeProtein == null ? 0 : writeProtein!.hashCode) +
+      (writeCarbohydrate == null ? 0 : writeCarbohydrate!.hashCode) +
+      (writeFat == null ? 0 : writeFat!.hashCode);
 
   @override
-  String toString() => 'HealthSyncSettingsDto[readSteps=$readSteps, readActiveCalories=$readActiveCalories, readWeight=$readWeight, readHeartRate=$readHeartRate, readSleep=$readSleep, writeDietaryEnergy=$writeDietaryEnergy, writeProtein=$writeProtein, writeCarbohydrate=$writeCarbohydrate, writeFat=$writeFat]';
+  String toString() =>
+      'HealthSyncSettingsDto[readSteps=$readSteps, readActiveCalories=$readActiveCalories, readWeight=$readWeight, readHeartRate=$readHeartRate, readSleep=$readSleep, writeDietaryEnergy=$writeDietaryEnergy, writeProtein=$writeProtein, writeCarbohydrate=$writeCarbohydrate, writeFat=$writeFat]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -186,8 +189,10 @@ class HealthSyncSettingsDto {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "HealthSyncSettingsDto[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "HealthSyncSettingsDto[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "HealthSyncSettingsDto[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "HealthSyncSettingsDto[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -207,7 +212,10 @@ class HealthSyncSettingsDto {
     return null;
   }
 
-  static List<HealthSyncSettingsDto> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<HealthSyncSettingsDto> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <HealthSyncSettingsDto>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -235,20 +243,24 @@ class HealthSyncSettingsDto {
   }
 
   // maps a json object with a list of HealthSyncSettingsDto-objects as value to a dart map
-  static Map<String, List<HealthSyncSettingsDto>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<HealthSyncSettingsDto>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<HealthSyncSettingsDto>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = HealthSyncSettingsDto.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = HealthSyncSettingsDto.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

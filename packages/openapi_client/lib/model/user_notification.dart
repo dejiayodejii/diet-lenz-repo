@@ -91,32 +91,35 @@ class UserNotification {
   bool? read;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is UserNotification &&
-    other.id == id &&
-    other.createdAt == createdAt &&
-    other.updatedAt == updatedAt &&
-    other.type == type &&
-    other.title == title &&
-    other.message == message &&
-    other.readAt == readAt &&
-    other.actionUrl == actionUrl &&
-    other.read == read;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UserNotification &&
+          other.id == id &&
+          other.createdAt == createdAt &&
+          other.updatedAt == updatedAt &&
+          other.type == type &&
+          other.title == title &&
+          other.message == message &&
+          other.readAt == readAt &&
+          other.actionUrl == actionUrl &&
+          other.read == read;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (id == null ? 0 : id!.hashCode) +
-    (createdAt == null ? 0 : createdAt!.hashCode) +
-    (updatedAt == null ? 0 : updatedAt!.hashCode) +
-    (type == null ? 0 : type!.hashCode) +
-    (title == null ? 0 : title!.hashCode) +
-    (message == null ? 0 : message!.hashCode) +
-    (readAt == null ? 0 : readAt!.hashCode) +
-    (actionUrl == null ? 0 : actionUrl!.hashCode) +
-    (read == null ? 0 : read!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (id == null ? 0 : id!.hashCode) +
+      (createdAt == null ? 0 : createdAt!.hashCode) +
+      (updatedAt == null ? 0 : updatedAt!.hashCode) +
+      (type == null ? 0 : type!.hashCode) +
+      (title == null ? 0 : title!.hashCode) +
+      (message == null ? 0 : message!.hashCode) +
+      (readAt == null ? 0 : readAt!.hashCode) +
+      (actionUrl == null ? 0 : actionUrl!.hashCode) +
+      (read == null ? 0 : read!.hashCode);
 
   @override
-  String toString() => 'UserNotification[id=$id, createdAt=$createdAt, updatedAt=$updatedAt, type=$type, title=$title, message=$message, readAt=$readAt, actionUrl=$actionUrl, read=$read]';
+  String toString() =>
+      'UserNotification[id=$id, createdAt=$createdAt, updatedAt=$updatedAt, type=$type, title=$title, message=$message, readAt=$readAt, actionUrl=$actionUrl, read=$read]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -180,8 +183,10 @@ class UserNotification {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "UserNotification[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "UserNotification[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "UserNotification[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "UserNotification[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -201,7 +206,10 @@ class UserNotification {
     return null;
   }
 
-  static List<UserNotification> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<UserNotification> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <UserNotification>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -229,23 +237,27 @@ class UserNotification {
   }
 
   // maps a json object with a list of UserNotification-objects as value to a dart map
-  static Map<String, List<UserNotification>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<UserNotification>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<UserNotification>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = UserNotification.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = UserNotification.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-
 
 class UserNotificationTypeEnum {
   /// Instantiate a new enum with the provided [value].
@@ -260,12 +272,15 @@ class UserNotificationTypeEnum {
   String toJson() => value;
 
   static const MEAL_REMINDER = UserNotificationTypeEnum._(r'MEAL_REMINDER');
-  static const RECIPE_SUGGESTION = UserNotificationTypeEnum._(r'RECIPE_SUGGESTION');
-  static const GOAL_ACHIEVEMENT = UserNotificationTypeEnum._(r'GOAL_ACHIEVEMENT');
+  static const RECIPE_SUGGESTION =
+      UserNotificationTypeEnum._(r'RECIPE_SUGGESTION');
+  static const GOAL_ACHIEVEMENT =
+      UserNotificationTypeEnum._(r'GOAL_ACHIEVEMENT');
   static const SYSTEM_UPDATE = UserNotificationTypeEnum._(r'SYSTEM_UPDATE');
   static const RECIPE_SAVED = UserNotificationTypeEnum._(r'RECIPE_SAVED');
   static const WEEKLY_SUMMARY = UserNotificationTypeEnum._(r'WEEKLY_SUMMARY');
-  static const WEIGH_IN_REMINDER = UserNotificationTypeEnum._(r'WEIGH_IN_REMINDER');
+  static const WEIGH_IN_REMINDER =
+      UserNotificationTypeEnum._(r'WEIGH_IN_REMINDER');
 
   /// List of all possible values in this [enum][UserNotificationTypeEnum].
   static const values = <UserNotificationTypeEnum>[
@@ -278,9 +293,13 @@ class UserNotificationTypeEnum {
     WEIGH_IN_REMINDER,
   ];
 
-  static UserNotificationTypeEnum? fromJson(dynamic value) => UserNotificationTypeEnumTypeTransformer().decode(value);
+  static UserNotificationTypeEnum? fromJson(dynamic value) =>
+      UserNotificationTypeEnumTypeTransformer().decode(value);
 
-  static List<UserNotificationTypeEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<UserNotificationTypeEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <UserNotificationTypeEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -297,7 +316,8 @@ class UserNotificationTypeEnum {
 /// Transformation class that can [encode] an instance of [UserNotificationTypeEnum] to String,
 /// and [decode] dynamic data back to [UserNotificationTypeEnum].
 class UserNotificationTypeEnumTypeTransformer {
-  factory UserNotificationTypeEnumTypeTransformer() => _instance ??= const UserNotificationTypeEnumTypeTransformer._();
+  factory UserNotificationTypeEnumTypeTransformer() =>
+      _instance ??= const UserNotificationTypeEnumTypeTransformer._();
 
   const UserNotificationTypeEnumTypeTransformer._();
 
@@ -314,13 +334,20 @@ class UserNotificationTypeEnumTypeTransformer {
   UserNotificationTypeEnum? decode(dynamic data, {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'MEAL_REMINDER': return UserNotificationTypeEnum.MEAL_REMINDER;
-        case r'RECIPE_SUGGESTION': return UserNotificationTypeEnum.RECIPE_SUGGESTION;
-        case r'GOAL_ACHIEVEMENT': return UserNotificationTypeEnum.GOAL_ACHIEVEMENT;
-        case r'SYSTEM_UPDATE': return UserNotificationTypeEnum.SYSTEM_UPDATE;
-        case r'RECIPE_SAVED': return UserNotificationTypeEnum.RECIPE_SAVED;
-        case r'WEEKLY_SUMMARY': return UserNotificationTypeEnum.WEEKLY_SUMMARY;
-        case r'WEIGH_IN_REMINDER': return UserNotificationTypeEnum.WEIGH_IN_REMINDER;
+        case r'MEAL_REMINDER':
+          return UserNotificationTypeEnum.MEAL_REMINDER;
+        case r'RECIPE_SUGGESTION':
+          return UserNotificationTypeEnum.RECIPE_SUGGESTION;
+        case r'GOAL_ACHIEVEMENT':
+          return UserNotificationTypeEnum.GOAL_ACHIEVEMENT;
+        case r'SYSTEM_UPDATE':
+          return UserNotificationTypeEnum.SYSTEM_UPDATE;
+        case r'RECIPE_SAVED':
+          return UserNotificationTypeEnum.RECIPE_SAVED;
+        case r'WEEKLY_SUMMARY':
+          return UserNotificationTypeEnum.WEEKLY_SUMMARY;
+        case r'WEIGH_IN_REMINDER':
+          return UserNotificationTypeEnum.WEIGH_IN_REMINDER;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -333,5 +360,3 @@ class UserNotificationTypeEnumTypeTransformer {
   /// Singleton [UserNotificationTypeEnumTypeTransformer] instance.
   static UserNotificationTypeEnumTypeTransformer? _instance;
 }
-
-

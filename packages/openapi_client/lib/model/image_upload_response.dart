@@ -25,13 +25,14 @@ class ImageUploadResponse {
   String? imageUrl;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is ImageUploadResponse &&
-    other.imageUrl == imageUrl;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ImageUploadResponse && other.imageUrl == imageUrl;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (imageUrl == null ? 0 : imageUrl!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (imageUrl == null ? 0 : imageUrl!.hashCode);
 
   @override
   String toString() => 'ImageUploadResponse[imageUrl=$imageUrl]';
@@ -58,8 +59,10 @@ class ImageUploadResponse {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "ImageUploadResponse[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "ImageUploadResponse[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "ImageUploadResponse[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "ImageUploadResponse[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -71,7 +74,10 @@ class ImageUploadResponse {
     return null;
   }
 
-  static List<ImageUploadResponse> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<ImageUploadResponse> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <ImageUploadResponse>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -99,20 +105,24 @@ class ImageUploadResponse {
   }
 
   // maps a json object with a list of ImageUploadResponse-objects as value to a dart map
-  static Map<String, List<ImageUploadResponse>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<ImageUploadResponse>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<ImageUploadResponse>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = ImageUploadResponse.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = ImageUploadResponse.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

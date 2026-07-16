@@ -297,10 +297,10 @@ class ApiClient {
           return MacroTargetDto.fromJson(value);
         case 'Macros':
           return Macros.fromJson(value);
-        case 'MeasureDto':
-          return MeasureDto.fromJson(value);
         case 'MealLogResponseDto':
           return MealLogResponseDto.fromJson(value);
+        case 'MeasureDto':
+          return MeasureDto.fromJson(value);
         case 'MessageResponse':
           return MessageResponse.fromJson(value);
         case 'OnboardingSurveyRequest':

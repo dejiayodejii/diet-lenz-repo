@@ -106,34 +106,37 @@ class AverageMacrosDto {
   double? avgFiberPercentage;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is AverageMacrosDto &&
-    other.avgCalories == avgCalories &&
-    other.avgProteinGrams == avgProteinGrams &&
-    other.avgCarbsGrams == avgCarbsGrams &&
-    other.avgFatGrams == avgFatGrams &&
-    other.avgFiberGrams == avgFiberGrams &&
-    other.avgCaloriesPercentage == avgCaloriesPercentage &&
-    other.avgProteinPercentage == avgProteinPercentage &&
-    other.avgCarbsPercentage == avgCarbsPercentage &&
-    other.avgFatPercentage == avgFatPercentage &&
-    other.avgFiberPercentage == avgFiberPercentage;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AverageMacrosDto &&
+          other.avgCalories == avgCalories &&
+          other.avgProteinGrams == avgProteinGrams &&
+          other.avgCarbsGrams == avgCarbsGrams &&
+          other.avgFatGrams == avgFatGrams &&
+          other.avgFiberGrams == avgFiberGrams &&
+          other.avgCaloriesPercentage == avgCaloriesPercentage &&
+          other.avgProteinPercentage == avgProteinPercentage &&
+          other.avgCarbsPercentage == avgCarbsPercentage &&
+          other.avgFatPercentage == avgFatPercentage &&
+          other.avgFiberPercentage == avgFiberPercentage;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (avgCalories == null ? 0 : avgCalories!.hashCode) +
-    (avgProteinGrams == null ? 0 : avgProteinGrams!.hashCode) +
-    (avgCarbsGrams == null ? 0 : avgCarbsGrams!.hashCode) +
-    (avgFatGrams == null ? 0 : avgFatGrams!.hashCode) +
-    (avgFiberGrams == null ? 0 : avgFiberGrams!.hashCode) +
-    (avgCaloriesPercentage == null ? 0 : avgCaloriesPercentage!.hashCode) +
-    (avgProteinPercentage == null ? 0 : avgProteinPercentage!.hashCode) +
-    (avgCarbsPercentage == null ? 0 : avgCarbsPercentage!.hashCode) +
-    (avgFatPercentage == null ? 0 : avgFatPercentage!.hashCode) +
-    (avgFiberPercentage == null ? 0 : avgFiberPercentage!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (avgCalories == null ? 0 : avgCalories!.hashCode) +
+      (avgProteinGrams == null ? 0 : avgProteinGrams!.hashCode) +
+      (avgCarbsGrams == null ? 0 : avgCarbsGrams!.hashCode) +
+      (avgFatGrams == null ? 0 : avgFatGrams!.hashCode) +
+      (avgFiberGrams == null ? 0 : avgFiberGrams!.hashCode) +
+      (avgCaloriesPercentage == null ? 0 : avgCaloriesPercentage!.hashCode) +
+      (avgProteinPercentage == null ? 0 : avgProteinPercentage!.hashCode) +
+      (avgCarbsPercentage == null ? 0 : avgCarbsPercentage!.hashCode) +
+      (avgFatPercentage == null ? 0 : avgFatPercentage!.hashCode) +
+      (avgFiberPercentage == null ? 0 : avgFiberPercentage!.hashCode);
 
   @override
-  String toString() => 'AverageMacrosDto[avgCalories=$avgCalories, avgProteinGrams=$avgProteinGrams, avgCarbsGrams=$avgCarbsGrams, avgFatGrams=$avgFatGrams, avgFiberGrams=$avgFiberGrams, avgCaloriesPercentage=$avgCaloriesPercentage, avgProteinPercentage=$avgProteinPercentage, avgCarbsPercentage=$avgCarbsPercentage, avgFatPercentage=$avgFatPercentage, avgFiberPercentage=$avgFiberPercentage]';
+  String toString() =>
+      'AverageMacrosDto[avgCalories=$avgCalories, avgProteinGrams=$avgProteinGrams, avgCarbsGrams=$avgCarbsGrams, avgFatGrams=$avgFatGrams, avgFiberGrams=$avgFiberGrams, avgCaloriesPercentage=$avgCaloriesPercentage, avgProteinPercentage=$avgProteinPercentage, avgCarbsPercentage=$avgCarbsPercentage, avgFatPercentage=$avgFatPercentage, avgFiberPercentage=$avgFiberPercentage]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -202,8 +205,10 @@ class AverageMacrosDto {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "AverageMacrosDto[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "AverageMacrosDto[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "AverageMacrosDto[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "AverageMacrosDto[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -214,8 +219,10 @@ class AverageMacrosDto {
         avgCarbsGrams: mapValueOfType<double>(json, r'avgCarbsGrams'),
         avgFatGrams: mapValueOfType<double>(json, r'avgFatGrams'),
         avgFiberGrams: mapValueOfType<double>(json, r'avgFiberGrams'),
-        avgCaloriesPercentage: mapValueOfType<double>(json, r'avgCaloriesPercentage'),
-        avgProteinPercentage: mapValueOfType<double>(json, r'avgProteinPercentage'),
+        avgCaloriesPercentage:
+            mapValueOfType<double>(json, r'avgCaloriesPercentage'),
+        avgProteinPercentage:
+            mapValueOfType<double>(json, r'avgProteinPercentage'),
         avgCarbsPercentage: mapValueOfType<double>(json, r'avgCarbsPercentage'),
         avgFatPercentage: mapValueOfType<double>(json, r'avgFatPercentage'),
         avgFiberPercentage: mapValueOfType<double>(json, r'avgFiberPercentage'),
@@ -224,7 +231,10 @@ class AverageMacrosDto {
     return null;
   }
 
-  static List<AverageMacrosDto> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<AverageMacrosDto> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <AverageMacrosDto>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -252,20 +262,24 @@ class AverageMacrosDto {
   }
 
   // maps a json object with a list of AverageMacrosDto-objects as value to a dart map
-  static Map<String, List<AverageMacrosDto>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<AverageMacrosDto>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<AverageMacrosDto>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = AverageMacrosDto.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = AverageMacrosDto.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

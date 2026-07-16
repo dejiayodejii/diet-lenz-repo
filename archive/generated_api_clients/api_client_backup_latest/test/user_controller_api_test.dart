@@ -42,6 +42,11 @@ void main() {
       // TODO
     });
 
+    //Future<ProjectionResponse> getProjection({ String bucket }) async
+    test('test getProjection', () async {
+      // TODO
+    });
+
     //Future<PagedModelUserNotification> getUserNotifications(int pageNumber) async
     test('test getUserNotifications', () async {
       // TODO

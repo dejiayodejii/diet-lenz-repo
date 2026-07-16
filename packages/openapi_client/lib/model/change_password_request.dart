@@ -25,26 +25,29 @@ class ChangePasswordRequest {
   String confirmPassword;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is ChangePasswordRequest &&
-    other.currentPassword == currentPassword &&
-    other.newPassword == newPassword &&
-    other.confirmPassword == confirmPassword;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ChangePasswordRequest &&
+          other.currentPassword == currentPassword &&
+          other.newPassword == newPassword &&
+          other.confirmPassword == confirmPassword;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (currentPassword.hashCode) +
-    (newPassword.hashCode) +
-    (confirmPassword.hashCode);
+      // ignore: unnecessary_parenthesis
+      (currentPassword.hashCode) +
+      (newPassword.hashCode) +
+      (confirmPassword.hashCode);
 
   @override
-  String toString() => 'ChangePasswordRequest[currentPassword=$currentPassword, newPassword=$newPassword, confirmPassword=$confirmPassword]';
+  String toString() =>
+      'ChangePasswordRequest[currentPassword=$currentPassword, newPassword=$newPassword, confirmPassword=$confirmPassword]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-      json[r'currentPassword'] = this.currentPassword;
-      json[r'newPassword'] = this.newPassword;
-      json[r'confirmPassword'] = this.confirmPassword;
+    json[r'currentPassword'] = this.currentPassword;
+    json[r'newPassword'] = this.newPassword;
+    json[r'confirmPassword'] = this.confirmPassword;
     return json;
   }
 
@@ -60,8 +63,10 @@ class ChangePasswordRequest {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "ChangePasswordRequest[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "ChangePasswordRequest[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "ChangePasswordRequest[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "ChangePasswordRequest[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -75,7 +80,10 @@ class ChangePasswordRequest {
     return null;
   }
 
-  static List<ChangePasswordRequest> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<ChangePasswordRequest> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <ChangePasswordRequest>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -103,13 +111,19 @@ class ChangePasswordRequest {
   }
 
   // maps a json object with a list of ChangePasswordRequest-objects as value to a dart map
-  static Map<String, List<ChangePasswordRequest>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<ChangePasswordRequest>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<ChangePasswordRequest>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = ChangePasswordRequest.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = ChangePasswordRequest.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
@@ -122,4 +136,3 @@ class ChangePasswordRequest {
     'confirmPassword',
   };
 }
-

@@ -97,32 +97,41 @@ class PricingResponse {
   num? yearlyPriceAfterDiscount;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is PricingResponse &&
-    other.countryCode == countryCode &&
-    other.currency == currency &&
-    other.monthlyPrice == monthlyPrice &&
-    other.yearlyPrice == yearlyPrice &&
-    other.referralReward == referralReward &&
-    other.hasWinbackDiscount == hasWinbackDiscount &&
-    other.winbackDiscountPercentage == winbackDiscountPercentage &&
-    other.monthlyPriceAfterDiscount == monthlyPriceAfterDiscount &&
-    other.yearlyPriceAfterDiscount == yearlyPriceAfterDiscount;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PricingResponse &&
+          other.countryCode == countryCode &&
+          other.currency == currency &&
+          other.monthlyPrice == monthlyPrice &&
+          other.yearlyPrice == yearlyPrice &&
+          other.referralReward == referralReward &&
+          other.hasWinbackDiscount == hasWinbackDiscount &&
+          other.winbackDiscountPercentage == winbackDiscountPercentage &&
+          other.monthlyPriceAfterDiscount == monthlyPriceAfterDiscount &&
+          other.yearlyPriceAfterDiscount == yearlyPriceAfterDiscount;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (countryCode == null ? 0 : countryCode!.hashCode) +
-    (currency == null ? 0 : currency!.hashCode) +
-    (monthlyPrice == null ? 0 : monthlyPrice!.hashCode) +
-    (yearlyPrice == null ? 0 : yearlyPrice!.hashCode) +
-    (referralReward == null ? 0 : referralReward!.hashCode) +
-    (hasWinbackDiscount == null ? 0 : hasWinbackDiscount!.hashCode) +
-    (winbackDiscountPercentage == null ? 0 : winbackDiscountPercentage!.hashCode) +
-    (monthlyPriceAfterDiscount == null ? 0 : monthlyPriceAfterDiscount!.hashCode) +
-    (yearlyPriceAfterDiscount == null ? 0 : yearlyPriceAfterDiscount!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (countryCode == null ? 0 : countryCode!.hashCode) +
+      (currency == null ? 0 : currency!.hashCode) +
+      (monthlyPrice == null ? 0 : monthlyPrice!.hashCode) +
+      (yearlyPrice == null ? 0 : yearlyPrice!.hashCode) +
+      (referralReward == null ? 0 : referralReward!.hashCode) +
+      (hasWinbackDiscount == null ? 0 : hasWinbackDiscount!.hashCode) +
+      (winbackDiscountPercentage == null
+          ? 0
+          : winbackDiscountPercentage!.hashCode) +
+      (monthlyPriceAfterDiscount == null
+          ? 0
+          : monthlyPriceAfterDiscount!.hashCode) +
+      (yearlyPriceAfterDiscount == null
+          ? 0
+          : yearlyPriceAfterDiscount!.hashCode);
 
   @override
-  String toString() => 'PricingResponse[countryCode=$countryCode, currency=$currency, monthlyPrice=$monthlyPrice, yearlyPrice=$yearlyPrice, referralReward=$referralReward, hasWinbackDiscount=$hasWinbackDiscount, winbackDiscountPercentage=$winbackDiscountPercentage, monthlyPriceAfterDiscount=$monthlyPriceAfterDiscount, yearlyPriceAfterDiscount=$yearlyPriceAfterDiscount]';
+  String toString() =>
+      'PricingResponse[countryCode=$countryCode, currency=$currency, monthlyPrice=$monthlyPrice, yearlyPrice=$yearlyPrice, referralReward=$referralReward, hasWinbackDiscount=$hasWinbackDiscount, winbackDiscountPercentage=$winbackDiscountPercentage, monthlyPriceAfterDiscount=$monthlyPriceAfterDiscount, yearlyPriceAfterDiscount=$yearlyPriceAfterDiscount]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -186,8 +195,10 @@ class PricingResponse {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "PricingResponse[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "PricingResponse[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "PricingResponse[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "PricingResponse[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -199,15 +210,21 @@ class PricingResponse {
         yearlyPrice: num.parse('${json[r'yearlyPrice']}'),
         referralReward: num.parse('${json[r'referralReward']}'),
         hasWinbackDiscount: mapValueOfType<bool>(json, r'hasWinbackDiscount'),
-        winbackDiscountPercentage: mapValueOfType<double>(json, r'winbackDiscountPercentage'),
-        monthlyPriceAfterDiscount: num.parse('${json[r'monthlyPriceAfterDiscount']}'),
-        yearlyPriceAfterDiscount: num.parse('${json[r'yearlyPriceAfterDiscount']}'),
+        winbackDiscountPercentage:
+            mapValueOfType<double>(json, r'winbackDiscountPercentage'),
+        monthlyPriceAfterDiscount:
+            num.parse('${json[r'monthlyPriceAfterDiscount']}'),
+        yearlyPriceAfterDiscount:
+            num.parse('${json[r'yearlyPriceAfterDiscount']}'),
       );
     }
     return null;
   }
 
-  static List<PricingResponse> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<PricingResponse> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <PricingResponse>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -235,20 +252,24 @@ class PricingResponse {
   }
 
   // maps a json object with a list of PricingResponse-objects as value to a dart map
-  static Map<String, List<PricingResponse>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<PricingResponse>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<PricingResponse>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = PricingResponse.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = PricingResponse.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

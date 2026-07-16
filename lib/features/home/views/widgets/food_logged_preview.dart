@@ -104,7 +104,7 @@ class FoodLoggedPreview extends ConsumerWidget {
                                   ),
                                 ),
                                 Text(
-                                  '${loggedMeal.consumedMacros?.calories?.toStringAsFixed(0) ?? "0"} kcal',
+                                  '${loggedMeal.foodAnalysis?.totalMacros?.calories?.toStringAsFixed(2) ?? "0"} kcal',
                                   style: const TextStyle(
                                     fontFamily: AppFonts.lato,
                                     fontSize: 18,
@@ -129,7 +129,7 @@ class FoodLoggedPreview extends ConsumerWidget {
                                   ),
                                   SizedBox(width: 5),
                                   Text(
-                                    'Protein: ${loggedMeal.consumedMacros?.proteinGrams?.toStringAsFixed(0) ?? "0"}g',
+                                    'Protein: ${loggedMeal.foodAnalysis?.totalMacros?.protein?.value?.toStringAsFixed(0) ?? "0"}g',
                                     style: const TextStyle(
                                       fontFamily: AppFonts.lato,
                                       fontSize: 10,
@@ -150,7 +150,7 @@ class FoodLoggedPreview extends ConsumerWidget {
                                   ),
                                   SizedBox(width: 5),
                                   Text(
-                                    'Carbs: ${loggedMeal.consumedMacros?.carbsGrams?.toStringAsFixed(0) ?? "0"}g',
+                                    'Carbs: ${loggedMeal.foodAnalysis?.totalMacros?.carbs?.value?.toStringAsFixed(0) ?? "0"}g',
                                     style: const TextStyle(
                                       fontFamily: AppFonts.lato,
                                       fontSize: 10,
@@ -171,7 +171,7 @@ class FoodLoggedPreview extends ConsumerWidget {
                                   ),
                                   SizedBox(width: 5),
                                   Text(
-                                    'Fat: ${loggedMeal.consumedMacros?.fatGrams?.toStringAsFixed(0) ?? "0"}g',
+                                    'Fat: ${loggedMeal.foodAnalysis?.totalMacros?.fat?.value?.toStringAsFixed(2) ?? "0"}g',
                                     style: const TextStyle(
                                       fontFamily: AppFonts.lato,
                                       fontSize: 10,

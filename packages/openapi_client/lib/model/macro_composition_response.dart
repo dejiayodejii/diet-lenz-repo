@@ -55,24 +55,27 @@ class MacroCompositionResponse {
   List<ChartPoint> chartData;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is MacroCompositionResponse &&
-    other.filter == filter &&
-    other.totalCalories == totalCalories &&
-    other.macros == macros &&
-    other.percentages == percentages &&
-    _deepEquality.equals(other.chartData, chartData);
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MacroCompositionResponse &&
+          other.filter == filter &&
+          other.totalCalories == totalCalories &&
+          other.macros == macros &&
+          other.percentages == percentages &&
+          _deepEquality.equals(other.chartData, chartData);
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (filter == null ? 0 : filter!.hashCode) +
-    (totalCalories == null ? 0 : totalCalories!.hashCode) +
-    (macros == null ? 0 : macros!.hashCode) +
-    (percentages == null ? 0 : percentages!.hashCode) +
-    (chartData.hashCode);
+      // ignore: unnecessary_parenthesis
+      (filter == null ? 0 : filter!.hashCode) +
+      (totalCalories == null ? 0 : totalCalories!.hashCode) +
+      (macros == null ? 0 : macros!.hashCode) +
+      (percentages == null ? 0 : percentages!.hashCode) +
+      (chartData.hashCode);
 
   @override
-  String toString() => 'MacroCompositionResponse[filter=$filter, totalCalories=$totalCalories, macros=$macros, percentages=$percentages, chartData=$chartData]';
+  String toString() =>
+      'MacroCompositionResponse[filter=$filter, totalCalories=$totalCalories, macros=$macros, percentages=$percentages, chartData=$chartData]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -96,7 +99,7 @@ class MacroCompositionResponse {
     } else {
       json[r'percentages'] = null;
     }
-      json[r'chartData'] = this.chartData;
+    json[r'chartData'] = this.chartData;
     return json;
   }
 
@@ -112,8 +115,10 @@ class MacroCompositionResponse {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "MacroCompositionResponse[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "MacroCompositionResponse[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "MacroCompositionResponse[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "MacroCompositionResponse[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -129,7 +134,10 @@ class MacroCompositionResponse {
     return null;
   }
 
-  static List<MacroCompositionResponse> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<MacroCompositionResponse> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <MacroCompositionResponse>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -157,20 +165,24 @@ class MacroCompositionResponse {
   }
 
   // maps a json object with a list of MacroCompositionResponse-objects as value to a dart map
-  static Map<String, List<MacroCompositionResponse>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<MacroCompositionResponse>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<MacroCompositionResponse>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = MacroCompositionResponse.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = MacroCompositionResponse.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

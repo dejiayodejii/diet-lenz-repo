@@ -61,24 +61,27 @@ class MacroActualDto {
   double? fiberGrams;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is MacroActualDto &&
-    other.calories == calories &&
-    other.proteinGrams == proteinGrams &&
-    other.carbsGrams == carbsGrams &&
-    other.fatGrams == fatGrams &&
-    other.fiberGrams == fiberGrams;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MacroActualDto &&
+          other.calories == calories &&
+          other.proteinGrams == proteinGrams &&
+          other.carbsGrams == carbsGrams &&
+          other.fatGrams == fatGrams &&
+          other.fiberGrams == fiberGrams;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (calories == null ? 0 : calories!.hashCode) +
-    (proteinGrams == null ? 0 : proteinGrams!.hashCode) +
-    (carbsGrams == null ? 0 : carbsGrams!.hashCode) +
-    (fatGrams == null ? 0 : fatGrams!.hashCode) +
-    (fiberGrams == null ? 0 : fiberGrams!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (calories == null ? 0 : calories!.hashCode) +
+      (proteinGrams == null ? 0 : proteinGrams!.hashCode) +
+      (carbsGrams == null ? 0 : carbsGrams!.hashCode) +
+      (fatGrams == null ? 0 : fatGrams!.hashCode) +
+      (fiberGrams == null ? 0 : fiberGrams!.hashCode);
 
   @override
-  String toString() => 'MacroActualDto[calories=$calories, proteinGrams=$proteinGrams, carbsGrams=$carbsGrams, fatGrams=$fatGrams, fiberGrams=$fiberGrams]';
+  String toString() =>
+      'MacroActualDto[calories=$calories, proteinGrams=$proteinGrams, carbsGrams=$carbsGrams, fatGrams=$fatGrams, fiberGrams=$fiberGrams]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -122,8 +125,10 @@ class MacroActualDto {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "MacroActualDto[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "MacroActualDto[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "MacroActualDto[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "MacroActualDto[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -139,7 +144,10 @@ class MacroActualDto {
     return null;
   }
 
-  static List<MacroActualDto> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<MacroActualDto> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <MacroActualDto>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -167,20 +175,24 @@ class MacroActualDto {
   }
 
   // maps a json object with a list of MacroActualDto-objects as value to a dart map
-  static Map<String, List<MacroActualDto>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<MacroActualDto>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<MacroActualDto>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = MacroActualDto.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = MacroActualDto.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

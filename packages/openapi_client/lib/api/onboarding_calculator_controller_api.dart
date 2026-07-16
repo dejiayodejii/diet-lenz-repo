@@ -10,9 +10,9 @@
 
 part of openapi.api;
 
-
 class OnboardingCalculatorControllerApi {
-  OnboardingCalculatorControllerApi([ApiClient? apiClient]) : apiClient = apiClient ?? defaultApiClient;
+  OnboardingCalculatorControllerApi([ApiClient? apiClient])
+      : apiClient = apiClient ?? defaultApiClient;
 
   final ApiClient apiClient;
 
@@ -20,7 +20,9 @@ class OnboardingCalculatorControllerApi {
   /// Parameters:
   ///
   /// * [MacroPreviewRequest] macroPreviewRequest (required):
-  Future<Response> calculatePlanWithHttpInfo(MacroPreviewRequest macroPreviewRequest,) async {
+  Future<Response> calculatePlanWithHttpInfo(
+    MacroPreviewRequest macroPreviewRequest,
+  ) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/onboarding/plan';
 
@@ -32,7 +34,6 @@ class OnboardingCalculatorControllerApi {
     final formParams = <String, String>{};
 
     const contentTypes = <String>['application/json'];
-
 
     return apiClient.invokeAPI(
       path,
@@ -48,17 +49,24 @@ class OnboardingCalculatorControllerApi {
   /// Parameters:
   ///
   /// * [MacroPreviewRequest] macroPreviewRequest (required):
-  Future<MacroPreviewResponse?> calculatePlan(MacroPreviewRequest macroPreviewRequest,) async {
-    final response = await calculatePlanWithHttpInfo(macroPreviewRequest,);
+  Future<MacroPreviewResponse?> calculatePlan(
+    MacroPreviewRequest macroPreviewRequest,
+  ) async {
+    final response = await calculatePlanWithHttpInfo(
+      macroPreviewRequest,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'MacroPreviewResponse',) as MacroPreviewResponse;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'MacroPreviewResponse',
+      ) as MacroPreviewResponse;
     }
     return null;
   }
@@ -69,7 +77,10 @@ class OnboardingCalculatorControllerApi {
   /// * [MacroPreviewRequest] macroPreviewRequest (required):
   ///
   /// * [String] bucket:
-  Future<Response> calculateProjectionWithHttpInfo(MacroPreviewRequest macroPreviewRequest, { String? bucket, }) async {
+  Future<Response> calculateProjectionWithHttpInfo(
+    MacroPreviewRequest macroPreviewRequest, {
+    String? bucket,
+  }) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/onboarding/projection';
 
@@ -86,7 +97,6 @@ class OnboardingCalculatorControllerApi {
 
     const contentTypes = <String>['application/json'];
 
-
     return apiClient.invokeAPI(
       path,
       'POST',
@@ -103,17 +113,26 @@ class OnboardingCalculatorControllerApi {
   /// * [MacroPreviewRequest] macroPreviewRequest (required):
   ///
   /// * [String] bucket:
-  Future<ProjectionResponse?> calculateProjection(MacroPreviewRequest macroPreviewRequest, { String? bucket, }) async {
-    final response = await calculateProjectionWithHttpInfo(macroPreviewRequest,  bucket: bucket, );
+  Future<ProjectionResponse?> calculateProjection(
+    MacroPreviewRequest macroPreviewRequest, {
+    String? bucket,
+  }) async {
+    final response = await calculateProjectionWithHttpInfo(
+      macroPreviewRequest,
+      bucket: bucket,
+    );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
     // When a remote server returns no body with a status of 204, we shall not decode it.
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'ProjectionResponse',) as ProjectionResponse;
-    
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'ProjectionResponse',
+      ) as ProjectionResponse;
     }
     return null;
   }

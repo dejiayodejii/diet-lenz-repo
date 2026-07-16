@@ -11,9 +11,15 @@ import 'package:diet_lenz/features/database/widgets/manual_add_bar.dart';
 import 'package:diet_lenz/features/recipe/controller/recipe_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:openapi/api.dart';
 
 class DatabaseSearchScreen extends ConsumerStatefulWidget {
-  const DatabaseSearchScreen({super.key});
+  const DatabaseSearchScreen({
+    super.key,
+    this.selectingIngredient = false,
+  });
+
+  final bool selectingIngredient;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -70,6 +76,11 @@ class _DatabaseSearchScreenState extends ConsumerState<DatabaseSearchScreen> {
     );
   }
 
+  void _selectIngredient(FoodAnalysisDto food) {
+    FocusScope.of(context).unfocus();
+    Navigator.of(context).pop(food);
+  }
+
   @override
   Widget build(BuildContext context) {
     final recipeState = ref.watch(recipeViewModelProvider);
@@ -77,7 +88,8 @@ class _DatabaseSearchScreenState extends ConsumerState<DatabaseSearchScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: const Text('Database'),
+        title:
+            Text(widget.selectingIngredient ? 'Select ingredient' : 'Database'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -99,7 +111,9 @@ class _DatabaseSearchScreenState extends ConsumerState<DatabaseSearchScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: ManualAddBar(onTap: _openManualAdd),
+      bottomNavigationBar: widget.selectingIngredient
+          ? null
+          : ManualAddBar(onTap: _openManualAdd),
     );
   }
 
@@ -147,6 +161,12 @@ class _DatabaseSearchScreenState extends ConsumerState<DatabaseSearchScreen> {
           return FoodSearchResultTile(
             food: loggedHistory[index - 1],
             fromDatabaseSearch: true,
+            onTap: widget.selectingIngredient
+                ? () => _selectIngredient(loggedHistory[index - 1])
+                : null,
+            onAdd: widget.selectingIngredient
+                ? () => _selectIngredient(loggedHistory[index - 1])
+                : null,
           );
         },
       );
@@ -168,6 +188,12 @@ class _DatabaseSearchScreenState extends ConsumerState<DatabaseSearchScreen> {
         return FoodSearchResultTile(
           food: results[index],
           fromDatabaseSearch: true,
+          onTap: widget.selectingIngredient
+              ? () => _selectIngredient(results[index])
+              : null,
+          onAdd: widget.selectingIngredient
+              ? () => _selectIngredient(results[index])
+              : null,
         );
       },
     );

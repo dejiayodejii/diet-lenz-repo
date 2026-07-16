@@ -37,24 +37,27 @@ class RegisterDeviceRequest {
   String appVersion;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is RegisterDeviceRequest &&
-    other.timeZone == timeZone &&
-    other.deviceId == deviceId &&
-    other.platform == platform &&
-    other.pushToken == pushToken &&
-    other.appVersion == appVersion;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RegisterDeviceRequest &&
+          other.timeZone == timeZone &&
+          other.deviceId == deviceId &&
+          other.platform == platform &&
+          other.pushToken == pushToken &&
+          other.appVersion == appVersion;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (timeZone == null ? 0 : timeZone!.hashCode) +
-    (deviceId.hashCode) +
-    (platform.hashCode) +
-    (pushToken.hashCode) +
-    (appVersion.hashCode);
+      // ignore: unnecessary_parenthesis
+      (timeZone == null ? 0 : timeZone!.hashCode) +
+      (deviceId.hashCode) +
+      (platform.hashCode) +
+      (pushToken.hashCode) +
+      (appVersion.hashCode);
 
   @override
-  String toString() => 'RegisterDeviceRequest[timeZone=$timeZone, deviceId=$deviceId, platform=$platform, pushToken=$pushToken, appVersion=$appVersion]';
+  String toString() =>
+      'RegisterDeviceRequest[timeZone=$timeZone, deviceId=$deviceId, platform=$platform, pushToken=$pushToken, appVersion=$appVersion]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -63,10 +66,10 @@ class RegisterDeviceRequest {
     } else {
       json[r'timeZone'] = null;
     }
-      json[r'deviceId'] = this.deviceId;
-      json[r'platform'] = this.platform;
-      json[r'pushToken'] = this.pushToken;
-      json[r'appVersion'] = this.appVersion;
+    json[r'deviceId'] = this.deviceId;
+    json[r'platform'] = this.platform;
+    json[r'pushToken'] = this.pushToken;
+    json[r'appVersion'] = this.appVersion;
     return json;
   }
 
@@ -82,8 +85,10 @@ class RegisterDeviceRequest {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "RegisterDeviceRequest[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "RegisterDeviceRequest[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "RegisterDeviceRequest[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "RegisterDeviceRequest[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -91,7 +96,8 @@ class RegisterDeviceRequest {
       return RegisterDeviceRequest(
         timeZone: mapValueOfType<String>(json, r'timeZone'),
         deviceId: mapValueOfType<String>(json, r'deviceId')!,
-        platform: RegisterDeviceRequestPlatformEnum.fromJson(json[r'platform'])!,
+        platform:
+            RegisterDeviceRequestPlatformEnum.fromJson(json[r'platform'])!,
         pushToken: mapValueOfType<String>(json, r'pushToken')!,
         appVersion: mapValueOfType<String>(json, r'appVersion')!,
       );
@@ -99,7 +105,10 @@ class RegisterDeviceRequest {
     return null;
   }
 
-  static List<RegisterDeviceRequest> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<RegisterDeviceRequest> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <RegisterDeviceRequest>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -127,13 +136,19 @@ class RegisterDeviceRequest {
   }
 
   // maps a json object with a list of RegisterDeviceRequest-objects as value to a dart map
-  static Map<String, List<RegisterDeviceRequest>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<RegisterDeviceRequest>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<RegisterDeviceRequest>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = RegisterDeviceRequest.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = RegisterDeviceRequest.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
@@ -147,7 +162,6 @@ class RegisterDeviceRequest {
     'appVersion',
   };
 }
-
 
 class RegisterDeviceRequestPlatformEnum {
   /// Instantiate a new enum with the provided [value].
@@ -174,9 +188,13 @@ class RegisterDeviceRequestPlatformEnum {
     GOOGLE,
   ];
 
-  static RegisterDeviceRequestPlatformEnum? fromJson(dynamic value) => RegisterDeviceRequestPlatformEnumTypeTransformer().decode(value);
+  static RegisterDeviceRequestPlatformEnum? fromJson(dynamic value) =>
+      RegisterDeviceRequestPlatformEnumTypeTransformer().decode(value);
 
-  static List<RegisterDeviceRequestPlatformEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<RegisterDeviceRequestPlatformEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <RegisterDeviceRequestPlatformEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -193,7 +211,8 @@ class RegisterDeviceRequestPlatformEnum {
 /// Transformation class that can [encode] an instance of [RegisterDeviceRequestPlatformEnum] to String,
 /// and [decode] dynamic data back to [RegisterDeviceRequestPlatformEnum].
 class RegisterDeviceRequestPlatformEnumTypeTransformer {
-  factory RegisterDeviceRequestPlatformEnumTypeTransformer() => _instance ??= const RegisterDeviceRequestPlatformEnumTypeTransformer._();
+  factory RegisterDeviceRequestPlatformEnumTypeTransformer() =>
+      _instance ??= const RegisterDeviceRequestPlatformEnumTypeTransformer._();
 
   const RegisterDeviceRequestPlatformEnumTypeTransformer._();
 
@@ -207,13 +226,18 @@ class RegisterDeviceRequestPlatformEnumTypeTransformer {
   ///
   /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
   /// and users are still using an old app with the old code.
-  RegisterDeviceRequestPlatformEnum? decode(dynamic data, {bool allowNull = true}) {
+  RegisterDeviceRequestPlatformEnum? decode(dynamic data,
+      {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'IOS': return RegisterDeviceRequestPlatformEnum.IOS;
-        case r'ANDROID': return RegisterDeviceRequestPlatformEnum.ANDROID;
-        case r'APPLE': return RegisterDeviceRequestPlatformEnum.APPLE;
-        case r'GOOGLE': return RegisterDeviceRequestPlatformEnum.GOOGLE;
+        case r'IOS':
+          return RegisterDeviceRequestPlatformEnum.IOS;
+        case r'ANDROID':
+          return RegisterDeviceRequestPlatformEnum.ANDROID;
+        case r'APPLE':
+          return RegisterDeviceRequestPlatformEnum.APPLE;
+        case r'GOOGLE':
+          return RegisterDeviceRequestPlatformEnum.GOOGLE;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -226,5 +250,3 @@ class RegisterDeviceRequestPlatformEnumTypeTransformer {
   /// Singleton [RegisterDeviceRequestPlatformEnumTypeTransformer] instance.
   static RegisterDeviceRequestPlatformEnumTypeTransformer? _instance;
 }
-
-

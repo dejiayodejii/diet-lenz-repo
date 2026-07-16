@@ -52,22 +52,25 @@ class Summary {
   String? unit;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is Summary &&
-    other.lastWeekWeight == lastWeekWeight &&
-    other.currentWeight == currentWeight &&
-    other.targetWeight == targetWeight &&
-    other.unit == unit;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Summary &&
+          other.lastWeekWeight == lastWeekWeight &&
+          other.currentWeight == currentWeight &&
+          other.targetWeight == targetWeight &&
+          other.unit == unit;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (lastWeekWeight == null ? 0 : lastWeekWeight!.hashCode) +
-    (currentWeight == null ? 0 : currentWeight!.hashCode) +
-    (targetWeight == null ? 0 : targetWeight!.hashCode) +
-    (unit == null ? 0 : unit!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (lastWeekWeight == null ? 0 : lastWeekWeight!.hashCode) +
+      (currentWeight == null ? 0 : currentWeight!.hashCode) +
+      (targetWeight == null ? 0 : targetWeight!.hashCode) +
+      (unit == null ? 0 : unit!.hashCode);
 
   @override
-  String toString() => 'Summary[lastWeekWeight=$lastWeekWeight, currentWeight=$currentWeight, targetWeight=$targetWeight, unit=$unit]';
+  String toString() =>
+      'Summary[lastWeekWeight=$lastWeekWeight, currentWeight=$currentWeight, targetWeight=$targetWeight, unit=$unit]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -106,23 +109,34 @@ class Summary {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "Summary[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "Summary[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "Summary[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "Summary[$key]" has a null value in JSON.');
         });
         return true;
       }());
 
       return Summary(
-        lastWeekWeight: json[r'lastWeekWeight'] != null ? num.parse('${json[r'lastWeekWeight']}') : null, // PATCHED FOR NULL WEIGHT PROGRESS
-        currentWeight: json[r'currentWeight'] != null ? num.parse('${json[r'currentWeight']}') : null, // PATCHED FOR NULL WEIGHT PROGRESS
-        targetWeight: json[r'targetWeight'] != null ? num.parse('${json[r'targetWeight']}') : null, // PATCHED FOR NULL WEIGHT PROGRESS
+        lastWeekWeight: json[r'lastWeekWeight'] != null
+            ? num.parse('${json[r'lastWeekWeight']}')
+            : null, // PATCHED FOR NULL WEIGHT PROGRESS
+        currentWeight: json[r'currentWeight'] != null
+            ? num.parse('${json[r'currentWeight']}')
+            : null, // PATCHED FOR NULL WEIGHT PROGRESS
+        targetWeight: json[r'targetWeight'] != null
+            ? num.parse('${json[r'targetWeight']}')
+            : null, // PATCHED FOR NULL WEIGHT PROGRESS
         unit: mapValueOfType<String>(json, r'unit'),
       );
     }
     return null;
   }
 
-  static List<Summary> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<Summary> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <Summary>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -150,20 +164,24 @@ class Summary {
   }
 
   // maps a json object with a list of Summary-objects as value to a dart map
-  static Map<String, List<Summary>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<Summary>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<Summary>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = Summary.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = Summary.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

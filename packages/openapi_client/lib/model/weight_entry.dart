@@ -64,26 +64,29 @@ class WeightEntry {
   DateTime? entryDate;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is WeightEntry &&
-    other.id == id &&
-    other.createdAt == createdAt &&
-    other.updatedAt == updatedAt &&
-    other.value == value &&
-    other.unit == unit &&
-    other.entryDate == entryDate;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WeightEntry &&
+          other.id == id &&
+          other.createdAt == createdAt &&
+          other.updatedAt == updatedAt &&
+          other.value == value &&
+          other.unit == unit &&
+          other.entryDate == entryDate;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (id == null ? 0 : id!.hashCode) +
-    (createdAt == null ? 0 : createdAt!.hashCode) +
-    (updatedAt == null ? 0 : updatedAt!.hashCode) +
-    (value == null ? 0 : value!.hashCode) +
-    (unit == null ? 0 : unit!.hashCode) +
-    (entryDate == null ? 0 : entryDate!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (id == null ? 0 : id!.hashCode) +
+      (createdAt == null ? 0 : createdAt!.hashCode) +
+      (updatedAt == null ? 0 : updatedAt!.hashCode) +
+      (value == null ? 0 : value!.hashCode) +
+      (unit == null ? 0 : unit!.hashCode) +
+      (entryDate == null ? 0 : entryDate!.hashCode);
 
   @override
-  String toString() => 'WeightEntry[id=$id, createdAt=$createdAt, updatedAt=$updatedAt, value=$value, unit=$unit, entryDate=$entryDate]';
+  String toString() =>
+      'WeightEntry[id=$id, createdAt=$createdAt, updatedAt=$updatedAt, value=$value, unit=$unit, entryDate=$entryDate]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -132,8 +135,10 @@ class WeightEntry {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "WeightEntry[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "WeightEntry[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "WeightEntry[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "WeightEntry[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -150,7 +155,10 @@ class WeightEntry {
     return null;
   }
 
-  static List<WeightEntry> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<WeightEntry> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <WeightEntry>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -178,23 +186,27 @@ class WeightEntry {
   }
 
   // maps a json object with a list of WeightEntry-objects as value to a dart map
-  static Map<String, List<WeightEntry>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<WeightEntry>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<WeightEntry>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = WeightEntry.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = WeightEntry.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-
 
 class WeightEntryUnitEnum {
   /// Instantiate a new enum with the provided [value].
@@ -217,9 +229,13 @@ class WeightEntryUnitEnum {
     POUNDS,
   ];
 
-  static WeightEntryUnitEnum? fromJson(dynamic value) => WeightEntryUnitEnumTypeTransformer().decode(value);
+  static WeightEntryUnitEnum? fromJson(dynamic value) =>
+      WeightEntryUnitEnumTypeTransformer().decode(value);
 
-  static List<WeightEntryUnitEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<WeightEntryUnitEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <WeightEntryUnitEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -236,7 +252,8 @@ class WeightEntryUnitEnum {
 /// Transformation class that can [encode] an instance of [WeightEntryUnitEnum] to String,
 /// and [decode] dynamic data back to [WeightEntryUnitEnum].
 class WeightEntryUnitEnumTypeTransformer {
-  factory WeightEntryUnitEnumTypeTransformer() => _instance ??= const WeightEntryUnitEnumTypeTransformer._();
+  factory WeightEntryUnitEnumTypeTransformer() =>
+      _instance ??= const WeightEntryUnitEnumTypeTransformer._();
 
   const WeightEntryUnitEnumTypeTransformer._();
 
@@ -253,8 +270,10 @@ class WeightEntryUnitEnumTypeTransformer {
   WeightEntryUnitEnum? decode(dynamic data, {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'KG': return WeightEntryUnitEnum.KG;
-        case r'POUNDS': return WeightEntryUnitEnum.POUNDS;
+        case r'KG':
+          return WeightEntryUnitEnum.KG;
+        case r'POUNDS':
+          return WeightEntryUnitEnum.POUNDS;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -267,5 +286,3 @@ class WeightEntryUnitEnumTypeTransformer {
   /// Singleton [WeightEntryUnitEnumTypeTransformer] instance.
   static WeightEntryUnitEnumTypeTransformer? _instance;
 }
-
-

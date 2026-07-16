@@ -46,22 +46,25 @@ class WeightProgressResponse {
   Summary? summary;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is WeightProgressResponse &&
-    other.filter == filter &&
-    other.unit == unit &&
-    _deepEquality.equals(other.chartData, chartData) &&
-    other.summary == summary;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WeightProgressResponse &&
+          other.filter == filter &&
+          other.unit == unit &&
+          _deepEquality.equals(other.chartData, chartData) &&
+          other.summary == summary;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (filter == null ? 0 : filter!.hashCode) +
-    (unit == null ? 0 : unit!.hashCode) +
-    (chartData.hashCode) +
-    (summary == null ? 0 : summary!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (filter == null ? 0 : filter!.hashCode) +
+      (unit == null ? 0 : unit!.hashCode) +
+      (chartData.hashCode) +
+      (summary == null ? 0 : summary!.hashCode);
 
   @override
-  String toString() => 'WeightProgressResponse[filter=$filter, unit=$unit, chartData=$chartData, summary=$summary]';
+  String toString() =>
+      'WeightProgressResponse[filter=$filter, unit=$unit, chartData=$chartData, summary=$summary]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -75,7 +78,7 @@ class WeightProgressResponse {
     } else {
       json[r'unit'] = null;
     }
-      json[r'chartData'] = this.chartData;
+    json[r'chartData'] = this.chartData;
     if (this.summary != null) {
       json[r'summary'] = this.summary;
     } else {
@@ -96,8 +99,10 @@ class WeightProgressResponse {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "WeightProgressResponse[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "WeightProgressResponse[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "WeightProgressResponse[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "WeightProgressResponse[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -112,7 +117,10 @@ class WeightProgressResponse {
     return null;
   }
 
-  static List<WeightProgressResponse> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<WeightProgressResponse> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <WeightProgressResponse>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -140,20 +148,24 @@ class WeightProgressResponse {
   }
 
   // maps a json object with a list of WeightProgressResponse-objects as value to a dart map
-  static Map<String, List<WeightProgressResponse>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<WeightProgressResponse>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<WeightProgressResponse>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = WeightProgressResponse.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = WeightProgressResponse.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

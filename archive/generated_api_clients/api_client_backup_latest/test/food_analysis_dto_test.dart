@@ -36,7 +36,21 @@ void main() {
       // TODO
     });
 
+    test('deserializes measures from the backend response', () {
+      final result = FoodAnalysisDto.fromJson({
+        'foodName': 'Rice Cooked',
+        'measures': [
+          {'label': 'Serving', 'weightGrams': 200.0},
+          {'label': 'Gram', 'weightGrams': 1.0},
+        ],
+      });
 
+      expect(result, isNotNull);
+      expect(result!.measures, hasLength(2));
+      expect(result.measures.first.label, 'Serving');
+      expect(result.measures.first.weightGrams, 200.0);
+      expect(result.measures.last.label, 'Gram');
+      expect(result.toJson()['measures'], result.measures);
+    });
   });
-
 }

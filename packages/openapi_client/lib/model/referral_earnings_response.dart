@@ -88,30 +88,33 @@ class ReferralEarningsResponse {
   String? lastPayoutAt;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is ReferralEarningsResponse &&
-    other.totalEarningsUsd == totalEarningsUsd &&
-    other.totalEarningsNgn == totalEarningsNgn &&
-    other.totalReferrals == totalReferrals &&
-    other.pendingEarningsUsd == pendingEarningsUsd &&
-    other.pendingEarningsNgn == pendingEarningsNgn &&
-    other.lifetimeEarningsUsd == lifetimeEarningsUsd &&
-    other.lifetimeEarningsNgn == lifetimeEarningsNgn &&
-    other.lastPayoutAt == lastPayoutAt;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ReferralEarningsResponse &&
+          other.totalEarningsUsd == totalEarningsUsd &&
+          other.totalEarningsNgn == totalEarningsNgn &&
+          other.totalReferrals == totalReferrals &&
+          other.pendingEarningsUsd == pendingEarningsUsd &&
+          other.pendingEarningsNgn == pendingEarningsNgn &&
+          other.lifetimeEarningsUsd == lifetimeEarningsUsd &&
+          other.lifetimeEarningsNgn == lifetimeEarningsNgn &&
+          other.lastPayoutAt == lastPayoutAt;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (totalEarningsUsd == null ? 0 : totalEarningsUsd!.hashCode) +
-    (totalEarningsNgn == null ? 0 : totalEarningsNgn!.hashCode) +
-    (totalReferrals == null ? 0 : totalReferrals!.hashCode) +
-    (pendingEarningsUsd == null ? 0 : pendingEarningsUsd!.hashCode) +
-    (pendingEarningsNgn == null ? 0 : pendingEarningsNgn!.hashCode) +
-    (lifetimeEarningsUsd == null ? 0 : lifetimeEarningsUsd!.hashCode) +
-    (lifetimeEarningsNgn == null ? 0 : lifetimeEarningsNgn!.hashCode) +
-    (lastPayoutAt == null ? 0 : lastPayoutAt!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (totalEarningsUsd == null ? 0 : totalEarningsUsd!.hashCode) +
+      (totalEarningsNgn == null ? 0 : totalEarningsNgn!.hashCode) +
+      (totalReferrals == null ? 0 : totalReferrals!.hashCode) +
+      (pendingEarningsUsd == null ? 0 : pendingEarningsUsd!.hashCode) +
+      (pendingEarningsNgn == null ? 0 : pendingEarningsNgn!.hashCode) +
+      (lifetimeEarningsUsd == null ? 0 : lifetimeEarningsUsd!.hashCode) +
+      (lifetimeEarningsNgn == null ? 0 : lifetimeEarningsNgn!.hashCode) +
+      (lastPayoutAt == null ? 0 : lastPayoutAt!.hashCode);
 
   @override
-  String toString() => 'ReferralEarningsResponse[totalEarningsUsd=$totalEarningsUsd, totalEarningsNgn=$totalEarningsNgn, totalReferrals=$totalReferrals, pendingEarningsUsd=$pendingEarningsUsd, pendingEarningsNgn=$pendingEarningsNgn, lifetimeEarningsUsd=$lifetimeEarningsUsd, lifetimeEarningsNgn=$lifetimeEarningsNgn, lastPayoutAt=$lastPayoutAt]';
+  String toString() =>
+      'ReferralEarningsResponse[totalEarningsUsd=$totalEarningsUsd, totalEarningsNgn=$totalEarningsNgn, totalReferrals=$totalReferrals, pendingEarningsUsd=$pendingEarningsUsd, pendingEarningsNgn=$pendingEarningsNgn, lifetimeEarningsUsd=$lifetimeEarningsUsd, lifetimeEarningsNgn=$lifetimeEarningsNgn, lastPayoutAt=$lastPayoutAt]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -170,8 +173,10 @@ class ReferralEarningsResponse {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "ReferralEarningsResponse[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "ReferralEarningsResponse[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "ReferralEarningsResponse[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "ReferralEarningsResponse[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -190,7 +195,10 @@ class ReferralEarningsResponse {
     return null;
   }
 
-  static List<ReferralEarningsResponse> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<ReferralEarningsResponse> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <ReferralEarningsResponse>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -218,20 +226,24 @@ class ReferralEarningsResponse {
   }
 
   // maps a json object with a list of ReferralEarningsResponse-objects as value to a dart map
-  static Map<String, List<ReferralEarningsResponse>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<ReferralEarningsResponse>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<ReferralEarningsResponse>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = ReferralEarningsResponse.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = ReferralEarningsResponse.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

@@ -221,7 +221,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
       foodName: _foodNameController.text.trim(),
       description: _descriptionController.text.trim(),
       imageBase64: widget.analysis.imageBase64,
-      measures: widget.analysis.measures,
+      measures: _selectedMeasure != null ? [_selectedMeasure!] : [],
       totalMacros: MacroNutrientsDto(
         calories: _scaledCalories,
         protein: QuantityDto(
@@ -247,12 +247,13 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
     final request = LogMealRequestDto(
       foodAnalysis: editedAnalysis,
       mealType: _selectedMealType!,
+       source_: LogMealRequestDtoSource_Enum.AI_IMAGE,
       notes: noteController.text.trim().isEmpty
           ? null
           : noteController.text.trim(),
       // The analysis already contains the totals displayed in the UI.
       // Keep this at one so the backend does not scale them a second time.
-      servingMultiplier: 1.0,
+      servingMultiplier: _amount,
     );
 
     // Log the meal

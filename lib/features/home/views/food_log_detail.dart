@@ -84,27 +84,27 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
 
   double get calories =>
       _editedFoodAnalysis?.totalMacros?.calories ??
-      _loggedMeal?.consumedMacros?.calories ??
+      _loggedMeal?.foodAnalysis?.totalMacros?.calories ??
       macros?.calories ??
       0.0;
   double get protein =>
       _editedFoodAnalysis?.totalMacros?.protein?.value ??
-      _loggedMeal?.consumedMacros?.proteinGrams ??
+      _loggedMeal?.foodAnalysis?.totalMacros?.protein?.value ??
       macros?.proteinGrams ??
       0.0;
   double get carbs =>
       _editedFoodAnalysis?.totalMacros?.carbs?.value ??
-      _loggedMeal?.consumedMacros?.carbsGrams ??
+    _loggedMeal?.foodAnalysis?.totalMacros?.carbs?.value ??
       macros?.carbsGrams ??
       0.0;
   double get fat =>
       _editedFoodAnalysis?.totalMacros?.fat?.value ??
-      _loggedMeal?.consumedMacros?.fatGrams ??
+    _loggedMeal?.foodAnalysis?.totalMacros?.fat?.value ??
       macros?.fatGrams ??
       0.0;
   double get fiber =>
       _editedFoodAnalysis?.totalMacros?.fiber?.value ??
-      _loggedMeal?.consumedMacros?.fiberGrams ??
+      _loggedMeal?.foodAnalysis?.totalMacros?.fiber?.value ??
       macros?.fiberGrams ??
       0.0;
 
@@ -160,6 +160,7 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
       existingRecipeId: _recipeId,
       foodAnalysis: _recipeId == null ? _buildFoodAnalysis() : null,
       mealType: _selectedMealType!,
+      //  source_:widget.loggedMeal.foodSource.
       servingMultiplier: 1.0,
     );
 
@@ -446,7 +447,7 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
                 Row(
                   children: [
                     CalorieBadge(
-                      text: '${calories.toStringAsFixed(0)} cal',
+                      text: '${calories.toStringAsFixed(2)} cal',
                     ),
                     // const SizedBox(width: 15),
                     // CalorieBadge(

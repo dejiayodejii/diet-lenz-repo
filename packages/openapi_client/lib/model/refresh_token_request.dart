@@ -28,18 +28,20 @@ class RefreshTokenRequest {
   RegisterDeviceRequest device;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is RefreshTokenRequest &&
-    other.refreshToken == refreshToken &&
-    other.device == device;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RefreshTokenRequest &&
+          other.refreshToken == refreshToken &&
+          other.device == device;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (refreshToken == null ? 0 : refreshToken!.hashCode) +
-    (device.hashCode);
+      // ignore: unnecessary_parenthesis
+      (refreshToken == null ? 0 : refreshToken!.hashCode) + (device.hashCode);
 
   @override
-  String toString() => 'RefreshTokenRequest[refreshToken=$refreshToken, device=$device]';
+  String toString() =>
+      'RefreshTokenRequest[refreshToken=$refreshToken, device=$device]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -48,7 +50,7 @@ class RefreshTokenRequest {
     } else {
       json[r'refreshToken'] = null;
     }
-      json[r'device'] = this.device;
+    json[r'device'] = this.device;
     return json;
   }
 
@@ -64,8 +66,10 @@ class RefreshTokenRequest {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "RefreshTokenRequest[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "RefreshTokenRequest[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "RefreshTokenRequest[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "RefreshTokenRequest[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -78,7 +82,10 @@ class RefreshTokenRequest {
     return null;
   }
 
-  static List<RefreshTokenRequest> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<RefreshTokenRequest> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <RefreshTokenRequest>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -106,13 +113,19 @@ class RefreshTokenRequest {
   }
 
   // maps a json object with a list of RefreshTokenRequest-objects as value to a dart map
-  static Map<String, List<RefreshTokenRequest>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<RefreshTokenRequest>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<RefreshTokenRequest>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = RefreshTokenRequest.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = RefreshTokenRequest.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
@@ -123,4 +136,3 @@ class RefreshTokenRequest {
     'device',
   };
 }
-

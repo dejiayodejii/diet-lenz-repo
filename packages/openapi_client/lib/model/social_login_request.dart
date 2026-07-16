@@ -28,15 +28,16 @@ class SocialLoginRequest {
   RegisterDeviceRequest device;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is SocialLoginRequest &&
-    other.idToken == idToken &&
-    other.device == device;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SocialLoginRequest &&
+          other.idToken == idToken &&
+          other.device == device;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (idToken == null ? 0 : idToken!.hashCode) +
-    (device.hashCode);
+      // ignore: unnecessary_parenthesis
+      (idToken == null ? 0 : idToken!.hashCode) + (device.hashCode);
 
   @override
   String toString() => 'SocialLoginRequest[idToken=$idToken, device=$device]';
@@ -48,7 +49,7 @@ class SocialLoginRequest {
     } else {
       json[r'idToken'] = null;
     }
-      json[r'device'] = this.device;
+    json[r'device'] = this.device;
     return json;
   }
 
@@ -64,8 +65,10 @@ class SocialLoginRequest {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "SocialLoginRequest[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "SocialLoginRequest[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "SocialLoginRequest[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "SocialLoginRequest[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -78,7 +81,10 @@ class SocialLoginRequest {
     return null;
   }
 
-  static List<SocialLoginRequest> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<SocialLoginRequest> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <SocialLoginRequest>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -106,13 +112,19 @@ class SocialLoginRequest {
   }
 
   // maps a json object with a list of SocialLoginRequest-objects as value to a dart map
-  static Map<String, List<SocialLoginRequest>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<SocialLoginRequest>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<SocialLoginRequest>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = SocialLoginRequest.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = SocialLoginRequest.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
@@ -123,4 +135,3 @@ class SocialLoginRequest {
     'device',
   };
 }
-

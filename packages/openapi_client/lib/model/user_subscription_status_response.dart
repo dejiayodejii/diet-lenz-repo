@@ -70,26 +70,33 @@ class UserSubscriptionStatusResponse {
   String? firstPromoterAuthToken;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is UserSubscriptionStatusResponse &&
-    other.isPremium == isPremium &&
-    other.referralCode == referralCode &&
-    other.premiumExpiresAt == premiumExpiresAt &&
-    other.firstPromoterReferralCode == firstPromoterReferralCode &&
-    other.firstPromoterReferralLink == firstPromoterReferralLink &&
-    other.firstPromoterAuthToken == firstPromoterAuthToken;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UserSubscriptionStatusResponse &&
+          other.isPremium == isPremium &&
+          other.referralCode == referralCode &&
+          other.premiumExpiresAt == premiumExpiresAt &&
+          other.firstPromoterReferralCode == firstPromoterReferralCode &&
+          other.firstPromoterReferralLink == firstPromoterReferralLink &&
+          other.firstPromoterAuthToken == firstPromoterAuthToken;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (isPremium == null ? 0 : isPremium!.hashCode) +
-    (referralCode == null ? 0 : referralCode!.hashCode) +
-    (premiumExpiresAt == null ? 0 : premiumExpiresAt!.hashCode) +
-    (firstPromoterReferralCode == null ? 0 : firstPromoterReferralCode!.hashCode) +
-    (firstPromoterReferralLink == null ? 0 : firstPromoterReferralLink!.hashCode) +
-    (firstPromoterAuthToken == null ? 0 : firstPromoterAuthToken!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (isPremium == null ? 0 : isPremium!.hashCode) +
+      (referralCode == null ? 0 : referralCode!.hashCode) +
+      (premiumExpiresAt == null ? 0 : premiumExpiresAt!.hashCode) +
+      (firstPromoterReferralCode == null
+          ? 0
+          : firstPromoterReferralCode!.hashCode) +
+      (firstPromoterReferralLink == null
+          ? 0
+          : firstPromoterReferralLink!.hashCode) +
+      (firstPromoterAuthToken == null ? 0 : firstPromoterAuthToken!.hashCode);
 
   @override
-  String toString() => 'UserSubscriptionStatusResponse[isPremium=$isPremium, referralCode=$referralCode, premiumExpiresAt=$premiumExpiresAt, firstPromoterReferralCode=$firstPromoterReferralCode, firstPromoterReferralLink=$firstPromoterReferralLink, firstPromoterAuthToken=$firstPromoterAuthToken]';
+  String toString() =>
+      'UserSubscriptionStatusResponse[isPremium=$isPremium, referralCode=$referralCode, premiumExpiresAt=$premiumExpiresAt, firstPromoterReferralCode=$firstPromoterReferralCode, firstPromoterReferralLink=$firstPromoterReferralLink, firstPromoterAuthToken=$firstPromoterAuthToken]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -104,7 +111,8 @@ class UserSubscriptionStatusResponse {
       json[r'referralCode'] = null;
     }
     if (this.premiumExpiresAt != null) {
-      json[r'premiumExpiresAt'] = this.premiumExpiresAt!.toUtc().toIso8601String();
+      json[r'premiumExpiresAt'] =
+          this.premiumExpiresAt!.toUtc().toIso8601String();
     } else {
       json[r'premiumExpiresAt'] = null;
     }
@@ -138,8 +146,10 @@ class UserSubscriptionStatusResponse {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "UserSubscriptionStatusResponse[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "UserSubscriptionStatusResponse[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "UserSubscriptionStatusResponse[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "UserSubscriptionStatusResponse[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -148,15 +158,21 @@ class UserSubscriptionStatusResponse {
         isPremium: mapValueOfType<bool>(json, r'isPremium'),
         referralCode: mapValueOfType<String>(json, r'referralCode'),
         premiumExpiresAt: mapDateTime(json, r'premiumExpiresAt', r''),
-        firstPromoterReferralCode: mapValueOfType<String>(json, r'firstPromoterReferralCode'),
-        firstPromoterReferralLink: mapValueOfType<String>(json, r'firstPromoterReferralLink'),
-        firstPromoterAuthToken: mapValueOfType<String>(json, r'firstPromoterAuthToken'),
+        firstPromoterReferralCode:
+            mapValueOfType<String>(json, r'firstPromoterReferralCode'),
+        firstPromoterReferralLink:
+            mapValueOfType<String>(json, r'firstPromoterReferralLink'),
+        firstPromoterAuthToken:
+            mapValueOfType<String>(json, r'firstPromoterAuthToken'),
       );
     }
     return null;
   }
 
-  static List<UserSubscriptionStatusResponse> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<UserSubscriptionStatusResponse> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <UserSubscriptionStatusResponse>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -184,20 +200,24 @@ class UserSubscriptionStatusResponse {
   }
 
   // maps a json object with a list of UserSubscriptionStatusResponse-objects as value to a dart map
-  static Map<String, List<UserSubscriptionStatusResponse>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<UserSubscriptionStatusResponse>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<UserSubscriptionStatusResponse>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = UserSubscriptionStatusResponse.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = UserSubscriptionStatusResponse.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

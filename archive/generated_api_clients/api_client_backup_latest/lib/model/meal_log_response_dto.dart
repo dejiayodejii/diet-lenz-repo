@@ -109,36 +109,39 @@ class MealLogResponseDto {
   bool? isFavorite;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is MealLogResponseDto &&
-    other.id == id &&
-    other.recipeId == recipeId &&
-    other.foodName == foodName &&
-    other.imageUrl == imageUrl &&
-    other.mealType == mealType &&
-    other.loggedDate == loggedDate &&
-    other.loggedTime == loggedTime &&
-    other.servingMultiplier == servingMultiplier &&
-    other.consumedMacros == consumedMacros &&
-    other.notes == notes &&
-    other.isFavorite == isFavorite;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MealLogResponseDto &&
+          other.id == id &&
+          other.recipeId == recipeId &&
+          other.foodName == foodName &&
+          other.imageUrl == imageUrl &&
+          other.mealType == mealType &&
+          other.loggedDate == loggedDate &&
+          other.loggedTime == loggedTime &&
+          other.servingMultiplier == servingMultiplier &&
+          other.consumedMacros == consumedMacros &&
+          other.notes == notes &&
+          other.isFavorite == isFavorite;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (id == null ? 0 : id!.hashCode) +
-    (recipeId == null ? 0 : recipeId!.hashCode) +
-    (foodName == null ? 0 : foodName!.hashCode) +
-    (imageUrl == null ? 0 : imageUrl!.hashCode) +
-    (mealType == null ? 0 : mealType!.hashCode) +
-    (loggedDate == null ? 0 : loggedDate!.hashCode) +
-    (loggedTime == null ? 0 : loggedTime!.hashCode) +
-    (servingMultiplier == null ? 0 : servingMultiplier!.hashCode) +
-    (consumedMacros == null ? 0 : consumedMacros!.hashCode) +
-    (notes == null ? 0 : notes!.hashCode) +
-    (isFavorite == null ? 0 : isFavorite!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (id == null ? 0 : id!.hashCode) +
+      (recipeId == null ? 0 : recipeId!.hashCode) +
+      (foodName == null ? 0 : foodName!.hashCode) +
+      (imageUrl == null ? 0 : imageUrl!.hashCode) +
+      (mealType == null ? 0 : mealType!.hashCode) +
+      (loggedDate == null ? 0 : loggedDate!.hashCode) +
+      (loggedTime == null ? 0 : loggedTime!.hashCode) +
+      (servingMultiplier == null ? 0 : servingMultiplier!.hashCode) +
+      (consumedMacros == null ? 0 : consumedMacros!.hashCode) +
+      (notes == null ? 0 : notes!.hashCode) +
+      (isFavorite == null ? 0 : isFavorite!.hashCode);
 
   @override
-  String toString() => 'MealLogResponseDto[id=$id, recipeId=$recipeId, foodName=$foodName, imageUrl=$imageUrl, mealType=$mealType, loggedDate=$loggedDate, loggedTime=$loggedTime, servingMultiplier=$servingMultiplier, consumedMacros=$consumedMacros, notes=$notes, isFavorite=$isFavorite]';
+  String toString() =>
+      'MealLogResponseDto[id=$id, recipeId=$recipeId, foodName=$foodName, imageUrl=$imageUrl, mealType=$mealType, loggedDate=$loggedDate, loggedTime=$loggedTime, servingMultiplier=$servingMultiplier, consumedMacros=$consumedMacros, notes=$notes, isFavorite=$isFavorite]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -212,8 +215,10 @@ class MealLogResponseDto {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "MealLogResponseDto[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "MealLogResponseDto[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "MealLogResponseDto[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "MealLogResponseDto[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -235,7 +240,10 @@ class MealLogResponseDto {
     return null;
   }
 
-  static List<MealLogResponseDto> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<MealLogResponseDto> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <MealLogResponseDto>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -263,23 +271,27 @@ class MealLogResponseDto {
   }
 
   // maps a json object with a list of MealLogResponseDto-objects as value to a dart map
-  static Map<String, List<MealLogResponseDto>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<MealLogResponseDto>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<MealLogResponseDto>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = MealLogResponseDto.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = MealLogResponseDto.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-
 
 class MealLogResponseDtoMealTypeEnum {
   /// Instantiate a new enum with the provided [value].
@@ -306,9 +318,13 @@ class MealLogResponseDtoMealTypeEnum {
     SNACK,
   ];
 
-  static MealLogResponseDtoMealTypeEnum? fromJson(dynamic value) => MealLogResponseDtoMealTypeEnumTypeTransformer().decode(value);
+  static MealLogResponseDtoMealTypeEnum? fromJson(dynamic value) =>
+      MealLogResponseDtoMealTypeEnumTypeTransformer().decode(value);
 
-  static List<MealLogResponseDtoMealTypeEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<MealLogResponseDtoMealTypeEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <MealLogResponseDtoMealTypeEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -325,7 +341,8 @@ class MealLogResponseDtoMealTypeEnum {
 /// Transformation class that can [encode] an instance of [MealLogResponseDtoMealTypeEnum] to String,
 /// and [decode] dynamic data back to [MealLogResponseDtoMealTypeEnum].
 class MealLogResponseDtoMealTypeEnumTypeTransformer {
-  factory MealLogResponseDtoMealTypeEnumTypeTransformer() => _instance ??= const MealLogResponseDtoMealTypeEnumTypeTransformer._();
+  factory MealLogResponseDtoMealTypeEnumTypeTransformer() =>
+      _instance ??= const MealLogResponseDtoMealTypeEnumTypeTransformer._();
 
   const MealLogResponseDtoMealTypeEnumTypeTransformer._();
 
@@ -339,13 +356,18 @@ class MealLogResponseDtoMealTypeEnumTypeTransformer {
   ///
   /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
   /// and users are still using an old app with the old code.
-  MealLogResponseDtoMealTypeEnum? decode(dynamic data, {bool allowNull = true}) {
+  MealLogResponseDtoMealTypeEnum? decode(dynamic data,
+      {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'BREAKFAST': return MealLogResponseDtoMealTypeEnum.BREAKFAST;
-        case r'LUNCH': return MealLogResponseDtoMealTypeEnum.LUNCH;
-        case r'DINNER': return MealLogResponseDtoMealTypeEnum.DINNER;
-        case r'SNACK': return MealLogResponseDtoMealTypeEnum.SNACK;
+        case r'BREAKFAST':
+          return MealLogResponseDtoMealTypeEnum.BREAKFAST;
+        case r'LUNCH':
+          return MealLogResponseDtoMealTypeEnum.LUNCH;
+        case r'DINNER':
+          return MealLogResponseDtoMealTypeEnum.DINNER;
+        case r'SNACK':
+          return MealLogResponseDtoMealTypeEnum.SNACK;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -358,4 +380,3 @@ class MealLogResponseDtoMealTypeEnumTypeTransformer {
   /// Singleton [MealLogResponseDtoMealTypeEnumTypeTransformer] instance.
   static MealLogResponseDtoMealTypeEnumTypeTransformer? _instance;
 }
-

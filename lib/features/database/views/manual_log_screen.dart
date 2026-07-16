@@ -3,6 +3,7 @@ import 'package:diet_lenz/component/custom_textfield.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/features/database/controller/database_history_provider.dart';
+import 'package:diet_lenz/features/database/views/database_search_screen.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,11 +38,13 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
   final _fatController = TextEditingController(text: '');
   final _fiberController = TextEditingController(text: '');
   bool _isSubmitting = false;
+  final List<FoodAnalysisDto> _ingredients = [];
 
   @override
   void dispose() {
     _nameController.dispose();
     _caloriesController.dispose();
+    _servingMultiplierController.dispose();
     _proteinController.dispose();
     _carbsController.dispose();
     _fatController.dispose();
@@ -83,6 +86,7 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
       foodAnalysis: foodAnalysis,
       mealType: LogMealRequestDtoMealTypeEnum.DINNER,
       servingMultiplier: 1.0,
+      source_: LogMealRequestDtoSource_Enum.MANUAL
     );
 
     final success =
@@ -109,6 +113,74 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
 
   double _parseNumber(String value) {
     return double.tryParse(value.trim()) ?? 0;
+  }
+
+  Future<void> _openIngredientSearch() async {
+    FocusScope.of(context).unfocus();
+    final ingredient = await Navigator.of(context).push<FoodAnalysisDto>(
+      MaterialPageRoute(
+        builder: (_) => const DatabaseSearchScreen(
+          selectingIngredient: true,
+        ),
+      ),
+    );
+
+    if (!mounted || ingredient == null) return;
+
+    final normalizedName = _ingredientName(ingredient).toLowerCase();
+    final alreadyAdded = _ingredients.any(
+      (item) => _ingredientName(item).toLowerCase() == normalizedName,
+    );
+    if (alreadyAdded) {
+      ref.read(toastProvider).showError('Ingredient already added');
+      return;
+    }
+
+    setState(() {
+      _ingredients.add(ingredient);
+      _updateTotalsFromIngredients();
+    });
+  }
+
+  void _removeIngredient(FoodAnalysisDto ingredient) {
+    setState(() {
+      _ingredients.remove(ingredient);
+      _updateTotalsFromIngredients();
+    });
+  }
+
+  void _updateTotalsFromIngredients() {
+    final totals = _ingredients.fold<_IngredientTotals>(
+      const _IngredientTotals(),
+      (sum, ingredient) => sum.add(ingredient.totalMacros),
+    );
+
+    _setNumber(_caloriesController, totals.calories);
+    _setNumber(_proteinController, totals.protein);
+    _setNumber(_carbsController, totals.carbs);
+    _setNumber(_fatController, totals.fat);
+    _setNumber(_fiberController, totals.fiber);
+  }
+
+  void _setNumber(TextEditingController controller, double value) {
+    controller.text = _ingredients.isEmpty ? '' : _formatNumber(value);
+  }
+
+  String _ingredientName(FoodAnalysisDto ingredient) {
+    final name = ingredient.foodName?.trim();
+    return name == null || name.isEmpty ? 'Unknown ingredient' : name;
+  }
+
+  String _formatNumber(double value) {
+    return value == value.roundToDouble()
+        ? value.round().toString()
+        : value
+            .toStringAsFixed(2)
+            .replaceFirst(RegExp(r'0+$'), '')
+            .replaceFirst(
+              RegExp(r'\.$'),
+              '',
+            );
   }
 
   @override
@@ -231,6 +303,40 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
+                    if (_ingredients.isNotEmpty) ...[
+                      const Text(
+                        'Ingredients',
+                        style: TextStyle(
+                          color: AppColors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _ingredients.map((ingredient) {
+                          return InputChip(
+                            label: Text(_ingredientName(ingredient)),
+                            onDeleted: () => _removeIngredient(ingredient),
+                            deleteIcon: const Icon(Icons.close, size: 18),
+                            backgroundColor:
+                                const Color.fromRGBO(255, 90, 22, 0.22),
+                            deleteIconColor: AppColors.white,
+                            labelStyle: const TextStyle(
+                              color: AppColors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            side: BorderSide.none,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                     _buildAddIngredientCard(),
                     const SizedBox(height: 20),
                   ],
@@ -253,7 +359,7 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
 
   Widget _buildAddIngredientCard() {
     return GestureDetector(
-      onTap: () {},
+      onTap: _openIngredientSearch,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
@@ -261,7 +367,7 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
           color: const Color(0xFF1E1E1E),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFFFF6B35).withOpacity(0.5),
+            color: const Color(0xFFFF6B35).withValues(alpha: 0.5),
             width: 1,
           ),
         ),
@@ -272,13 +378,15 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
               children: [
                 Icon(
                   Icons.add_circle_outline,
-                  color: const Color(0xFFFF6B35).withOpacity(0.7),
+                  color: const Color(0xFFFF6B35).withValues(alpha: 0.7),
                   size: 20,
                 ),
                 const SizedBox(width: 8),
-                const Text(
-                  "Item",
-                  style: TextStyle(
+                Text(
+                  _ingredients.isEmpty
+                      ? 'Add Ingredient'
+                      : 'Add another ingredient',
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     color: Colors.grey,
@@ -287,13 +395,30 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              spacing: 12,
+              runSpacing: 6,
               children: [
-                _buildMacroInfo("__ kcal"),
-                _buildMacroInfo("Protein: __g"),
-                _buildMacroInfo("Carbs: __g"),
-                _buildMacroInfo("Fat: __g"),
+                _buildMacroInfo(
+                  _ingredients.isEmpty
+                      ? '__ kcal'
+                      : '${_caloriesController.text} kcal',
+                ),
+                _buildMacroInfo(
+                  _ingredients.isEmpty
+                      ? 'Protein: __g'
+                      : 'Protein: ${_proteinController.text}g',
+                ),
+                _buildMacroInfo(
+                  _ingredients.isEmpty
+                      ? 'Carbs: __g'
+                      : 'Carbs: ${_carbsController.text}g',
+                ),
+                _buildMacroInfo(
+                  _ingredients.isEmpty
+                      ? 'Fat: __g'
+                      : 'Fat: ${_fatController.text}g',
+                ),
               ],
             ),
           ],
@@ -306,6 +431,32 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
     return Text(
       text,
       style: const TextStyle(color: Colors.grey, fontSize: 12),
+    );
+  }
+}
+
+class _IngredientTotals {
+  const _IngredientTotals({
+    this.calories = 0,
+    this.protein = 0,
+    this.carbs = 0,
+    this.fat = 0,
+    this.fiber = 0,
+  });
+
+  final double calories;
+  final double protein;
+  final double carbs;
+  final double fat;
+  final double fiber;
+
+  _IngredientTotals add(MacroNutrientsDto? macros) {
+    return _IngredientTotals(
+      calories: calories + (macros?.calories ?? 0),
+      protein: protein + (macros?.protein?.value ?? 0),
+      carbs: carbs + (macros?.carbs?.value ?? 0),
+      fat: fat + (macros?.fat?.value ?? 0),
+      fiber: fiber + (macros?.fiber?.value ?? 0),
     );
   }
 }

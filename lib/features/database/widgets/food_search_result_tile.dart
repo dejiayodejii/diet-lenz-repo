@@ -14,11 +14,13 @@ class FoodSearchResultTile extends ConsumerStatefulWidget {
     required this.food,
     this.fromDatabaseSearch = false,
     this.onTap,
+    this.onAdd,
   });
 
   final FoodAnalysisDto food;
   final bool fromDatabaseSearch;
   final VoidCallback? onTap;
+  final VoidCallback? onAdd;
 
   @override
   ConsumerState<FoodSearchResultTile> createState() =>
@@ -36,7 +38,8 @@ class _FoodSearchResultTileState extends ConsumerState<FoodSearchResultTile> {
     final request = LogMealRequestDto(
       foodAnalysis: widget.food,
       mealType: LogMealRequestDtoMealTypeEnum.DINNER,
-      servingMultiplier: 1,
+      servingMultiplier: 100,
+       source_: LogMealRequestDtoSource_Enum.SEARCH
     );
     final foodLoggingViewModel =
         ref.read(foodLoggingViewModelProvider.notifier);
@@ -126,13 +129,13 @@ class _FoodSearchResultTileState extends ConsumerState<FoodSearchResultTile> {
           ),
           const SizedBox(width: 8),
           GestureDetector(
-            onTap: _isSubmitting ? null : _logFood,
+            onTap: _isSubmitting ? null : widget.onAdd ?? _logFood,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20),
               child: SizedBox(
                 height: 20,
                 width: 20,
-                child: _isSubmitting
+                child: _isSubmitting && widget.onAdd == null
                     ? const CircularProgressIndicator(
                         color: AppColors.primaryColor,
                         strokeWidth: 2,

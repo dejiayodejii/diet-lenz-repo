@@ -22,23 +22,24 @@ class LoginWithDeviceRequest {
   RegisterDeviceRequest device;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is LoginWithDeviceRequest &&
-    other.login == login &&
-    other.device == device;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LoginWithDeviceRequest &&
+          other.login == login &&
+          other.device == device;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (login.hashCode) +
-    (device.hashCode);
+      // ignore: unnecessary_parenthesis
+      (login.hashCode) + (device.hashCode);
 
   @override
   String toString() => 'LoginWithDeviceRequest[login=$login, device=$device]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-      json[r'login'] = this.login;
-      json[r'device'] = this.device;
+    json[r'login'] = this.login;
+    json[r'device'] = this.device;
     return json;
   }
 
@@ -54,8 +55,10 @@ class LoginWithDeviceRequest {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "LoginWithDeviceRequest[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "LoginWithDeviceRequest[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "LoginWithDeviceRequest[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "LoginWithDeviceRequest[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -68,7 +71,10 @@ class LoginWithDeviceRequest {
     return null;
   }
 
-  static List<LoginWithDeviceRequest> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<LoginWithDeviceRequest> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <LoginWithDeviceRequest>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -96,13 +102,19 @@ class LoginWithDeviceRequest {
   }
 
   // maps a json object with a list of LoginWithDeviceRequest-objects as value to a dart map
-  static Map<String, List<LoginWithDeviceRequest>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<LoginWithDeviceRequest>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<LoginWithDeviceRequest>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = LoginWithDeviceRequest.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = LoginWithDeviceRequest.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
@@ -114,4 +126,3 @@ class LoginWithDeviceRequest {
     'device',
   };
 }
-

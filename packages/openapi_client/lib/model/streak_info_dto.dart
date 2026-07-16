@@ -79,28 +79,31 @@ class StreakInfoDto {
   int? macrosGoalMet;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is StreakInfoDto &&
-    other.currentBasicStreak == currentBasicStreak &&
-    other.longestBasicStreak == longestBasicStreak &&
-    other.currentMacroStreak == currentMacroStreak &&
-    other.longestMacroStreak == longestMacroStreak &&
-    other.lastLoggedDate == lastLoggedDate &&
-    other.totalDaysLogged == totalDaysLogged &&
-    other.macrosGoalMet == macrosGoalMet;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StreakInfoDto &&
+          other.currentBasicStreak == currentBasicStreak &&
+          other.longestBasicStreak == longestBasicStreak &&
+          other.currentMacroStreak == currentMacroStreak &&
+          other.longestMacroStreak == longestMacroStreak &&
+          other.lastLoggedDate == lastLoggedDate &&
+          other.totalDaysLogged == totalDaysLogged &&
+          other.macrosGoalMet == macrosGoalMet;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (currentBasicStreak == null ? 0 : currentBasicStreak!.hashCode) +
-    (longestBasicStreak == null ? 0 : longestBasicStreak!.hashCode) +
-    (currentMacroStreak == null ? 0 : currentMacroStreak!.hashCode) +
-    (longestMacroStreak == null ? 0 : longestMacroStreak!.hashCode) +
-    (lastLoggedDate == null ? 0 : lastLoggedDate!.hashCode) +
-    (totalDaysLogged == null ? 0 : totalDaysLogged!.hashCode) +
-    (macrosGoalMet == null ? 0 : macrosGoalMet!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (currentBasicStreak == null ? 0 : currentBasicStreak!.hashCode) +
+      (longestBasicStreak == null ? 0 : longestBasicStreak!.hashCode) +
+      (currentMacroStreak == null ? 0 : currentMacroStreak!.hashCode) +
+      (longestMacroStreak == null ? 0 : longestMacroStreak!.hashCode) +
+      (lastLoggedDate == null ? 0 : lastLoggedDate!.hashCode) +
+      (totalDaysLogged == null ? 0 : totalDaysLogged!.hashCode) +
+      (macrosGoalMet == null ? 0 : macrosGoalMet!.hashCode);
 
   @override
-  String toString() => 'StreakInfoDto[currentBasicStreak=$currentBasicStreak, longestBasicStreak=$longestBasicStreak, currentMacroStreak=$currentMacroStreak, longestMacroStreak=$longestMacroStreak, lastLoggedDate=$lastLoggedDate, totalDaysLogged=$totalDaysLogged, macrosGoalMet=$macrosGoalMet]';
+  String toString() =>
+      'StreakInfoDto[currentBasicStreak=$currentBasicStreak, longestBasicStreak=$longestBasicStreak, currentMacroStreak=$currentMacroStreak, longestMacroStreak=$longestMacroStreak, lastLoggedDate=$lastLoggedDate, totalDaysLogged=$totalDaysLogged, macrosGoalMet=$macrosGoalMet]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -125,7 +128,8 @@ class StreakInfoDto {
       json[r'longestMacroStreak'] = null;
     }
     if (this.lastLoggedDate != null) {
-      json[r'lastLoggedDate'] = _dateFormatter.format(this.lastLoggedDate!.toUtc());
+      json[r'lastLoggedDate'] =
+          _dateFormatter.format(this.lastLoggedDate!.toUtc());
     } else {
       json[r'lastLoggedDate'] = null;
     }
@@ -154,8 +158,10 @@ class StreakInfoDto {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "StreakInfoDto[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "StreakInfoDto[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "StreakInfoDto[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "StreakInfoDto[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -173,7 +179,10 @@ class StreakInfoDto {
     return null;
   }
 
-  static List<StreakInfoDto> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<StreakInfoDto> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <StreakInfoDto>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -201,20 +210,24 @@ class StreakInfoDto {
   }
 
   // maps a json object with a list of StreakInfoDto-objects as value to a dart map
-  static Map<String, List<StreakInfoDto>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<StreakInfoDto>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<StreakInfoDto>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = StreakInfoDto.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = StreakInfoDto.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

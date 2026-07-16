@@ -64,56 +64,59 @@ class MacroPreviewRequest {
   DateTime? targetEventDate;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is MacroPreviewRequest &&
-    other.gender == gender &&
-    other.dateOfBirth == dateOfBirth &&
-    other.height == height &&
-    other.heightUnit == heightUnit &&
-    other.currentWeight == currentWeight &&
-    other.currentWeightUnit == currentWeightUnit &&
-    other.activityLevel == activityLevel &&
-    other.desiredGoal == desiredGoal &&
-    other.desiredWeight == desiredWeight &&
-    other.desiredWeightUnit == desiredWeightUnit &&
-    other.goalPace == goalPace &&
-    other.macroTarget == macroTarget &&
-    other.targetEvent == targetEvent &&
-    other.targetEventDate == targetEventDate;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MacroPreviewRequest &&
+          other.gender == gender &&
+          other.dateOfBirth == dateOfBirth &&
+          other.height == height &&
+          other.heightUnit == heightUnit &&
+          other.currentWeight == currentWeight &&
+          other.currentWeightUnit == currentWeightUnit &&
+          other.activityLevel == activityLevel &&
+          other.desiredGoal == desiredGoal &&
+          other.desiredWeight == desiredWeight &&
+          other.desiredWeightUnit == desiredWeightUnit &&
+          other.goalPace == goalPace &&
+          other.macroTarget == macroTarget &&
+          other.targetEvent == targetEvent &&
+          other.targetEventDate == targetEventDate;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (gender.hashCode) +
-    (dateOfBirth.hashCode) +
-    (height.hashCode) +
-    (heightUnit.hashCode) +
-    (currentWeight.hashCode) +
-    (currentWeightUnit.hashCode) +
-    (activityLevel.hashCode) +
-    (desiredGoal.hashCode) +
-    (desiredWeight.hashCode) +
-    (desiredWeightUnit.hashCode) +
-    (goalPace.hashCode) +
-    (macroTarget == null ? 0 : macroTarget!.hashCode) +
-    (targetEvent == null ? 0 : targetEvent!.hashCode) +
-    (targetEventDate == null ? 0 : targetEventDate!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (gender.hashCode) +
+      (dateOfBirth.hashCode) +
+      (height.hashCode) +
+      (heightUnit.hashCode) +
+      (currentWeight.hashCode) +
+      (currentWeightUnit.hashCode) +
+      (activityLevel.hashCode) +
+      (desiredGoal.hashCode) +
+      (desiredWeight.hashCode) +
+      (desiredWeightUnit.hashCode) +
+      (goalPace.hashCode) +
+      (macroTarget == null ? 0 : macroTarget!.hashCode) +
+      (targetEvent == null ? 0 : targetEvent!.hashCode) +
+      (targetEventDate == null ? 0 : targetEventDate!.hashCode);
 
   @override
-  String toString() => 'MacroPreviewRequest[gender=$gender, dateOfBirth=$dateOfBirth, height=$height, heightUnit=$heightUnit, currentWeight=$currentWeight, currentWeightUnit=$currentWeightUnit, activityLevel=$activityLevel, desiredGoal=$desiredGoal, desiredWeight=$desiredWeight, desiredWeightUnit=$desiredWeightUnit, goalPace=$goalPace, macroTarget=$macroTarget, targetEvent=$targetEvent, targetEventDate=$targetEventDate]';
+  String toString() =>
+      'MacroPreviewRequest[gender=$gender, dateOfBirth=$dateOfBirth, height=$height, heightUnit=$heightUnit, currentWeight=$currentWeight, currentWeightUnit=$currentWeightUnit, activityLevel=$activityLevel, desiredGoal=$desiredGoal, desiredWeight=$desiredWeight, desiredWeightUnit=$desiredWeightUnit, goalPace=$goalPace, macroTarget=$macroTarget, targetEvent=$targetEvent, targetEventDate=$targetEventDate]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-      json[r'gender'] = this.gender;
-      json[r'dateOfBirth'] = _dateFormatter.format(this.dateOfBirth.toUtc());
-      json[r'height'] = this.height;
-      json[r'heightUnit'] = this.heightUnit;
-      json[r'currentWeight'] = this.currentWeight;
-      json[r'currentWeightUnit'] = this.currentWeightUnit;
-      json[r'activityLevel'] = this.activityLevel;
-      json[r'desiredGoal'] = this.desiredGoal;
-      json[r'desiredWeight'] = this.desiredWeight;
-      json[r'desiredWeightUnit'] = this.desiredWeightUnit;
-      json[r'goalPace'] = this.goalPace;
+    json[r'gender'] = this.gender;
+    json[r'dateOfBirth'] = _dateFormatter.format(this.dateOfBirth.toUtc());
+    json[r'height'] = this.height;
+    json[r'heightUnit'] = this.heightUnit;
+    json[r'currentWeight'] = this.currentWeight;
+    json[r'currentWeightUnit'] = this.currentWeightUnit;
+    json[r'activityLevel'] = this.activityLevel;
+    json[r'desiredGoal'] = this.desiredGoal;
+    json[r'desiredWeight'] = this.desiredWeight;
+    json[r'desiredWeightUnit'] = this.desiredWeightUnit;
+    json[r'goalPace'] = this.goalPace;
     if (this.macroTarget != null) {
       json[r'macroTarget'] = this.macroTarget;
     } else {
@@ -125,7 +128,8 @@ class MacroPreviewRequest {
       json[r'targetEvent'] = null;
     }
     if (this.targetEventDate != null) {
-      json[r'targetEventDate'] = _dateFormatter.format(this.targetEventDate!.toUtc());
+      json[r'targetEventDate'] =
+          _dateFormatter.format(this.targetEventDate!.toUtc());
     } else {
       json[r'targetEventDate'] = null;
     }
@@ -144,8 +148,10 @@ class MacroPreviewRequest {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "MacroPreviewRequest[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "MacroPreviewRequest[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "MacroPreviewRequest[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "MacroPreviewRequest[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -154,23 +160,33 @@ class MacroPreviewRequest {
         gender: MacroPreviewRequestGenderEnum.fromJson(json[r'gender'])!,
         dateOfBirth: mapDateTime(json, r'dateOfBirth', r'')!,
         height: num.parse('${json[r'height']}'),
-        heightUnit: MacroPreviewRequestHeightUnitEnum.fromJson(json[r'heightUnit'])!,
+        heightUnit:
+            MacroPreviewRequestHeightUnitEnum.fromJson(json[r'heightUnit'])!,
         currentWeight: mapValueOfType<int>(json, r'currentWeight')!,
-        currentWeightUnit: MacroPreviewRequestCurrentWeightUnitEnum.fromJson(json[r'currentWeightUnit'])!,
-        activityLevel: MacroPreviewRequestActivityLevelEnum.fromJson(json[r'activityLevel'])!,
-        desiredGoal: MacroPreviewRequestDesiredGoalEnum.fromJson(json[r'desiredGoal'])!,
+        currentWeightUnit: MacroPreviewRequestCurrentWeightUnitEnum.fromJson(
+            json[r'currentWeightUnit'])!,
+        activityLevel: MacroPreviewRequestActivityLevelEnum.fromJson(
+            json[r'activityLevel'])!,
+        desiredGoal:
+            MacroPreviewRequestDesiredGoalEnum.fromJson(json[r'desiredGoal'])!,
         desiredWeight: mapValueOfType<int>(json, r'desiredWeight')!,
-        desiredWeightUnit: MacroPreviewRequestDesiredWeightUnitEnum.fromJson(json[r'desiredWeightUnit'])!,
+        desiredWeightUnit: MacroPreviewRequestDesiredWeightUnitEnum.fromJson(
+            json[r'desiredWeightUnit'])!,
         goalPace: MacroPreviewRequestGoalPaceEnum.fromJson(json[r'goalPace'])!,
-        macroTarget: MacroPreviewRequestMacroTargetEnum.fromJson(json[r'macroTarget']),
-        targetEvent: MacroPreviewRequestTargetEventEnum.fromJson(json[r'targetEvent']),
+        macroTarget:
+            MacroPreviewRequestMacroTargetEnum.fromJson(json[r'macroTarget']),
+        targetEvent:
+            MacroPreviewRequestTargetEventEnum.fromJson(json[r'targetEvent']),
         targetEventDate: mapDateTime(json, r'targetEventDate', r''),
       );
     }
     return null;
   }
 
-  static List<MacroPreviewRequest> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<MacroPreviewRequest> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <MacroPreviewRequest>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -198,13 +214,19 @@ class MacroPreviewRequest {
   }
 
   // maps a json object with a list of MacroPreviewRequest-objects as value to a dart map
-  static Map<String, List<MacroPreviewRequest>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<MacroPreviewRequest>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<MacroPreviewRequest>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = MacroPreviewRequest.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = MacroPreviewRequest.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
@@ -225,7 +247,6 @@ class MacroPreviewRequest {
     'goalPace',
   };
 }
-
 
 class MacroPreviewRequestGenderEnum {
   /// Instantiate a new enum with the provided [value].
@@ -250,9 +271,13 @@ class MacroPreviewRequestGenderEnum {
     OTHER,
   ];
 
-  static MacroPreviewRequestGenderEnum? fromJson(dynamic value) => MacroPreviewRequestGenderEnumTypeTransformer().decode(value);
+  static MacroPreviewRequestGenderEnum? fromJson(dynamic value) =>
+      MacroPreviewRequestGenderEnumTypeTransformer().decode(value);
 
-  static List<MacroPreviewRequestGenderEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<MacroPreviewRequestGenderEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <MacroPreviewRequestGenderEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -269,7 +294,8 @@ class MacroPreviewRequestGenderEnum {
 /// Transformation class that can [encode] an instance of [MacroPreviewRequestGenderEnum] to String,
 /// and [decode] dynamic data back to [MacroPreviewRequestGenderEnum].
 class MacroPreviewRequestGenderEnumTypeTransformer {
-  factory MacroPreviewRequestGenderEnumTypeTransformer() => _instance ??= const MacroPreviewRequestGenderEnumTypeTransformer._();
+  factory MacroPreviewRequestGenderEnumTypeTransformer() =>
+      _instance ??= const MacroPreviewRequestGenderEnumTypeTransformer._();
 
   const MacroPreviewRequestGenderEnumTypeTransformer._();
 
@@ -286,9 +312,12 @@ class MacroPreviewRequestGenderEnumTypeTransformer {
   MacroPreviewRequestGenderEnum? decode(dynamic data, {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'MALE': return MacroPreviewRequestGenderEnum.MALE;
-        case r'FEMALE': return MacroPreviewRequestGenderEnum.FEMALE;
-        case r'OTHER': return MacroPreviewRequestGenderEnum.OTHER;
+        case r'MALE':
+          return MacroPreviewRequestGenderEnum.MALE;
+        case r'FEMALE':
+          return MacroPreviewRequestGenderEnum.FEMALE;
+        case r'OTHER':
+          return MacroPreviewRequestGenderEnum.OTHER;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -301,8 +330,6 @@ class MacroPreviewRequestGenderEnumTypeTransformer {
   /// Singleton [MacroPreviewRequestGenderEnumTypeTransformer] instance.
   static MacroPreviewRequestGenderEnumTypeTransformer? _instance;
 }
-
-
 
 class MacroPreviewRequestHeightUnitEnum {
   /// Instantiate a new enum with the provided [value].
@@ -325,9 +352,13 @@ class MacroPreviewRequestHeightUnitEnum {
     FT,
   ];
 
-  static MacroPreviewRequestHeightUnitEnum? fromJson(dynamic value) => MacroPreviewRequestHeightUnitEnumTypeTransformer().decode(value);
+  static MacroPreviewRequestHeightUnitEnum? fromJson(dynamic value) =>
+      MacroPreviewRequestHeightUnitEnumTypeTransformer().decode(value);
 
-  static List<MacroPreviewRequestHeightUnitEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<MacroPreviewRequestHeightUnitEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <MacroPreviewRequestHeightUnitEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -344,7 +375,8 @@ class MacroPreviewRequestHeightUnitEnum {
 /// Transformation class that can [encode] an instance of [MacroPreviewRequestHeightUnitEnum] to String,
 /// and [decode] dynamic data back to [MacroPreviewRequestHeightUnitEnum].
 class MacroPreviewRequestHeightUnitEnumTypeTransformer {
-  factory MacroPreviewRequestHeightUnitEnumTypeTransformer() => _instance ??= const MacroPreviewRequestHeightUnitEnumTypeTransformer._();
+  factory MacroPreviewRequestHeightUnitEnumTypeTransformer() =>
+      _instance ??= const MacroPreviewRequestHeightUnitEnumTypeTransformer._();
 
   const MacroPreviewRequestHeightUnitEnumTypeTransformer._();
 
@@ -358,11 +390,14 @@ class MacroPreviewRequestHeightUnitEnumTypeTransformer {
   ///
   /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
   /// and users are still using an old app with the old code.
-  MacroPreviewRequestHeightUnitEnum? decode(dynamic data, {bool allowNull = true}) {
+  MacroPreviewRequestHeightUnitEnum? decode(dynamic data,
+      {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'CM': return MacroPreviewRequestHeightUnitEnum.CM;
-        case r'FT': return MacroPreviewRequestHeightUnitEnum.FT;
+        case r'CM':
+          return MacroPreviewRequestHeightUnitEnum.CM;
+        case r'FT':
+          return MacroPreviewRequestHeightUnitEnum.FT;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -375,8 +410,6 @@ class MacroPreviewRequestHeightUnitEnumTypeTransformer {
   /// Singleton [MacroPreviewRequestHeightUnitEnumTypeTransformer] instance.
   static MacroPreviewRequestHeightUnitEnumTypeTransformer? _instance;
 }
-
-
 
 class MacroPreviewRequestCurrentWeightUnitEnum {
   /// Instantiate a new enum with the provided [value].
@@ -399,9 +432,13 @@ class MacroPreviewRequestCurrentWeightUnitEnum {
     POUNDS,
   ];
 
-  static MacroPreviewRequestCurrentWeightUnitEnum? fromJson(dynamic value) => MacroPreviewRequestCurrentWeightUnitEnumTypeTransformer().decode(value);
+  static MacroPreviewRequestCurrentWeightUnitEnum? fromJson(dynamic value) =>
+      MacroPreviewRequestCurrentWeightUnitEnumTypeTransformer().decode(value);
 
-  static List<MacroPreviewRequestCurrentWeightUnitEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<MacroPreviewRequestCurrentWeightUnitEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <MacroPreviewRequestCurrentWeightUnitEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -418,7 +455,9 @@ class MacroPreviewRequestCurrentWeightUnitEnum {
 /// Transformation class that can [encode] an instance of [MacroPreviewRequestCurrentWeightUnitEnum] to String,
 /// and [decode] dynamic data back to [MacroPreviewRequestCurrentWeightUnitEnum].
 class MacroPreviewRequestCurrentWeightUnitEnumTypeTransformer {
-  factory MacroPreviewRequestCurrentWeightUnitEnumTypeTransformer() => _instance ??= const MacroPreviewRequestCurrentWeightUnitEnumTypeTransformer._();
+  factory MacroPreviewRequestCurrentWeightUnitEnumTypeTransformer() =>
+      _instance ??=
+          const MacroPreviewRequestCurrentWeightUnitEnumTypeTransformer._();
 
   const MacroPreviewRequestCurrentWeightUnitEnumTypeTransformer._();
 
@@ -432,11 +471,14 @@ class MacroPreviewRequestCurrentWeightUnitEnumTypeTransformer {
   ///
   /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
   /// and users are still using an old app with the old code.
-  MacroPreviewRequestCurrentWeightUnitEnum? decode(dynamic data, {bool allowNull = true}) {
+  MacroPreviewRequestCurrentWeightUnitEnum? decode(dynamic data,
+      {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'KG': return MacroPreviewRequestCurrentWeightUnitEnum.KG;
-        case r'POUNDS': return MacroPreviewRequestCurrentWeightUnitEnum.POUNDS;
+        case r'KG':
+          return MacroPreviewRequestCurrentWeightUnitEnum.KG;
+        case r'POUNDS':
+          return MacroPreviewRequestCurrentWeightUnitEnum.POUNDS;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -449,8 +491,6 @@ class MacroPreviewRequestCurrentWeightUnitEnumTypeTransformer {
   /// Singleton [MacroPreviewRequestCurrentWeightUnitEnumTypeTransformer] instance.
   static MacroPreviewRequestCurrentWeightUnitEnumTypeTransformer? _instance;
 }
-
-
 
 class MacroPreviewRequestActivityLevelEnum {
   /// Instantiate a new enum with the provided [value].
@@ -465,10 +505,14 @@ class MacroPreviewRequestActivityLevelEnum {
   String toJson() => value;
 
   static const SEDENTARY = MacroPreviewRequestActivityLevelEnum._(r'SEDENTARY');
-  static const LIGHTLY_ACTIVE = MacroPreviewRequestActivityLevelEnum._(r'LIGHTLY_ACTIVE');
-  static const MODERATELY_ACTIVE = MacroPreviewRequestActivityLevelEnum._(r'MODERATELY_ACTIVE');
-  static const VERY_ACTIVE = MacroPreviewRequestActivityLevelEnum._(r'VERY_ACTIVE');
-  static const EXTRA_ACTIVE = MacroPreviewRequestActivityLevelEnum._(r'EXTRA_ACTIVE');
+  static const LIGHTLY_ACTIVE =
+      MacroPreviewRequestActivityLevelEnum._(r'LIGHTLY_ACTIVE');
+  static const MODERATELY_ACTIVE =
+      MacroPreviewRequestActivityLevelEnum._(r'MODERATELY_ACTIVE');
+  static const VERY_ACTIVE =
+      MacroPreviewRequestActivityLevelEnum._(r'VERY_ACTIVE');
+  static const EXTRA_ACTIVE =
+      MacroPreviewRequestActivityLevelEnum._(r'EXTRA_ACTIVE');
 
   /// List of all possible values in this [enum][MacroPreviewRequestActivityLevelEnum].
   static const values = <MacroPreviewRequestActivityLevelEnum>[
@@ -479,9 +523,13 @@ class MacroPreviewRequestActivityLevelEnum {
     EXTRA_ACTIVE,
   ];
 
-  static MacroPreviewRequestActivityLevelEnum? fromJson(dynamic value) => MacroPreviewRequestActivityLevelEnumTypeTransformer().decode(value);
+  static MacroPreviewRequestActivityLevelEnum? fromJson(dynamic value) =>
+      MacroPreviewRequestActivityLevelEnumTypeTransformer().decode(value);
 
-  static List<MacroPreviewRequestActivityLevelEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<MacroPreviewRequestActivityLevelEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <MacroPreviewRequestActivityLevelEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -498,7 +546,8 @@ class MacroPreviewRequestActivityLevelEnum {
 /// Transformation class that can [encode] an instance of [MacroPreviewRequestActivityLevelEnum] to String,
 /// and [decode] dynamic data back to [MacroPreviewRequestActivityLevelEnum].
 class MacroPreviewRequestActivityLevelEnumTypeTransformer {
-  factory MacroPreviewRequestActivityLevelEnumTypeTransformer() => _instance ??= const MacroPreviewRequestActivityLevelEnumTypeTransformer._();
+  factory MacroPreviewRequestActivityLevelEnumTypeTransformer() => _instance ??=
+      const MacroPreviewRequestActivityLevelEnumTypeTransformer._();
 
   const MacroPreviewRequestActivityLevelEnumTypeTransformer._();
 
@@ -512,14 +561,20 @@ class MacroPreviewRequestActivityLevelEnumTypeTransformer {
   ///
   /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
   /// and users are still using an old app with the old code.
-  MacroPreviewRequestActivityLevelEnum? decode(dynamic data, {bool allowNull = true}) {
+  MacroPreviewRequestActivityLevelEnum? decode(dynamic data,
+      {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'SEDENTARY': return MacroPreviewRequestActivityLevelEnum.SEDENTARY;
-        case r'LIGHTLY_ACTIVE': return MacroPreviewRequestActivityLevelEnum.LIGHTLY_ACTIVE;
-        case r'MODERATELY_ACTIVE': return MacroPreviewRequestActivityLevelEnum.MODERATELY_ACTIVE;
-        case r'VERY_ACTIVE': return MacroPreviewRequestActivityLevelEnum.VERY_ACTIVE;
-        case r'EXTRA_ACTIVE': return MacroPreviewRequestActivityLevelEnum.EXTRA_ACTIVE;
+        case r'SEDENTARY':
+          return MacroPreviewRequestActivityLevelEnum.SEDENTARY;
+        case r'LIGHTLY_ACTIVE':
+          return MacroPreviewRequestActivityLevelEnum.LIGHTLY_ACTIVE;
+        case r'MODERATELY_ACTIVE':
+          return MacroPreviewRequestActivityLevelEnum.MODERATELY_ACTIVE;
+        case r'VERY_ACTIVE':
+          return MacroPreviewRequestActivityLevelEnum.VERY_ACTIVE;
+        case r'EXTRA_ACTIVE':
+          return MacroPreviewRequestActivityLevelEnum.EXTRA_ACTIVE;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -533,8 +588,6 @@ class MacroPreviewRequestActivityLevelEnumTypeTransformer {
   static MacroPreviewRequestActivityLevelEnumTypeTransformer? _instance;
 }
 
-
-
 class MacroPreviewRequestDesiredGoalEnum {
   /// Instantiate a new enum with the provided [value].
   const MacroPreviewRequestDesiredGoalEnum._(this.value);
@@ -547,9 +600,12 @@ class MacroPreviewRequestDesiredGoalEnum {
 
   String toJson() => value;
 
-  static const LOSE_WEIGHT = MacroPreviewRequestDesiredGoalEnum._(r'LOSE_WEIGHT');
-  static const MAINTAIN_WEIGHT = MacroPreviewRequestDesiredGoalEnum._(r'MAINTAIN_WEIGHT');
-  static const GAIN_WEIGHT = MacroPreviewRequestDesiredGoalEnum._(r'GAIN_WEIGHT');
+  static const LOSE_WEIGHT =
+      MacroPreviewRequestDesiredGoalEnum._(r'LOSE_WEIGHT');
+  static const MAINTAIN_WEIGHT =
+      MacroPreviewRequestDesiredGoalEnum._(r'MAINTAIN_WEIGHT');
+  static const GAIN_WEIGHT =
+      MacroPreviewRequestDesiredGoalEnum._(r'GAIN_WEIGHT');
   static const NOTHING = MacroPreviewRequestDesiredGoalEnum._(r'NOTHING');
 
   /// List of all possible values in this [enum][MacroPreviewRequestDesiredGoalEnum].
@@ -560,9 +616,13 @@ class MacroPreviewRequestDesiredGoalEnum {
     NOTHING,
   ];
 
-  static MacroPreviewRequestDesiredGoalEnum? fromJson(dynamic value) => MacroPreviewRequestDesiredGoalEnumTypeTransformer().decode(value);
+  static MacroPreviewRequestDesiredGoalEnum? fromJson(dynamic value) =>
+      MacroPreviewRequestDesiredGoalEnumTypeTransformer().decode(value);
 
-  static List<MacroPreviewRequestDesiredGoalEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<MacroPreviewRequestDesiredGoalEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <MacroPreviewRequestDesiredGoalEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -579,7 +639,8 @@ class MacroPreviewRequestDesiredGoalEnum {
 /// Transformation class that can [encode] an instance of [MacroPreviewRequestDesiredGoalEnum] to String,
 /// and [decode] dynamic data back to [MacroPreviewRequestDesiredGoalEnum].
 class MacroPreviewRequestDesiredGoalEnumTypeTransformer {
-  factory MacroPreviewRequestDesiredGoalEnumTypeTransformer() => _instance ??= const MacroPreviewRequestDesiredGoalEnumTypeTransformer._();
+  factory MacroPreviewRequestDesiredGoalEnumTypeTransformer() =>
+      _instance ??= const MacroPreviewRequestDesiredGoalEnumTypeTransformer._();
 
   const MacroPreviewRequestDesiredGoalEnumTypeTransformer._();
 
@@ -593,13 +654,18 @@ class MacroPreviewRequestDesiredGoalEnumTypeTransformer {
   ///
   /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
   /// and users are still using an old app with the old code.
-  MacroPreviewRequestDesiredGoalEnum? decode(dynamic data, {bool allowNull = true}) {
+  MacroPreviewRequestDesiredGoalEnum? decode(dynamic data,
+      {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'LOSE_WEIGHT': return MacroPreviewRequestDesiredGoalEnum.LOSE_WEIGHT;
-        case r'MAINTAIN_WEIGHT': return MacroPreviewRequestDesiredGoalEnum.MAINTAIN_WEIGHT;
-        case r'GAIN_WEIGHT': return MacroPreviewRequestDesiredGoalEnum.GAIN_WEIGHT;
-        case r'NOTHING': return MacroPreviewRequestDesiredGoalEnum.NOTHING;
+        case r'LOSE_WEIGHT':
+          return MacroPreviewRequestDesiredGoalEnum.LOSE_WEIGHT;
+        case r'MAINTAIN_WEIGHT':
+          return MacroPreviewRequestDesiredGoalEnum.MAINTAIN_WEIGHT;
+        case r'GAIN_WEIGHT':
+          return MacroPreviewRequestDesiredGoalEnum.GAIN_WEIGHT;
+        case r'NOTHING':
+          return MacroPreviewRequestDesiredGoalEnum.NOTHING;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -612,8 +678,6 @@ class MacroPreviewRequestDesiredGoalEnumTypeTransformer {
   /// Singleton [MacroPreviewRequestDesiredGoalEnumTypeTransformer] instance.
   static MacroPreviewRequestDesiredGoalEnumTypeTransformer? _instance;
 }
-
-
 
 class MacroPreviewRequestDesiredWeightUnitEnum {
   /// Instantiate a new enum with the provided [value].
@@ -636,9 +700,13 @@ class MacroPreviewRequestDesiredWeightUnitEnum {
     POUNDS,
   ];
 
-  static MacroPreviewRequestDesiredWeightUnitEnum? fromJson(dynamic value) => MacroPreviewRequestDesiredWeightUnitEnumTypeTransformer().decode(value);
+  static MacroPreviewRequestDesiredWeightUnitEnum? fromJson(dynamic value) =>
+      MacroPreviewRequestDesiredWeightUnitEnumTypeTransformer().decode(value);
 
-  static List<MacroPreviewRequestDesiredWeightUnitEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<MacroPreviewRequestDesiredWeightUnitEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <MacroPreviewRequestDesiredWeightUnitEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -655,7 +723,9 @@ class MacroPreviewRequestDesiredWeightUnitEnum {
 /// Transformation class that can [encode] an instance of [MacroPreviewRequestDesiredWeightUnitEnum] to String,
 /// and [decode] dynamic data back to [MacroPreviewRequestDesiredWeightUnitEnum].
 class MacroPreviewRequestDesiredWeightUnitEnumTypeTransformer {
-  factory MacroPreviewRequestDesiredWeightUnitEnumTypeTransformer() => _instance ??= const MacroPreviewRequestDesiredWeightUnitEnumTypeTransformer._();
+  factory MacroPreviewRequestDesiredWeightUnitEnumTypeTransformer() =>
+      _instance ??=
+          const MacroPreviewRequestDesiredWeightUnitEnumTypeTransformer._();
 
   const MacroPreviewRequestDesiredWeightUnitEnumTypeTransformer._();
 
@@ -669,11 +739,14 @@ class MacroPreviewRequestDesiredWeightUnitEnumTypeTransformer {
   ///
   /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
   /// and users are still using an old app with the old code.
-  MacroPreviewRequestDesiredWeightUnitEnum? decode(dynamic data, {bool allowNull = true}) {
+  MacroPreviewRequestDesiredWeightUnitEnum? decode(dynamic data,
+      {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'KG': return MacroPreviewRequestDesiredWeightUnitEnum.KG;
-        case r'POUNDS': return MacroPreviewRequestDesiredWeightUnitEnum.POUNDS;
+        case r'KG':
+          return MacroPreviewRequestDesiredWeightUnitEnum.KG;
+        case r'POUNDS':
+          return MacroPreviewRequestDesiredWeightUnitEnum.POUNDS;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -686,8 +759,6 @@ class MacroPreviewRequestDesiredWeightUnitEnumTypeTransformer {
   /// Singleton [MacroPreviewRequestDesiredWeightUnitEnumTypeTransformer] instance.
   static MacroPreviewRequestDesiredWeightUnitEnumTypeTransformer? _instance;
 }
-
-
 
 class MacroPreviewRequestGoalPaceEnum {
   /// Instantiate a new enum with the provided [value].
@@ -712,9 +783,13 @@ class MacroPreviewRequestGoalPaceEnum {
     FAST,
   ];
 
-  static MacroPreviewRequestGoalPaceEnum? fromJson(dynamic value) => MacroPreviewRequestGoalPaceEnumTypeTransformer().decode(value);
+  static MacroPreviewRequestGoalPaceEnum? fromJson(dynamic value) =>
+      MacroPreviewRequestGoalPaceEnumTypeTransformer().decode(value);
 
-  static List<MacroPreviewRequestGoalPaceEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<MacroPreviewRequestGoalPaceEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <MacroPreviewRequestGoalPaceEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -731,7 +806,8 @@ class MacroPreviewRequestGoalPaceEnum {
 /// Transformation class that can [encode] an instance of [MacroPreviewRequestGoalPaceEnum] to String,
 /// and [decode] dynamic data back to [MacroPreviewRequestGoalPaceEnum].
 class MacroPreviewRequestGoalPaceEnumTypeTransformer {
-  factory MacroPreviewRequestGoalPaceEnumTypeTransformer() => _instance ??= const MacroPreviewRequestGoalPaceEnumTypeTransformer._();
+  factory MacroPreviewRequestGoalPaceEnumTypeTransformer() =>
+      _instance ??= const MacroPreviewRequestGoalPaceEnumTypeTransformer._();
 
   const MacroPreviewRequestGoalPaceEnumTypeTransformer._();
 
@@ -745,12 +821,16 @@ class MacroPreviewRequestGoalPaceEnumTypeTransformer {
   ///
   /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
   /// and users are still using an old app with the old code.
-  MacroPreviewRequestGoalPaceEnum? decode(dynamic data, {bool allowNull = true}) {
+  MacroPreviewRequestGoalPaceEnum? decode(dynamic data,
+      {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'SLOW': return MacroPreviewRequestGoalPaceEnum.SLOW;
-        case r'OPTIMAL': return MacroPreviewRequestGoalPaceEnum.OPTIMAL;
-        case r'FAST': return MacroPreviewRequestGoalPaceEnum.FAST;
+        case r'SLOW':
+          return MacroPreviewRequestGoalPaceEnum.SLOW;
+        case r'OPTIMAL':
+          return MacroPreviewRequestGoalPaceEnum.OPTIMAL;
+        case r'FAST':
+          return MacroPreviewRequestGoalPaceEnum.FAST;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -763,8 +843,6 @@ class MacroPreviewRequestGoalPaceEnumTypeTransformer {
   /// Singleton [MacroPreviewRequestGoalPaceEnumTypeTransformer] instance.
   static MacroPreviewRequestGoalPaceEnumTypeTransformer? _instance;
 }
-
-
 
 class MacroPreviewRequestMacroTargetEnum {
   /// Instantiate a new enum with the provided [value].
@@ -779,7 +857,8 @@ class MacroPreviewRequestMacroTargetEnum {
   String toJson() => value;
 
   static const BALANCED = MacroPreviewRequestMacroTargetEnum._(r'BALANCED');
-  static const HIGH_PROTEIN = MacroPreviewRequestMacroTargetEnum._(r'HIGH_PROTEIN');
+  static const HIGH_PROTEIN =
+      MacroPreviewRequestMacroTargetEnum._(r'HIGH_PROTEIN');
   static const LOW_CARB = MacroPreviewRequestMacroTargetEnum._(r'LOW_CARB');
   static const LOW_FAT = MacroPreviewRequestMacroTargetEnum._(r'LOW_FAT');
   static const HIGH_FIBER = MacroPreviewRequestMacroTargetEnum._(r'HIGH_FIBER');
@@ -793,9 +872,13 @@ class MacroPreviewRequestMacroTargetEnum {
     HIGH_FIBER,
   ];
 
-  static MacroPreviewRequestMacroTargetEnum? fromJson(dynamic value) => MacroPreviewRequestMacroTargetEnumTypeTransformer().decode(value);
+  static MacroPreviewRequestMacroTargetEnum? fromJson(dynamic value) =>
+      MacroPreviewRequestMacroTargetEnumTypeTransformer().decode(value);
 
-  static List<MacroPreviewRequestMacroTargetEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<MacroPreviewRequestMacroTargetEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <MacroPreviewRequestMacroTargetEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -812,7 +895,8 @@ class MacroPreviewRequestMacroTargetEnum {
 /// Transformation class that can [encode] an instance of [MacroPreviewRequestMacroTargetEnum] to String,
 /// and [decode] dynamic data back to [MacroPreviewRequestMacroTargetEnum].
 class MacroPreviewRequestMacroTargetEnumTypeTransformer {
-  factory MacroPreviewRequestMacroTargetEnumTypeTransformer() => _instance ??= const MacroPreviewRequestMacroTargetEnumTypeTransformer._();
+  factory MacroPreviewRequestMacroTargetEnumTypeTransformer() =>
+      _instance ??= const MacroPreviewRequestMacroTargetEnumTypeTransformer._();
 
   const MacroPreviewRequestMacroTargetEnumTypeTransformer._();
 
@@ -826,14 +910,20 @@ class MacroPreviewRequestMacroTargetEnumTypeTransformer {
   ///
   /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
   /// and users are still using an old app with the old code.
-  MacroPreviewRequestMacroTargetEnum? decode(dynamic data, {bool allowNull = true}) {
+  MacroPreviewRequestMacroTargetEnum? decode(dynamic data,
+      {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'BALANCED': return MacroPreviewRequestMacroTargetEnum.BALANCED;
-        case r'HIGH_PROTEIN': return MacroPreviewRequestMacroTargetEnum.HIGH_PROTEIN;
-        case r'LOW_CARB': return MacroPreviewRequestMacroTargetEnum.LOW_CARB;
-        case r'LOW_FAT': return MacroPreviewRequestMacroTargetEnum.LOW_FAT;
-        case r'HIGH_FIBER': return MacroPreviewRequestMacroTargetEnum.HIGH_FIBER;
+        case r'BALANCED':
+          return MacroPreviewRequestMacroTargetEnum.BALANCED;
+        case r'HIGH_PROTEIN':
+          return MacroPreviewRequestMacroTargetEnum.HIGH_PROTEIN;
+        case r'LOW_CARB':
+          return MacroPreviewRequestMacroTargetEnum.LOW_CARB;
+        case r'LOW_FAT':
+          return MacroPreviewRequestMacroTargetEnum.LOW_FAT;
+        case r'HIGH_FIBER':
+          return MacroPreviewRequestMacroTargetEnum.HIGH_FIBER;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -846,8 +936,6 @@ class MacroPreviewRequestMacroTargetEnumTypeTransformer {
   /// Singleton [MacroPreviewRequestMacroTargetEnumTypeTransformer] instance.
   static MacroPreviewRequestMacroTargetEnumTypeTransformer? _instance;
 }
-
-
 
 class MacroPreviewRequestTargetEventEnum {
   /// Instantiate a new enum with the provided [value].
@@ -864,7 +952,8 @@ class MacroPreviewRequestTargetEventEnum {
   static const VACATION = MacroPreviewRequestTargetEventEnum._(r'VACATION');
   static const WEDDING = MacroPreviewRequestTargetEventEnum._(r'WEDDING');
   static const BIRTHDAY = MacroPreviewRequestTargetEventEnum._(r'BIRTHDAY');
-  static const PERSONAL_MILESTONE = MacroPreviewRequestTargetEventEnum._(r'PERSONAL_MILESTONE');
+  static const PERSONAL_MILESTONE =
+      MacroPreviewRequestTargetEventEnum._(r'PERSONAL_MILESTONE');
   static const NONE = MacroPreviewRequestTargetEventEnum._(r'NONE');
 
   /// List of all possible values in this [enum][MacroPreviewRequestTargetEventEnum].
@@ -876,9 +965,13 @@ class MacroPreviewRequestTargetEventEnum {
     NONE,
   ];
 
-  static MacroPreviewRequestTargetEventEnum? fromJson(dynamic value) => MacroPreviewRequestTargetEventEnumTypeTransformer().decode(value);
+  static MacroPreviewRequestTargetEventEnum? fromJson(dynamic value) =>
+      MacroPreviewRequestTargetEventEnumTypeTransformer().decode(value);
 
-  static List<MacroPreviewRequestTargetEventEnum> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<MacroPreviewRequestTargetEventEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <MacroPreviewRequestTargetEventEnum>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -895,7 +988,8 @@ class MacroPreviewRequestTargetEventEnum {
 /// Transformation class that can [encode] an instance of [MacroPreviewRequestTargetEventEnum] to String,
 /// and [decode] dynamic data back to [MacroPreviewRequestTargetEventEnum].
 class MacroPreviewRequestTargetEventEnumTypeTransformer {
-  factory MacroPreviewRequestTargetEventEnumTypeTransformer() => _instance ??= const MacroPreviewRequestTargetEventEnumTypeTransformer._();
+  factory MacroPreviewRequestTargetEventEnumTypeTransformer() =>
+      _instance ??= const MacroPreviewRequestTargetEventEnumTypeTransformer._();
 
   const MacroPreviewRequestTargetEventEnumTypeTransformer._();
 
@@ -909,14 +1003,20 @@ class MacroPreviewRequestTargetEventEnumTypeTransformer {
   ///
   /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
   /// and users are still using an old app with the old code.
-  MacroPreviewRequestTargetEventEnum? decode(dynamic data, {bool allowNull = true}) {
+  MacroPreviewRequestTargetEventEnum? decode(dynamic data,
+      {bool allowNull = true}) {
     if (data != null) {
       switch (data) {
-        case r'VACATION': return MacroPreviewRequestTargetEventEnum.VACATION;
-        case r'WEDDING': return MacroPreviewRequestTargetEventEnum.WEDDING;
-        case r'BIRTHDAY': return MacroPreviewRequestTargetEventEnum.BIRTHDAY;
-        case r'PERSONAL_MILESTONE': return MacroPreviewRequestTargetEventEnum.PERSONAL_MILESTONE;
-        case r'NONE': return MacroPreviewRequestTargetEventEnum.NONE;
+        case r'VACATION':
+          return MacroPreviewRequestTargetEventEnum.VACATION;
+        case r'WEDDING':
+          return MacroPreviewRequestTargetEventEnum.WEDDING;
+        case r'BIRTHDAY':
+          return MacroPreviewRequestTargetEventEnum.BIRTHDAY;
+        case r'PERSONAL_MILESTONE':
+          return MacroPreviewRequestTargetEventEnum.PERSONAL_MILESTONE;
+        case r'NONE':
+          return MacroPreviewRequestTargetEventEnum.NONE;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');
@@ -929,5 +1029,3 @@ class MacroPreviewRequestTargetEventEnumTypeTransformer {
   /// Singleton [MacroPreviewRequestTargetEventEnumTypeTransformer] instance.
   static MacroPreviewRequestTargetEventEnumTypeTransformer? _instance;
 }
-
-

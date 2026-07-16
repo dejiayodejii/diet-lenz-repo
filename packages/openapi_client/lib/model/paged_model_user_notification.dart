@@ -28,22 +28,24 @@ class PagedModelUserNotification {
   PageMetadata? page;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is PagedModelUserNotification &&
-    _deepEquality.equals(other.content, content) &&
-    other.page == page;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PagedModelUserNotification &&
+          _deepEquality.equals(other.content, content) &&
+          other.page == page;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (content.hashCode) +
-    (page == null ? 0 : page!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (content.hashCode) + (page == null ? 0 : page!.hashCode);
 
   @override
-  String toString() => 'PagedModelUserNotification[content=$content, page=$page]';
+  String toString() =>
+      'PagedModelUserNotification[content=$content, page=$page]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-      json[r'content'] = this.content;
+    json[r'content'] = this.content;
     if (this.page != null) {
       json[r'page'] = this.page;
     } else {
@@ -64,8 +66,10 @@ class PagedModelUserNotification {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "PagedModelUserNotification[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "PagedModelUserNotification[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "PagedModelUserNotification[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "PagedModelUserNotification[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -78,7 +82,10 @@ class PagedModelUserNotification {
     return null;
   }
 
-  static List<PagedModelUserNotification> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<PagedModelUserNotification> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <PagedModelUserNotification>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -106,20 +113,24 @@ class PagedModelUserNotification {
   }
 
   // maps a json object with a list of PagedModelUserNotification-objects as value to a dart map
-  static Map<String, List<PagedModelUserNotification>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<PagedModelUserNotification>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<PagedModelUserNotification>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = PagedModelUserNotification.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = PagedModelUserNotification.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

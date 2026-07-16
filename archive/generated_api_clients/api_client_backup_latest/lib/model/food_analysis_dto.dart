@@ -17,6 +17,7 @@ class FoodAnalysisDto {
     this.description,
     this.totalMacros,
     this.imageBase64,
+    this.measures = const [],
   });
 
   ///
@@ -51,23 +52,30 @@ class FoodAnalysisDto {
   ///
   String? imageBase64;
 
+  List<MeasureDto> measures;
+
   @override
-  bool operator ==(Object other) => identical(this, other) || other is FoodAnalysisDto &&
-    other.foodName == foodName &&
-    other.description == description &&
-    other.totalMacros == totalMacros &&
-    other.imageBase64 == imageBase64;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FoodAnalysisDto &&
+          other.foodName == foodName &&
+          other.description == description &&
+          other.totalMacros == totalMacros &&
+          other.imageBase64 == imageBase64 &&
+          _deepEquality.equals(other.measures, measures);
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (foodName == null ? 0 : foodName!.hashCode) +
-    (description == null ? 0 : description!.hashCode) +
-    (totalMacros == null ? 0 : totalMacros!.hashCode) +
-    (imageBase64 == null ? 0 : imageBase64!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (foodName == null ? 0 : foodName!.hashCode) +
+      (description == null ? 0 : description!.hashCode) +
+      (totalMacros == null ? 0 : totalMacros!.hashCode) +
+      (imageBase64 == null ? 0 : imageBase64!.hashCode) +
+      (measures.hashCode);
 
   @override
-  String toString() => 'FoodAnalysisDto[foodName=$foodName, description=$description, totalMacros=$totalMacros, imageBase64=$imageBase64]';
+  String toString() =>
+      'FoodAnalysisDto[foodName=$foodName, description=$description, totalMacros=$totalMacros, imageBase64=$imageBase64, measures=$measures]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -91,6 +99,7 @@ class FoodAnalysisDto {
     } else {
       json[r'imageBase64'] = null;
     }
+    json[r'measures'] = this.measures;
     return json;
   }
 
@@ -106,8 +115,10 @@ class FoodAnalysisDto {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "FoodAnalysisDto[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "FoodAnalysisDto[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "FoodAnalysisDto[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "FoodAnalysisDto[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -117,12 +128,16 @@ class FoodAnalysisDto {
         description: mapValueOfType<String>(json, r'description'),
         totalMacros: MacroNutrientsDto.fromJson(json[r'totalMacros']),
         imageBase64: mapValueOfType<String>(json, r'imageBase64'),
+        measures: MeasureDto.listFromJson(json[r'measures']),
       );
     }
     return null;
   }
 
-  static List<FoodAnalysisDto> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<FoodAnalysisDto> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <FoodAnalysisDto>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -150,20 +165,24 @@ class FoodAnalysisDto {
   }
 
   // maps a json object with a list of FoodAnalysisDto-objects as value to a dart map
-  static Map<String, List<FoodAnalysisDto>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<FoodAnalysisDto>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<FoodAnalysisDto>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = FoodAnalysisDto.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = FoodAnalysisDto.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

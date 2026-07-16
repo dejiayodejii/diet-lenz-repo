@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/database/widgets/food_search_result_tile.dart';
 import 'package:diet_lenz/features/home/views/food_log_detail.dart';
@@ -19,9 +21,9 @@ class MealLogResultTile extends StatelessWidget {
     //   return FoodLoggedPreview(loggedMeal: mealLog);
     // }
 
+    log("meal is $mealLog");
+
     return FoodLoggedPreview(loggedMeal: mealLog);
-
-
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),

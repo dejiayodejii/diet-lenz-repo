@@ -28,18 +28,20 @@ class CalorieTrackerResponse {
   List<ChartPoint> chartData;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is CalorieTrackerResponse &&
-    other.filter == filter &&
-    _deepEquality.equals(other.chartData, chartData);
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CalorieTrackerResponse &&
+          other.filter == filter &&
+          _deepEquality.equals(other.chartData, chartData);
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (filter == null ? 0 : filter!.hashCode) +
-    (chartData.hashCode);
+      // ignore: unnecessary_parenthesis
+      (filter == null ? 0 : filter!.hashCode) + (chartData.hashCode);
 
   @override
-  String toString() => 'CalorieTrackerResponse[filter=$filter, chartData=$chartData]';
+  String toString() =>
+      'CalorieTrackerResponse[filter=$filter, chartData=$chartData]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -48,7 +50,7 @@ class CalorieTrackerResponse {
     } else {
       json[r'filter'] = null;
     }
-      json[r'chartData'] = this.chartData;
+    json[r'chartData'] = this.chartData;
     return json;
   }
 
@@ -64,8 +66,10 @@ class CalorieTrackerResponse {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "CalorieTrackerResponse[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "CalorieTrackerResponse[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "CalorieTrackerResponse[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "CalorieTrackerResponse[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -78,7 +82,10 @@ class CalorieTrackerResponse {
     return null;
   }
 
-  static List<CalorieTrackerResponse> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<CalorieTrackerResponse> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <CalorieTrackerResponse>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -106,20 +113,24 @@ class CalorieTrackerResponse {
   }
 
   // maps a json object with a list of CalorieTrackerResponse-objects as value to a dart map
-  static Map<String, List<CalorieTrackerResponse>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<CalorieTrackerResponse>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<CalorieTrackerResponse>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = CalorieTrackerResponse.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = CalorieTrackerResponse.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

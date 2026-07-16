@@ -52,22 +52,25 @@ class IngredientDto {
   MacroNutrientsDto? macros;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is IngredientDto &&
-    other.name == name &&
-    other.quantity == quantity &&
-    other.unit == unit &&
-    other.macros == macros;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is IngredientDto &&
+          other.name == name &&
+          other.quantity == quantity &&
+          other.unit == unit &&
+          other.macros == macros;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (name == null ? 0 : name!.hashCode) +
-    (quantity == null ? 0 : quantity!.hashCode) +
-    (unit == null ? 0 : unit!.hashCode) +
-    (macros == null ? 0 : macros!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (name == null ? 0 : name!.hashCode) +
+      (quantity == null ? 0 : quantity!.hashCode) +
+      (unit == null ? 0 : unit!.hashCode) +
+      (macros == null ? 0 : macros!.hashCode);
 
   @override
-  String toString() => 'IngredientDto[name=$name, quantity=$quantity, unit=$unit, macros=$macros]';
+  String toString() =>
+      'IngredientDto[name=$name, quantity=$quantity, unit=$unit, macros=$macros]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -106,8 +109,10 @@ class IngredientDto {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "IngredientDto[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "IngredientDto[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "IngredientDto[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "IngredientDto[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -122,7 +127,10 @@ class IngredientDto {
     return null;
   }
 
-  static List<IngredientDto> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<IngredientDto> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <IngredientDto>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -150,20 +158,24 @@ class IngredientDto {
   }
 
   // maps a json object with a list of IngredientDto-objects as value to a dart map
-  static Map<String, List<IngredientDto>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<IngredientDto>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<IngredientDto>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = IngredientDto.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = IngredientDto.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

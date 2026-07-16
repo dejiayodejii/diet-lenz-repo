@@ -88,30 +88,33 @@ class FavoriteRecipeResponseDto {
   DateTime? lastLoggedAt;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is FavoriteRecipeResponseDto &&
-    other.recipeId == recipeId &&
-    other.foodName == foodName &&
-    other.description == description &&
-    other.macros == macros &&
-    other.imageUrl == imageUrl &&
-    other.usageCount == usageCount &&
-    other.favoritedAt == favoritedAt &&
-    other.lastLoggedAt == lastLoggedAt;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FavoriteRecipeResponseDto &&
+          other.recipeId == recipeId &&
+          other.foodName == foodName &&
+          other.description == description &&
+          other.macros == macros &&
+          other.imageUrl == imageUrl &&
+          other.usageCount == usageCount &&
+          other.favoritedAt == favoritedAt &&
+          other.lastLoggedAt == lastLoggedAt;
 
   @override
   int get hashCode =>
-    // ignore: unnecessary_parenthesis
-    (recipeId == null ? 0 : recipeId!.hashCode) +
-    (foodName == null ? 0 : foodName!.hashCode) +
-    (description == null ? 0 : description!.hashCode) +
-    (macros == null ? 0 : macros!.hashCode) +
-    (imageUrl == null ? 0 : imageUrl!.hashCode) +
-    (usageCount == null ? 0 : usageCount!.hashCode) +
-    (favoritedAt == null ? 0 : favoritedAt!.hashCode) +
-    (lastLoggedAt == null ? 0 : lastLoggedAt!.hashCode);
+      // ignore: unnecessary_parenthesis
+      (recipeId == null ? 0 : recipeId!.hashCode) +
+      (foodName == null ? 0 : foodName!.hashCode) +
+      (description == null ? 0 : description!.hashCode) +
+      (macros == null ? 0 : macros!.hashCode) +
+      (imageUrl == null ? 0 : imageUrl!.hashCode) +
+      (usageCount == null ? 0 : usageCount!.hashCode) +
+      (favoritedAt == null ? 0 : favoritedAt!.hashCode) +
+      (lastLoggedAt == null ? 0 : lastLoggedAt!.hashCode);
 
   @override
-  String toString() => 'FavoriteRecipeResponseDto[recipeId=$recipeId, foodName=$foodName, description=$description, macros=$macros, imageUrl=$imageUrl, usageCount=$usageCount, favoritedAt=$favoritedAt, lastLoggedAt=$lastLoggedAt]';
+  String toString() =>
+      'FavoriteRecipeResponseDto[recipeId=$recipeId, foodName=$foodName, description=$description, macros=$macros, imageUrl=$imageUrl, usageCount=$usageCount, favoritedAt=$favoritedAt, lastLoggedAt=$lastLoggedAt]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -170,8 +173,10 @@ class FavoriteRecipeResponseDto {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "FavoriteRecipeResponseDto[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "FavoriteRecipeResponseDto[$key]" has a null value in JSON.');
+          assert(json.containsKey(key),
+              'Required key "FavoriteRecipeResponseDto[$key]" is missing from JSON.');
+          assert(json[key] != null,
+              'Required key "FavoriteRecipeResponseDto[$key]" has a null value in JSON.');
         });
         return true;
       }());
@@ -190,7 +195,10 @@ class FavoriteRecipeResponseDto {
     return null;
   }
 
-  static List<FavoriteRecipeResponseDto> listFromJson(dynamic json, {bool growable = false,}) {
+  static List<FavoriteRecipeResponseDto> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final result = <FavoriteRecipeResponseDto>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
@@ -218,20 +226,24 @@ class FavoriteRecipeResponseDto {
   }
 
   // maps a json object with a list of FavoriteRecipeResponseDto-objects as value to a dart map
-  static Map<String, List<FavoriteRecipeResponseDto>> mapListFromJson(dynamic json, {bool growable = false,}) {
+  static Map<String, List<FavoriteRecipeResponseDto>> mapListFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
     final map = <String, List<FavoriteRecipeResponseDto>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = FavoriteRecipeResponseDto.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = FavoriteRecipeResponseDto.listFromJson(
+          entry.value,
+          growable: growable,
+        );
       }
     }
     return map;
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{
-  };
+  static const requiredKeys = <String>{};
 }
-

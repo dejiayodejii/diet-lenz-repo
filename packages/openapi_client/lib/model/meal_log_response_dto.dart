@@ -17,6 +17,8 @@ class MealLogResponseDto {
     this.recipeId,
     this.foodName,
     this.imageUrl,
+    this.foodSource,
+    this.foodAnalysis,
     this.mealType,
     this.loggedDate,
     this.loggedTime,
@@ -57,6 +59,16 @@ class MealLogResponseDto {
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
   String? imageUrl;
+
+  MealLogResponseDtoFoodSourceEnum? foodSource;
+
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  FoodAnalysisDto? foodAnalysis;
 
   MealLogResponseDtoMealTypeEnum? mealType;
 
@@ -116,6 +128,8 @@ class MealLogResponseDto {
           other.recipeId == recipeId &&
           other.foodName == foodName &&
           other.imageUrl == imageUrl &&
+          other.foodSource == foodSource &&
+          other.foodAnalysis == foodAnalysis &&
           other.mealType == mealType &&
           other.loggedDate == loggedDate &&
           other.loggedTime == loggedTime &&
@@ -131,6 +145,8 @@ class MealLogResponseDto {
       (recipeId == null ? 0 : recipeId!.hashCode) +
       (foodName == null ? 0 : foodName!.hashCode) +
       (imageUrl == null ? 0 : imageUrl!.hashCode) +
+      (foodSource == null ? 0 : foodSource!.hashCode) +
+      (foodAnalysis == null ? 0 : foodAnalysis!.hashCode) +
       (mealType == null ? 0 : mealType!.hashCode) +
       (loggedDate == null ? 0 : loggedDate!.hashCode) +
       (loggedTime == null ? 0 : loggedTime!.hashCode) +
@@ -141,7 +157,7 @@ class MealLogResponseDto {
 
   @override
   String toString() =>
-      'MealLogResponseDto[id=$id, recipeId=$recipeId, foodName=$foodName, imageUrl=$imageUrl, mealType=$mealType, loggedDate=$loggedDate, loggedTime=$loggedTime, servingMultiplier=$servingMultiplier, consumedMacros=$consumedMacros, notes=$notes, isFavorite=$isFavorite]';
+      'MealLogResponseDto[id=$id, recipeId=$recipeId, foodName=$foodName, imageUrl=$imageUrl, foodSource=$foodSource, foodAnalysis=$foodAnalysis, mealType=$mealType, loggedDate=$loggedDate, loggedTime=$loggedTime, servingMultiplier=$servingMultiplier, consumedMacros=$consumedMacros, notes=$notes, isFavorite=$isFavorite]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -164,6 +180,16 @@ class MealLogResponseDto {
       json[r'imageUrl'] = this.imageUrl;
     } else {
       json[r'imageUrl'] = null;
+    }
+    if (this.foodSource != null) {
+      json[r'foodSource'] = this.foodSource;
+    } else {
+      json[r'foodSource'] = null;
+    }
+    if (this.foodAnalysis != null) {
+      json[r'foodAnalysis'] = this.foodAnalysis;
+    } else {
+      json[r'foodAnalysis'] = null;
     }
     if (this.mealType != null) {
       json[r'mealType'] = this.mealType;
@@ -228,6 +254,9 @@ class MealLogResponseDto {
         recipeId: mapValueOfType<String>(json, r'recipeId'),
         foodName: mapValueOfType<String>(json, r'foodName'),
         imageUrl: mapValueOfType<String>(json, r'imageUrl'),
+        foodSource:
+            MealLogResponseDtoFoodSourceEnum.fromJson(json[r'foodSource']),
+        foodAnalysis: FoodAnalysisDto.fromJson(json[r'foodAnalysis']),
         mealType: MealLogResponseDtoMealTypeEnum.fromJson(json[r'mealType']),
         loggedDate: mapDateTime(json, r'loggedDate', r''),
         loggedTime: mapValueOfType<String>(json, r'loggedTime'),
@@ -291,6 +320,103 @@ class MealLogResponseDto {
 
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{};
+}
+
+class MealLogResponseDtoFoodSourceEnum {
+  /// Instantiate a new enum with the provided [value].
+  const MealLogResponseDtoFoodSourceEnum._(this.value);
+
+  /// The underlying value of this enum member.
+  final String value;
+
+  @override
+  String toString() => value;
+
+  String toJson() => value;
+
+  static const SEARCH = MealLogResponseDtoFoodSourceEnum._(r'SEARCH');
+  static const AI_IMAGE = MealLogResponseDtoFoodSourceEnum._(r'AI_IMAGE');
+  static const BARCODE = MealLogResponseDtoFoodSourceEnum._(r'BARCODE');
+  static const NUTRITION_LABEL =
+      MealLogResponseDtoFoodSourceEnum._(r'NUTRITION_LABEL');
+  static const MANUAL = MealLogResponseDtoFoodSourceEnum._(r'MANUAL');
+  static const UNKNOWN = MealLogResponseDtoFoodSourceEnum._(r'UNKNOWN');
+
+  /// List of all possible values in this [enum][MealLogResponseDtoFoodSourceEnum].
+  static const values = <MealLogResponseDtoFoodSourceEnum>[
+    SEARCH,
+    AI_IMAGE,
+    BARCODE,
+    NUTRITION_LABEL,
+    MANUAL,
+    UNKNOWN,
+  ];
+
+  static MealLogResponseDtoFoodSourceEnum? fromJson(dynamic value) =>
+      MealLogResponseDtoFoodSourceEnumTypeTransformer().decode(value);
+
+  static List<MealLogResponseDtoFoodSourceEnum> listFromJson(
+    dynamic json, {
+    bool growable = false,
+  }) {
+    final result = <MealLogResponseDtoFoodSourceEnum>[];
+    if (json is List && json.isNotEmpty) {
+      for (final row in json) {
+        final value = MealLogResponseDtoFoodSourceEnum.fromJson(row);
+        if (value != null) {
+          result.add(value);
+        }
+      }
+    }
+    return result.toList(growable: growable);
+  }
+}
+
+/// Transformation class that can [encode] an instance of [MealLogResponseDtoFoodSourceEnum] to String,
+/// and [decode] dynamic data back to [MealLogResponseDtoFoodSourceEnum].
+class MealLogResponseDtoFoodSourceEnumTypeTransformer {
+  factory MealLogResponseDtoFoodSourceEnumTypeTransformer() =>
+      _instance ??= const MealLogResponseDtoFoodSourceEnumTypeTransformer._();
+
+  const MealLogResponseDtoFoodSourceEnumTypeTransformer._();
+
+  String encode(MealLogResponseDtoFoodSourceEnum data) => data.value;
+
+  /// Decodes a [dynamic value][data] to a MealLogResponseDtoFoodSourceEnum.
+  ///
+  /// If [allowNull] is true and the [dynamic value][data] cannot be decoded successfully,
+  /// then null is returned. However, if [allowNull] is false and the [dynamic value][data]
+  /// cannot be decoded successfully, then an [UnimplementedError] is thrown.
+  ///
+  /// The [allowNull] is very handy when an API changes and a new enum value is added or removed,
+  /// and users are still using an old app with the old code.
+  MealLogResponseDtoFoodSourceEnum? decode(dynamic data,
+      {bool allowNull = true}) {
+    if (data != null) {
+      switch (data) {
+        case r'SEARCH':
+          return MealLogResponseDtoFoodSourceEnum.SEARCH;
+        case r'AI_IMAGE':
+          return MealLogResponseDtoFoodSourceEnum.AI_IMAGE;
+        case r'BARCODE':
+          return MealLogResponseDtoFoodSourceEnum.BARCODE;
+        case r'NUTRITION_LABEL':
+          return MealLogResponseDtoFoodSourceEnum.NUTRITION_LABEL;
+        case r'MANUAL':
+          return MealLogResponseDtoFoodSourceEnum.MANUAL;
+        case r'UNKNOWN':
+          return MealLogResponseDtoFoodSourceEnum.UNKNOWN;
+        default:
+          if (!allowNull) {
+            throw ArgumentError('Unknown enum value to decode: $data');
+          }
+      }
+    }
+    return null;
+  }
+
+  /// Singleton [MealLogResponseDtoFoodSourceEnumTypeTransformer] instance.
+  static MealLogResponseDtoFoodSourceEnumTypeTransformer? _instance;
 }
 
 class MealLogResponseDtoMealTypeEnum {
