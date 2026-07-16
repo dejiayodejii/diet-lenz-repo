@@ -31,6 +31,11 @@ void main() {
       // TODO
     });
 
+    // String imageUrl
+    test('to test the property `imageUrl`', () async {
+      // TODO
+    });
+
     // String mealType
     test('to test the property `mealType`', () async {
       // TODO

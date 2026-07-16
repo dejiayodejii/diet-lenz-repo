@@ -31,6 +31,7 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _caloriesController = TextEditingController(text: '');
+  final _servingMultiplierController = TextEditingController(text: '');
   final _proteinController = TextEditingController(text: '');
   final _carbsController = TextEditingController(text: '');
   final _fatController = TextEditingController(text: '');
@@ -173,7 +174,25 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
                       textAlignVertical: TextAlignVertical.center,
                       suffixIcon: const _ManualUnitSuffix('kcal'),
                     ),
-                    const SizedBox(height: 34),
+                    const SizedBox(height: 24),
+                    LabelTextFormField(
+                      labelText: 'Portion',
+                      hintText: "e.g 1 bowl, 2oog, 2 slices",
+                      controller: _servingMultiplierController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      // inputFormatters: [_decimalFormatter],
+                      // validator: _numberValidator,
+                      useSpace: false,
+                      fillColor: const Color(0xFF262422),
+                      borderColor: const Color(0xFF9A9A9A),
+                      focusedBorderColor: AppColors.primaryColor,
+                      focusedBorderWidth: 1.5,
+                      textAlignVertical: TextAlignVertical.center,
+                      suffixIcon: const _ManualUnitSuffix('kcal'),
+                    ),
+                    const SizedBox(height: 24),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -211,13 +230,16 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 20),
+                    _buildAddIngredientCard(),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
             ),
             Padding(
-                padding: const EdgeInsets.fromLTRB(28, 12, 28, 28),
+                padding: EdgeInsets.fromLTRB(
+                    28, 12, 28, 28 + MediaQuery.of(context).padding.bottom),
                 child: CustomYafButton(
                     width: double.infinity,
                     isLoading: _isSubmitting,
@@ -226,6 +248,64 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAddIngredientCard() {
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E1E1E),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: const Color(0xFFFF6B35).withOpacity(0.5),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.add_circle_outline,
+                  color: const Color(0xFFFF6B35).withOpacity(0.7),
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  "Item",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildMacroInfo("__ kcal"),
+                _buildMacroInfo("Protein: __g"),
+                _buildMacroInfo("Carbs: __g"),
+                _buildMacroInfo("Fat: __g"),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMacroInfo(String text) {
+    return Text(
+      text,
+      style: const TextStyle(color: Colors.grey, fontSize: 12),
     );
   }
 }

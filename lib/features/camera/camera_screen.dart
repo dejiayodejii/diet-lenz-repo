@@ -4,6 +4,7 @@ import 'package:diet_lenz/core/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/core/utils/loader.dart';
+import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
 import 'package:diet_lenz/features/camera/analyse_result.dart';
 import 'package:diet_lenz/features/camera/result_sug.dart'; // Import SuggestResultScreen
 import 'package:diet_lenz/features/recipe/controller/recipe_viewmodel.dart';
@@ -19,6 +20,43 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:path_provider/path_provider.dart'; // Add path_provider
 
+/// Bakes EXIF orientation into the pixels before an image is uploaded.
+///
+/// Camera JPEGs can store portrait orientation as metadata while leaving the
+/// pixel data sideways. Normalizing here keeps backend decoders and returned
+/// base64 images from interpreting the same capture differently.
+Uint8List prepareImageForUpload(Uint8List imageBytes) {
+  var image = img.decodeImage(imageBytes);
+  if (image == null) return imageBytes;
+
+  image = img.bakeOrientation(image);
+
+  if (image.width > 2048 || image.height > 2048) {
+    image = img.copyResize(
+      image,
+      width: image.width > image.height ? 2048 : null,
+      height: image.height > image.width ? 2048 : null,
+    );
+  }
+
+  final preparedBytes = Uint8List.fromList(img.encodeJpg(image, quality: 92));
+  debugPrint(
+    'Image preparation: ${imageBytes.length} bytes -> '
+    '${preparedBytes.length} bytes (${image.width}x${image.height})',
+  );
+  return preparedBytes;
+}
+
+Offset normalizedCameraPoint(Offset localPosition, Size viewSize) {
+  if (viewSize.width <= 0 || viewSize.height <= 0) {
+    return const Offset(0.5, 0.5);
+  }
+  return Offset(
+    (localPosition.dx / viewSize.width).clamp(0.0, 1.0),
+    (localPosition.dy / viewSize.height).clamp(0.0, 1.0),
+  );
+}
+
 class AICameraScreen extends ConsumerStatefulWidget {
   final CameraDescription? camera;
   const AICameraScreen({super.key, this.camera});
@@ -28,7 +66,7 @@ class AICameraScreen extends ConsumerStatefulWidget {
 }
 
 class _AICameraScreenState extends ConsumerState<AICameraScreen>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+    with WidgetsBindingObserver {
   // --- CONFIGURATION ---
   // Set this to TRUE to use the real camera (requires physical device)
   final bool useCamera = true;
@@ -38,10 +76,11 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
   final String testImagePath = AppImages.salad; // Path to your test image
 
   CameraController? _controller;
-  late AnimationController _scannerController;
-  late Animation<double> _scannerAnimation;
   bool _isDisposed = false;
   bool _isInitializingCamera = false;
+  Offset _lastFocusPoint = const Offset(0.5, 0.5);
+  Offset? _focusIndicatorPosition;
+  int _focusRequestId = 0;
 
   // Menu Items
   final List<String> modes = [
@@ -56,8 +95,25 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
 
   bool get _isBarcodeMode => selectedModeIndex == 2;
   bool get _isLabelMode => selectedModeIndex == 3;
-  bool get _usesScannerGuide => _isBarcodeMode || _isLabelMode;
-  bool _showScannerGuideHints = true;
+
+  // Kept in memory and keyed by the active authentication token, so reopening
+  // this screen does not repeat a guide, while a new login session starts over.
+  static final Map<int, Set<int>> _dismissedGuideModesBySession = {};
+
+  int get _guideSessionKey {
+    final authResponse = ref.read(authViewModelProvider).authResponse;
+    return Object.hash(authResponse?.userId, authResponse?.accessToken);
+  }
+
+  Set<int> get _dismissedGuideModesThisSession =>
+      _dismissedGuideModesBySession.putIfAbsent(
+        _guideSessionKey,
+        () => <int>{},
+      );
+
+  bool get _shouldShowCurrentGuide =>
+      selectedModeIndex < 4 &&
+      !_dismissedGuideModesThisSession.contains(selectedModeIndex);
 
   // Selected image for preview (used in Upload mode)
   File? _selectedImageFile;
@@ -69,18 +125,6 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initializeCamera();
-    _initializeScanner();
-  }
-
-  void _initializeScanner() {
-    _scannerController = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat(reverse: true);
-
-    _scannerAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _scannerController, curve: Curves.easeInOut),
-    );
   }
 
   Future<void> _initializeCamera() async {
@@ -90,9 +134,18 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
       final cameras = await availableCameras();
       if (_isDisposed || !mounted) return;
       final camera = widget.camera ?? cameras.first;
-      final controller = CameraController(camera, ResolutionPreset.ultraHigh,
-          enableAudio: false);
+      final controller = CameraController(
+        camera,
+        ResolutionPreset.max,
+        enableAudio: false,
+        imageFormatGroup: ImageFormatGroup.jpeg,
+      );
       await controller.initialize();
+      await controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
+      await _setFocusAndExposure(
+        controller,
+        const Offset(0.5, 0.5),
+      );
       if (_isDisposed || !mounted) {
         controller.dispose();
         return;
@@ -106,13 +159,55 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
     }
   }
 
+  Future<void> _setFocusAndExposure(
+    CameraController controller,
+    Offset point,
+  ) async {
+    try {
+      await controller.setFocusMode(FocusMode.auto);
+      await controller.setFocusPoint(point);
+    } on CameraException catch (error) {
+      debugPrint('Camera focus is unavailable: ${error.code}');
+    }
+
+    try {
+      await controller.setExposureMode(ExposureMode.auto);
+      await controller.setExposurePoint(point);
+    } on CameraException catch (error) {
+      debugPrint('Camera exposure point is unavailable: ${error.code}');
+    }
+  }
+
+  Future<void> _focusBeforeCapture(CameraController controller) async {
+    await _setFocusAndExposure(controller, _lastFocusPoint);
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+  }
+
+  Future<void> _handleTapToFocus(
+    TapDownDetails details,
+    Size viewSize,
+  ) async {
+    final controller = _controller;
+    if (controller == null || !controller.value.isInitialized) return;
+
+    final requestId = ++_focusRequestId;
+    final point = normalizedCameraPoint(details.localPosition, viewSize);
+    _lastFocusPoint = point;
+    setState(() => _focusIndicatorPosition = details.localPosition);
+
+    await _setFocusAndExposure(controller, point);
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+    if (mounted && requestId == _focusRequestId) {
+      setState(() => _focusIndicatorPosition = null);
+    }
+  }
+
   @override
   void dispose() {
     _isDisposed = true;
     WidgetsBinding.instance.removeObserver(this);
     _controller?.dispose();
     _controller = null;
-    _scannerController.dispose();
     super.dispose();
   }
 
@@ -131,34 +226,6 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         _initializeCamera();
       }
     }
-  }
-
-  /// Compress image to reduce file size
-  Future<Uint8List> _compressImage(Uint8List imageBytes) async {
-    // Decode the image
-    img.Image? image = img.decodeImage(imageBytes);
-
-    if (image == null) {
-      return imageBytes; // Return original if decoding fails
-    }
-
-    // Resize if image is too large (max 1024px on longest side)
-    if (image.width > 1024 || image.height > 1024) {
-      image = img.copyResize(
-        image,
-        width: image.width > image.height ? 1024 : null,
-        height: image.height > image.width ? 1024 : null,
-      );
-    }
-
-    // Compress as JPEG with quality 85
-    final compressedBytes =
-        Uint8List.fromList(img.encodeJpg(image, quality: 85));
-
-    print(
-        '📊 Image compression: ${imageBytes.length} bytes → ${compressedBytes.length} bytes');
-
-    return compressedBytes;
   }
 
   /// Scan image for barcodes and return the first barcode value found
@@ -189,17 +256,16 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
       final cameraCtrl = _controller;
       if (cameraCtrl != null && cameraCtrl.value.isInitialized) {
         // Capture from camera
+        await _focusBeforeCapture(cameraCtrl);
         final XFile image = await cameraCtrl.takePicture();
         imagePath = image.path;
 
-        // Pause camera preview and scanner animation after capture
+        // Pause camera preview after capture.
         if (!_isDisposed && _controller == cameraCtrl) {
           try {
             await cameraCtrl.pausePreview();
           } catch (_) {}
         }
-        _scannerController.stop();
-
         // Scan for barcode
         barcode = await _scanBarcodeFromImage(imagePath);
       } else {
@@ -280,18 +346,13 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
           _selectedImageFile = file;
         });
 
-        // Pause scanner animation
-        _scannerController.stop();
-
         imageBytes = await file.readAsBytes();
 
-        // Compress the image
-        final compressedBytes = await _compressImage(imageBytes);
-        // final compressedBytes = imageBytes;
+        final preparedBytes = prepareImageForUpload(imageBytes);
 
         imageFile = http.MultipartFile.fromBytes(
           'image',
-          compressedBytes,
+          preparedBytes,
           filename: 'gallery_image.jpg',
           contentType: http_parser.MediaType('image', 'jpeg'),
         );
@@ -300,47 +361,39 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         final ByteData data = await rootBundle.load(testImagePath);
         imageBytes = data.buffer.asUint8List();
 
-        // Compress the image
-        // final compressedBytes = await _compressImage(imageBytes);
-        final compressedBytes = imageBytes;
+        final preparedBytes = prepareImageForUpload(imageBytes);
 
         imageFile = http.MultipartFile.fromBytes(
           'image',
-          compressedBytes,
+          preparedBytes,
           filename: 'test_image.jpg',
           contentType: http_parser.MediaType('image', 'jpeg'),
         );
-
-        // Pause scanner animation for test image mode
-        _scannerController.stop();
       } else if (_controller != null && _controller!.value.isInitialized) {
         // Capture from camera
         final cameraCtrl = _controller!;
+        await _focusBeforeCapture(cameraCtrl);
         final XFile image = await cameraCtrl.takePicture();
 
         setState(() {
           isLoading = true;
         });
 
-        // Pause camera preview and scanner animation after capture
+        // Pause camera preview after capture.
         if (!_isDisposed && _controller == cameraCtrl) {
           try {
             await cameraCtrl.pausePreview();
           } catch (_) {}
         }
-        _scannerController.stop();
-
         final File file = File(image.path);
         _capturedFile = file; // Store for later use
         imageBytes = await file.readAsBytes();
 
-        // Compress the image
-        // final compressedBytes = await _compressImage(imageBytes);
-        final compressedBytes = imageBytes;
+        final preparedBytes = prepareImageForUpload(imageBytes);
 
         imageFile = http.MultipartFile.fromBytes(
           'image',
-          compressedBytes,
+          preparedBytes,
           filename: 'camera_capture.jpg',
           contentType: http_parser.MediaType('image', 'jpeg'),
         );
@@ -450,7 +503,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
     }
   }
 
-  /// Resume camera preview and scanner animation
+  /// Resume the camera preview after returning from a result screen.
   Future<void> _resumeCameraAndScanner() async {
     if (_isDisposed || !mounted) return;
 
@@ -459,11 +512,6 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
       _selectedImageFile = null;
       _capturedFile = null;
     });
-
-    // Resume scanner animation
-    if (!_isDisposed) {
-      _scannerController.repeat(reverse: true);
-    }
 
     // Completely re-initialize camera to ensure preview works fresh
     final oldController = _controller;
@@ -485,10 +533,9 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(recipeViewModelProvider);
-    final showScannerMode = _usesScannerGuide && _selectedImageFile == null;
-    final showStandardScanMode = selectedModeIndex != 4 &&
-        _selectedImageFile == null &&
-        !showScannerMode;
+    final isCameraMode = selectedModeIndex < 4 && _selectedImageFile == null;
+    final showGuide = isCameraMode && _shouldShowCurrentGuide;
+    final showLiveCamera = isCameraMode && !showGuide;
 
     return BlurryModalProgressHUD(
       inAsyncCall: state.isLoading || isLoading,
@@ -503,18 +550,19 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
                   // Dimensions for the scan box
                   final size = MediaQuery.of(context).size;
                   final double scanBoxSize = size.width * 0.85;
-                  final double scanBoxTop = constraints.maxHeight * 0.2;
+                  final double scanBoxTop =
+                      (constraints.maxHeight * 0.15).clamp(88.0, 120.0);
 
                   return Stack(
                     children: [
                       // 1. CAMERA FEED OR PLACEHOLDER
                       Positioned.fill(
-                        child: showScannerMode || showStandardScanMode
-                            ? Container(color: Colors.black)
+                        child: isCameraMode
+                            ? const ColoredBox(color: Colors.black)
                             : _buildCameraView(),
                       ),
 
-                      if (showStandardScanMode)
+                      if (showLiveCamera)
                         Positioned(
                           top: scanBoxTop,
                           left: (size.width - scanBoxSize) / 2,
@@ -526,68 +574,51 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
                           ),
                         ),
 
-                      // 2. DARK OVERLAY WITH CUTOUT + CORNERS (hide in upload mode, scanner guide modes or when image selected)
-                      if (showStandardScanMode)
+                      // 2. DARK OVERLAY WITH CUTOUT + CORNERS
+                      if (showLiveCamera)
                         Positioned.fill(
-                          child: CustomPaint(
-                            painter: ScannerOverlayPainter(
-                              scanBoxRect: Rect.fromLTWH(
-                                (size.width - scanBoxSize) / 2,
-                                scanBoxTop,
-                                scanBoxSize,
-                                scanBoxSize,
+                          child: IgnorePointer(
+                            child: CustomPaint(
+                              painter: ScannerOverlayPainter(
+                                scanBoxRect: Rect.fromLTWH(
+                                  (size.width - scanBoxSize) / 2,
+                                  scanBoxTop,
+                                  scanBoxSize,
+                                  scanBoxSize,
+                                ),
+                                bottomCornerColor: selectedModeIndex == 1
+                                    ? const Color(0xFF19A7FF)
+                                    : null,
                               ),
+                              child: Container(),
                             ),
-                            child: Container(),
                           ),
                         ),
 
-                      // 3. SCANNING LINE ANIMATION (hide in upload mode, scanner guide modes or when image selected)
-                      if (showStandardScanMode)
+                      if (showGuide)
                         Positioned(
                           top: scanBoxTop,
                           left: (size.width - scanBoxSize) / 2,
                           width: scanBoxSize,
-                          height: scanBoxSize,
-                          child: AnimatedBuilder(
-                            animation: _scannerAnimation,
-                            builder: (context, child) {
-                              return Stack(
-                                children: [
-                                  Positioned(
-                                    top: _scannerAnimation.value *
-                                        (scanBoxSize - 2),
-                                    left: 0,
-                                    right: 0,
-                                    child: Container(
-                                      height: 2,
-                                      decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Colors.white.withOpacity(0),
-                                              Colors.white,
-                                              Colors.white.withOpacity(0),
-                                            ],
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.white.withOpacity(0.5),
-                                              blurRadius: 10,
-                                              spreadRadius: 2,
-                                            )
-                                          ]),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
+                          child: _buildAssetGuide(scanBoxSize),
                         ),
 
-                      if (showScannerMode)
-                        Positioned.fill(
-                          child: _buildScannerGuide(context),
+                      if (showLiveCamera)
+                        Positioned(
+                          top: scanBoxTop + scanBoxSize + 24,
+                          left: 32,
+                          right: 32,
+                          child: const IgnorePointer(
+                            child: Text(
+                              'Tap inside the frame to focus',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white60,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
                         ),
 
                       // 4. TOP BAR
@@ -674,163 +705,88 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
     );
   }
 
-  Widget _buildScannerGuide(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final contentHeight = constraints.maxHeight;
-        final topOffset =
-            _isBarcodeMode ? contentHeight * 0.34 : contentHeight * 0.23;
-
-        return Stack(
-          alignment: Alignment.topCenter,
-          children: [
-            Positioned(
-              top: topOffset,
-              left: 0,
-              right: 0,
-              child: _isBarcodeMode
-                  ? _buildBarcodeGuide(context)
-                  : _buildLabelGuide(context),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildBarcodeGuide(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
-    final frameWidth = width * 0.78;
-    final frameHeight = frameWidth * 0.52;
-
+  Widget _buildAssetGuide(double frameSize) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            SizedBox(
-              width: frameWidth,
-              height: frameHeight,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(32),
-                child: _buildCameraView(),
-              ),
-            ),
-            if (_showScannerGuideHints)
+        SizedBox(
+          width: frameSize,
+          height: frameSize,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
               Positioned.fill(
-                child: IgnorePointer(
-                  child: CustomPaint(
-                    painter: BarcodeGuidePainter(showBarcodeSample: true),
-                  ),
-                ),
-              )
-            else
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: CustomPaint(
-                    painter: BarcodeGuidePainter(showBarcodeSample: false),
-                  ),
+                child: Image.asset(
+                  _currentGuideAsset,
+                  fit: BoxFit.contain,
                 ),
               ),
-            _buildDismissGuideButton(),
-          ],
-        ),
-        if (_showScannerGuideHints) ...[
-          const SizedBox(height: 34),
-          const Text(
-            'Align the barcode within the frame',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 0,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildLabelGuide(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(36),
-              child: SizedBox(
-                width: width * 0.48,
-                height: width * 0.78,
-                child: _buildCameraView(),
-              ),
-            ),
-            if (_showScannerGuideHints)
-              Positioned.fill(
-                child: Center(
-                  child: IgnorePointer(
-                    child: CustomPaint(
-                      size: Size(width * 0.36, width * 0.5),
-                      painter: NutritionLabelPainter(),
+              Positioned(
+                top: -12,
+                right: -12,
+                child: Semantics(
+                  button: true,
+                  label: 'Dismiss camera guide',
+                  child: GestureDetector(
+                    onTap: _dismissCurrentGuide,
+                    child: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.82),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white38),
+                      ),
+                      child: const Icon(
+                        Icons.close_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
                     ),
                   ),
                 ),
               ),
-            _buildDismissGuideButton(),
-          ],
-        ),
-        if (_showScannerGuideHints) ...[
-          const SizedBox(height: 48),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 42),
-            child: Text(
-              'Get nutrition details from any label to\ntrack your intake accurately',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                height: 1.35,
-                fontWeight: FontWeight.w400,
-                letterSpacing: 0,
-              ),
-            ),
+            ],
           ),
-        ],
+        ),
+        const SizedBox(height: 24),
+        Text(
+          _currentGuideDescription,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+            height: 1.35,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildDismissGuideButton() {
-    if (!_showScannerGuideHints) return const SizedBox.shrink();
+  String get _currentGuideAsset => switch (selectedModeIndex) {
+        0 => AppImages.foodScanGuide,
+        1 => AppImages.recipeGuide,
+        2 => AppImages.barcodeGuide,
+        3 => AppImages.labelGuide,
+        _ => AppImages.foodScanGuide,
+      };
 
-    return Positioned(
-      top: -12,
-      right: -12,
-      child: GestureDetector(
-        onTap: () => setState(() => _showScannerGuideHints = false),
-        child: Container(
-          width: 34,
-          height: 34,
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.72),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.22),
-            ),
-          ),
-          child: const Icon(
-            Icons.close_rounded,
-            color: Colors.white,
-            size: 20,
-          ),
-        ),
-      ),
-    );
+  String get _currentGuideDescription => switch (selectedModeIndex) {
+        0 => 'Point your camera at any meal to instantly get calories and '
+            'macros - no searching required.',
+        1 => 'Scan the ingredients you have on hand to get recipe ideas with '
+            'full nutrition included.',
+        2 => 'Align the barcode within the frame.',
+        3 => 'Get nutrition details from any label to track your intake '
+            'accurately.',
+        _ => '',
+      };
+
+  void _dismissCurrentGuide() {
+    setState(() {
+      _dismissedGuideModesThisSession.add(selectedModeIndex);
+    });
   }
 
   Widget _buildCameraView() {
@@ -849,13 +805,67 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
 
     // Show camera preview
     if (useCamera && _controller != null && _controller!.value.isInitialized) {
-      return FittedBox(
-        fit: BoxFit.cover,
-        child: SizedBox(
-          width: _controller!.value.previewSize!.height,
-          height: _controller!.value.previewSize!.width,
-          child: CameraPreview(_controller!),
-        ),
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final viewSize = Size(constraints.maxWidth, constraints.maxHeight);
+          final focusPosition = _focusIndicatorPosition;
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTapDown: (details) => _handleTapToFocus(details, viewSize),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      width: _controller!.value.previewSize!.height,
+                      height: _controller!.value.previewSize!.width,
+                      child: CameraPreview(_controller!),
+                    ),
+                  ),
+                ),
+                if (focusPosition != null)
+                  Positioned(
+                    left: focusPosition.dx - 32,
+                    top: focusPosition.dy - 32,
+                    child: IgnorePointer(
+                      child: Semantics(
+                        label: 'Camera focus point',
+                        child: Container(
+                          width: 64,
+                          height: 64,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            border: Border.all(
+                              color: AppColors.primary,
+                              width: 3,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black54,
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
       );
     } else {
       // Placeholder if camera is off or not ready
@@ -924,7 +934,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
 
   Widget _buildBottomControls() {
     return Container(
-      padding: const EdgeInsets.only(bottom: 40, top: 20),
+      padding: const EdgeInsets.only(bottom: 20, top: 20),
       decoration: const BoxDecoration(
         color: Color.fromRGBO(18, 18, 18, 1),
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -958,12 +968,12 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
               ),
             ),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
 
           // MODE SELECTOR
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 20),
-            height: 74,
+            height: 64,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(70),
@@ -982,7 +992,6 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
                     return GestureDetector(
                       onTap: () => setState(() {
                         selectedModeIndex = index;
-                        _showScannerGuideHints = true;
                       }),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -1020,10 +1029,14 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
 
 class ScannerOverlayPainter extends CustomPainter {
   final Rect scanBoxRect;
+  final Color? bottomCornerColor;
   final double cornerLength = 30.0;
   final double cornerWidth = 5.0;
 
-  ScannerOverlayPainter({required this.scanBoxRect});
+  ScannerOverlayPainter({
+    required this.scanBoxRect,
+    this.bottomCornerColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1051,6 +1064,11 @@ class ScannerOverlayPainter extends CustomPainter {
     // 2. Draw the White Corners
     final Paint cornerPaint = Paint()
       ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = cornerWidth
+      ..strokeCap = StrokeCap.round;
+    final bottomCornerPaint = Paint()
+      ..color = bottomCornerColor ?? Colors.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = cornerWidth
       ..strokeCap = StrokeCap.round;
@@ -1082,7 +1100,7 @@ class ScannerOverlayPainter extends CustomPainter {
     br.arcToPoint(Offset(scanBoxRect.right - r, scanBoxRect.bottom),
         radius: Radius.circular(r));
     br.lineTo(scanBoxRect.right - cornerLength, scanBoxRect.bottom);
-    canvas.drawPath(br, cornerPaint);
+    canvas.drawPath(br, bottomCornerPaint);
 
     // Bottom Left
     final Path bl = Path();
@@ -1091,7 +1109,37 @@ class ScannerOverlayPainter extends CustomPainter {
     bl.arcToPoint(Offset(scanBoxRect.left, scanBoxRect.bottom - r),
         radius: Radius.circular(r));
     bl.lineTo(scanBoxRect.left, scanBoxRect.bottom - cornerLength);
-    canvas.drawPath(bl, cornerPaint);
+    canvas.drawPath(bl, bottomCornerPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant ScannerOverlayPainter oldDelegate) {
+    return oldDelegate.scanBoxRect != scanBoxRect ||
+        oldDelegate.bottomCornerColor != bottomCornerColor;
+  }
+}
+
+class RecipeGuideOutlinePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF19A7FF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+    final outline = Path()
+      ..moveTo(1.5, size.height / 2)
+      ..lineTo(1.5, size.height - 20)
+      ..quadraticBezierTo(1.5, size.height - 1.5, 20, size.height - 1.5)
+      ..lineTo(size.width - 20, size.height - 1.5)
+      ..quadraticBezierTo(
+        size.width - 1.5,
+        size.height - 1.5,
+        size.width - 1.5,
+        size.height - 20,
+      )
+      ..lineTo(size.width - 1.5, size.height / 2);
+    canvas.drawPath(outline, paint);
   }
 
   @override
@@ -1132,8 +1180,8 @@ class BarcodeGuidePainter extends CustomPainter {
 
   void _drawBarcode(Canvas canvas, Size size) {
     final paint = Paint()..color = Colors.black;
-    final barcodeHeight = size.height * 0.43;
-    final top = size.height * 0.285;
+    final barcodeHeight = size.height * 0.25;
+    final top = size.height * 0.375;
     final left = size.width * 0.22;
     final widths = <double>[5, 3, 6, 2, 8, 4, 5, 2, 7, 3, 4, 6, 3, 8, 5];
     var x = left;

@@ -102,6 +102,159 @@ class UserControllerApi {
     }
   }
 
+  /// Performs an HTTP 'GET /api/v1/users/progress/calorie-tracker' operation and returns the [Response].
+  /// Parameters:
+  ///
+  /// * [String] filter:
+  Future<Response> getCalorieTrackerWithHttpInfo({ String? filter, }) async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/users/progress/calorie-tracker';
+
+    // ignore: prefer_final_locals
+    Object? postBody;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    if (filter != null) {
+      queryParams.addAll(_queryParams('', 'filter', filter));
+    }
+
+    const contentTypes = <String>[];
+
+
+    return apiClient.invokeAPI(
+      path,
+      'GET',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Parameters:
+  ///
+  /// * [String] filter:
+  Future<CalorieTrackerResponse?> getCalorieTracker({ String? filter, }) async {
+    final response = await getCalorieTrackerWithHttpInfo( filter: filter, );
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+    // When a remote server returns no body with a status of 204, we shall not decode it.
+    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
+    // FormatException when trying to decode an empty string.
+    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'CalorieTrackerResponse',) as CalorieTrackerResponse;
+    
+    }
+    return null;
+  }
+
+  /// Performs an HTTP 'GET /api/v1/users/progress/energy-balance' operation and returns the [Response].
+  /// Parameters:
+  ///
+  /// * [String] filter:
+  Future<Response> getEnergyBalanceWithHttpInfo({ String? filter, }) async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/users/progress/energy-balance';
+
+    // ignore: prefer_final_locals
+    Object? postBody;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    if (filter != null) {
+      queryParams.addAll(_queryParams('', 'filter', filter));
+    }
+
+    const contentTypes = <String>[];
+
+
+    return apiClient.invokeAPI(
+      path,
+      'GET',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Parameters:
+  ///
+  /// * [String] filter:
+  Future<EnergyBalanceResponse?> getEnergyBalance({ String? filter, }) async {
+    final response = await getEnergyBalanceWithHttpInfo( filter: filter, );
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+    // When a remote server returns no body with a status of 204, we shall not decode it.
+    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
+    // FormatException when trying to decode an empty string.
+    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'EnergyBalanceResponse',) as EnergyBalanceResponse;
+    
+    }
+    return null;
+  }
+
+  /// Performs an HTTP 'GET /api/v1/users/progress/macro-composition' operation and returns the [Response].
+  /// Parameters:
+  ///
+  /// * [String] filter:
+  Future<Response> getMacroCompositionWithHttpInfo({ String? filter, }) async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/users/progress/macro-composition';
+
+    // ignore: prefer_final_locals
+    Object? postBody;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    if (filter != null) {
+      queryParams.addAll(_queryParams('', 'filter', filter));
+    }
+
+    const contentTypes = <String>[];
+
+
+    return apiClient.invokeAPI(
+      path,
+      'GET',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Parameters:
+  ///
+  /// * [String] filter:
+  Future<MacroCompositionResponse?> getMacroComposition({ String? filter, }) async {
+    final response = await getMacroCompositionWithHttpInfo( filter: filter, );
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+    // When a remote server returns no body with a status of 204, we shall not decode it.
+    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
+    // FormatException when trying to decode an empty string.
+    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'MacroCompositionResponse',) as MacroCompositionResponse;
+    
+    }
+    return null;
+  }
+
   /// Performs an HTTP 'GET /api/v1/users/notifications/all' operation and returns the [Response].
   /// Parameters:
   ///
@@ -136,7 +289,7 @@ class UserControllerApi {
   /// Parameters:
   ///
   /// * [int] pageNumber (required):
-  Future<PageUserNotification?> getUserNotifications(int pageNumber,) async {
+  Future<PagedModelUserNotification?> getUserNotifications(int pageNumber,) async {
     final response = await getUserNotificationsWithHttpInfo(pageNumber,);
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
@@ -145,7 +298,7 @@ class UserControllerApi {
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
     if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'PageUserNotification',) as PageUserNotification;
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'PagedModelUserNotification',) as PagedModelUserNotification;
     
     }
     return null;
@@ -192,6 +345,104 @@ class UserControllerApi {
     return null;
   }
 
+  /// Performs an HTTP 'GET /api/v1/users/weight/progress' operation and returns the [Response].
+  /// Parameters:
+  ///
+  /// * [String] filter:
+  Future<Response> getWeightProgressWithHttpInfo({ String? filter, }) async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/users/weight/progress';
+
+    // ignore: prefer_final_locals
+    Object? postBody;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    if (filter != null) {
+      queryParams.addAll(_queryParams('', 'filter', filter));
+    }
+
+    const contentTypes = <String>[];
+
+
+    return apiClient.invokeAPI(
+      path,
+      'GET',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Parameters:
+  ///
+  /// * [String] filter:
+  Future<WeightProgressResponse?> getWeightProgress({ String? filter, }) async {
+    final response = await getWeightProgressWithHttpInfo( filter: filter, );
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+    // When a remote server returns no body with a status of 204, we shall not decode it.
+    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
+    // FormatException when trying to decode an empty string.
+    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'WeightProgressResponse',) as WeightProgressResponse;
+    
+    }
+    return null;
+  }
+
+  /// Performs an HTTP 'POST /api/v1/users/weight' operation and returns the [Response].
+  /// Parameters:
+  ///
+  /// * [WeightLogRequest] weightLogRequest (required):
+  Future<Response> logWeightWithHttpInfo(WeightLogRequest weightLogRequest,) async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/users/weight';
+
+    // ignore: prefer_final_locals
+    Object? postBody = weightLogRequest;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    const contentTypes = <String>['application/json'];
+
+
+    return apiClient.invokeAPI(
+      path,
+      'POST',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Parameters:
+  ///
+  /// * [WeightLogRequest] weightLogRequest (required):
+  Future<WeightEntry?> logWeight(WeightLogRequest weightLogRequest,) async {
+    final response = await logWeightWithHttpInfo(weightLogRequest,);
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+    // When a remote server returns no body with a status of 204, we shall not decode it.
+    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
+    // FormatException when trying to decode an empty string.
+    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'WeightEntry',) as WeightEntry;
+    
+    }
+    return null;
+  }
+
   /// Performs an HTTP 'PUT /api/v1/users/notifications/all' operation and returns the [Response].
   /// Parameters:
   ///
@@ -231,6 +482,53 @@ class UserControllerApi {
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
+  }
+
+  /// Performs an HTTP 'POST /api/v1/users/onboarding-survey' operation and returns the [Response].
+  /// Parameters:
+  ///
+  /// * [OnboardingSurveyRequest] onboardingSurveyRequest (required):
+  Future<Response> submitOnboardingSurveyWithHttpInfo(OnboardingSurveyRequest onboardingSurveyRequest,) async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/users/onboarding-survey';
+
+    // ignore: prefer_final_locals
+    Object? postBody = onboardingSurveyRequest;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    const contentTypes = <String>['application/json'];
+
+
+    return apiClient.invokeAPI(
+      path,
+      'POST',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Parameters:
+  ///
+  /// * [OnboardingSurveyRequest] onboardingSurveyRequest (required):
+  Future<OnboardingSurveyResponse?> submitOnboardingSurvey(OnboardingSurveyRequest onboardingSurveyRequest,) async {
+    final response = await submitOnboardingSurveyWithHttpInfo(onboardingSurveyRequest,);
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+    // When a remote server returns no body with a status of 204, we shall not decode it.
+    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
+    // FormatException when trying to decode an empty string.
+    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'OnboardingSurveyResponse',) as OnboardingSurveyResponse;
+    
+    }
+    return null;
   }
 
   /// Performs an HTTP 'PUT /api/v1/users/profile' operation and returns the [Response].

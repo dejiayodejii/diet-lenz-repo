@@ -1,8 +1,10 @@
 import 'dart:math' as math;
 
+import 'package:openapi/api.dart';
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
+import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
 import 'package:diet_lenz/features/auth/view/personization/biggest_challenge.dart';
@@ -19,9 +21,36 @@ class RealisticTargetScreen extends ConsumerStatefulWidget {
 }
 
 class _RealisticTargetScreenState extends ConsumerState<RealisticTargetScreen> {
+  late Future<_WeightProjection> _projectionFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _projectionFuture = _loadProjection();
+  }
+
+  Future<_WeightProjection> _loadProjection() async {
+    final profile = ref.read(onboardingProfileProvider);
+    try {
+      final request = _projectionRequest(profile);
+      final response = await ref
+          .read(apiServiceProvider)
+          .onboardingCalculatorApi
+          .calculateProjection(request);
+
+      if (response == null) {
+        throw StateError('Projection response was empty');
+      }
+
+      return _WeightProjection.fromResponse(response);
+    } catch (_) {
+      return _projectionFrom(profile);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final projection = _projectionFrom(ref.watch(onboardingProfileProvider));
+    ref.watch(onboardingProfileProvider);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
@@ -30,45 +59,61 @@ class _RealisticTargetScreenState extends ConsumerState<RealisticTargetScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 28),
-        child: Column(
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  const Spacer(flex: 2),
-                  _PredictionHeader(projection: projection),
-                  const SizedBox(height: 72),
-                  SizedBox(
-                    height: 360,
-                    width: double.infinity,
-                    child: _ProjectionChart(projection: projection),
+        child: FutureBuilder<_WeightProjection>(
+          future: _projectionFuture,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.primaryColor,
+                ),
+              );
+            }
+
+            final projection = snapshot.data!;
+
+            return Column(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      const Spacer(flex: 2),
+                      _PredictionHeader(projection: projection),
+                      const SizedBox(height: 72),
+                      SizedBox(
+                        height: 360,
+                        width: double.infinity,
+                        child: _ProjectionChart(projection: projection),
+                      ),
+                      const Spacer(flex: 2),
+                      Text(
+                        'By ${projection.midpointMonth}, you will be '
+                        '${projection.formatWeight(projection.midpointWeightKg)}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: AppColors.textGrey,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0,
+                        ),
+                      ),
+                      const Spacer(flex: 3),
+                    ],
                   ),
-                  const Spacer(flex: 2),
-                  Text(
-                    'By ${projection.midpointMonth}, you will be '
-                    '${projection.midpointWeightKg.round()}kg',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: AppColors.textGrey,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0,
-                    ),
-                  ),
-                  const Spacer(flex: 3),
-                ],
-              ),
-            ),
-            const SizedBox(height: 25),
-            CustomYafButton(
-                iconPositionLeft: false,
-                text: "Continue",
-                iconWidget: SvgPicture.asset(AppImages.arrowRight),
-                onPressed: () {
-                  NavigationService.push(child: const BiggestChallengeScreen());
-                }),
-            SizedBox(height: 15 + MediaQuery.of(context).padding.bottom),
-          ],
+                ),
+                const SizedBox(height: 25),
+                CustomYafButton(
+                    iconPositionLeft: false,
+                    text: "Continue",
+                    iconWidget: SvgPicture.asset(AppImages.arrowRight),
+                    onPressed: () {
+                      NavigationService.push(
+                          child: const BiggestChallengeScreen());
+                    }),
+                SizedBox(height: 15 + MediaQuery.of(context).padding.bottom),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -83,6 +128,11 @@ class _PredictionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final action = projection.changeKg > 0 ? 'Losing' : 'Gaining';
+    final description = projection.headline.isNotEmpty
+        ? projection.headline
+        : 'We predict that by ${projection.targetDateLabel}\n'
+            'You will reach your goal of\n'
+            '${projection.formatWeight(projection.targetWeightKg)}.';
 
     return Column(
       children: [
@@ -99,7 +149,7 @@ class _PredictionHeader extends StatelessWidget {
             children: [
               TextSpan(text: '$action '),
               TextSpan(
-                text: '${projection.changeKg.abs().round()}kg',
+                text: projection.formatWeight(projection.changeKg.abs()),
                 style: const TextStyle(color: AppColors.primaryColor),
               ),
               const TextSpan(text: ' is a\nrealistic target'),
@@ -108,9 +158,7 @@ class _PredictionHeader extends StatelessWidget {
         ),
         const SizedBox(height: 22),
         Text(
-          'We predict that by ${projection.targetDateLabel}\n'
-          'You will reach your goal of\n'
-          '${projection.targetWeightKg.round()}kg.',
+          description,
           textAlign: TextAlign.center,
           style: const TextStyle(
             color: AppColors.textGrey,
@@ -205,7 +253,7 @@ class _ProjectionChartPainter extends CustomPainter {
       canvas,
       position: Offset(
           xFor(projection.midpointProgress), yFor(projection.midpointWeightKg)),
-      label: '${projection.midpointWeightKg.round()}kg',
+      label: projection.formatWeight(projection.midpointWeightKg),
       labelColor: const Color.fromRGBO(18, 28, 55, 1),
       bubbleColor: AppColors.white,
       lineBottom: chartBottom,
@@ -213,7 +261,7 @@ class _ProjectionChartPainter extends CustomPainter {
     _drawMarker(
       canvas,
       position: Offset(xFor(1), yFor(projection.targetWeightKg)),
-      label: '${projection.targetWeightKg.round()}kg',
+      label: projection.formatWeight(projection.targetWeightKg),
       labelColor: AppColors.white,
       bubbleColor: AppColors.primaryColor,
       lineBottom: chartBottom,
@@ -224,29 +272,10 @@ class _ProjectionChartPainter extends CustomPainter {
     double Function(double progress) xFor,
     double Function(double weight) yFor,
   ) {
-    final start = projection.currentWeightKg;
-    final end = projection.targetWeightKg;
-    final loss = start > end;
-    final delta = end - start;
-    final weights = <double>[
-      start,
-      start + delta * 0.04,
-      start + delta * 0.18,
-      start + delta * 0.38,
-      start + delta * 0.54,
-      start + delta * 0.70,
-      start + delta * 0.86,
-      end,
-    ];
-
-    for (var i = 1; i < weights.length - 1; i++) {
-      final wave = math.sin(i * math.pi / 2) * 0.65;
-      weights[i] += loss ? wave : -wave;
-    }
-
-    return List.generate(weights.length, (index) {
-      final progress = index / (weights.length - 1);
-      return Offset(xFor(progress), yFor(weights[index]));
+    final points = projection.points;
+    return List.generate(points.length, (index) {
+      final progress = points.length == 1 ? 0.0 : index / (points.length - 1);
+      return Offset(xFor(progress), yFor(points[index].weightKg));
     });
   }
 
@@ -389,7 +418,36 @@ class _WeightProjection {
     required this.midpointDate,
     required this.midpointWeightKg,
     required this.monthLabels,
+    required this.points,
+    required this.headline,
+    required this.unitLabel,
   });
+
+  factory _WeightProjection.fromResponse(ProjectionResponse response) {
+    final points = response.points.map(_ProjectionPoint.fromResponse).toList();
+    final currentWeight = response.currentWeight?.toDouble() ?? 0;
+    final targetWeight = response.targetWeight?.toDouble() ?? currentWeight;
+    final targetDate = response.projectedGoalDate ?? DateTime.now();
+    final safePoints = points.isEmpty
+        ? [
+            _ProjectionPoint(date: DateTime.now(), weightKg: currentWeight),
+            _ProjectionPoint(date: targetDate, weightKg: targetWeight),
+          ]
+        : points;
+    final midpointPoint = safePoints[safePoints.length ~/ 2];
+
+    return _WeightProjection(
+      currentWeightKg: currentWeight,
+      targetWeightKg: targetWeight,
+      targetDate: targetDate,
+      midpointDate: midpointPoint.date,
+      midpointWeightKg: midpointPoint.weightKg,
+      monthLabels: _monthLabelsFromPoints(safePoints),
+      points: safePoints,
+      headline: response.headline ?? '',
+      unitLabel: _unitLabel(response.unit),
+    );
+  }
 
   final double currentWeightKg;
   final double targetWeightKg;
@@ -397,14 +455,26 @@ class _WeightProjection {
   final DateTime midpointDate;
   final double midpointWeightKg;
   final List<String> monthLabels;
+  final List<_ProjectionPoint> points;
+  final String headline;
+  final String unitLabel;
 
   double get changeKg => currentWeightKg - targetWeightKg;
-  double get chartMinKg =>
-      ((math.min(currentWeightKg, targetWeightKg) - 10) / 10).floorToDouble() *
-      10;
-  double get chartMaxKg =>
-      ((math.max(currentWeightKg, targetWeightKg) + 10) / 10).ceilToDouble() *
-      10;
+  double get chartMinKg => ((_minPointWeight - 10) / 10).floorToDouble() * 10;
+  double get chartMaxKg => ((_maxPointWeight + 10) / 10).ceilToDouble() * 10;
+
+  double get _minPointWeight {
+    return points
+        .map((point) => point.weightKg)
+        .fold(math.min(currentWeightKg, targetWeightKg), math.min);
+  }
+
+  double get _maxPointWeight {
+    return points
+        .map((point) => point.weightKg)
+        .fold(math.max(currentWeightKg, targetWeightKg), math.max);
+  }
+
   double get midpointProgress {
     final totalDays = targetDate.difference(DateTime.now()).inDays;
     final midpointDays = midpointDate.difference(DateTime.now()).inDays;
@@ -415,6 +485,187 @@ class _WeightProjection {
   String get targetDateLabel =>
       '${_monthName(targetDate.month)} ${targetDate.day}';
   String get midpointMonth => _monthName(midpointDate.month);
+
+  String formatWeight(double value) => '${value.round()}$unitLabel';
+}
+
+class _ProjectionPoint {
+  const _ProjectionPoint({
+    required this.date,
+    required this.weightKg,
+  });
+
+  final DateTime date;
+  final double weightKg;
+
+  factory _ProjectionPoint.fromResponse(ProjectionPoint point) {
+    return _ProjectionPoint(
+      date: point.date ?? DateTime.now(),
+      weightKg: point.weight?.toDouble() ?? 0,
+    );
+  }
+}
+
+MacroPreviewRequest _projectionRequest(OnboardingProfileData profile) {
+  final missingField = _firstMissingProjectionField(profile);
+  if (missingField != null) {
+    throw StateError('Missing $missingField');
+  }
+
+  final targetEvent = _targetEvent(profile.targetEvent);
+  return MacroPreviewRequest(
+    gender: _gender(profile.gender!),
+    dateOfBirth: profile.dateOfBirth!,
+    height: profile.height!,
+    heightUnit: _heightUnit(profile.heightUnit!),
+    currentWeight: profile.weight!.round(),
+    currentWeightUnit: _currentWeightUnit(profile.weightUnit!),
+    activityLevel: _activityLevel(profile.activityLevel!),
+    desiredGoal: _desiredGoal(profile.goal!),
+    desiredWeight: profile.desiredWeight!.round(),
+    desiredWeightUnit: _desiredWeightUnit(profile.desiredWeightUnit!),
+    goalPace: _goalPace(profile.goalPace!),
+    macroTarget: _macroTarget(profile.macroTarget),
+    targetEvent: targetEvent,
+    targetEventDate: targetEvent != null &&
+            targetEvent != MacroPreviewRequestTargetEventEnum.NONE
+        ? profile.targetEventDate
+        : null,
+  );
+}
+
+String? _firstMissingProjectionField(OnboardingProfileData data) {
+  final requiredFields = <String, Object?>{
+    'gender': data.gender,
+    'date of birth': data.dateOfBirth,
+    'height': data.height,
+    'height unit': data.heightUnit,
+    'current weight': data.weight,
+    'current weight unit': data.weightUnit,
+    'activity level': data.activityLevel,
+    'goal': data.goal,
+    'target weight': data.desiredWeight,
+    'target weight unit': data.desiredWeightUnit,
+    'goal pace': data.goalPace,
+  };
+
+  for (final entry in requiredFields.entries) {
+    final value = entry.value;
+    if (value == null || (value is String && value.trim().isEmpty)) {
+      return entry.key;
+    }
+  }
+  return null;
+}
+
+MacroPreviewRequestGenderEnum _gender(String value) {
+  switch (_normalized(value)) {
+    case 'MALE':
+      return MacroPreviewRequestGenderEnum.MALE;
+    case 'FEMALE':
+      return MacroPreviewRequestGenderEnum.FEMALE;
+    default:
+      return MacroPreviewRequestGenderEnum.OTHER;
+  }
+}
+
+MacroPreviewRequestHeightUnitEnum _heightUnit(String value) {
+  return _normalized(value) == 'CM'
+      ? MacroPreviewRequestHeightUnitEnum.CM
+      : MacroPreviewRequestHeightUnitEnum.FT;
+}
+
+MacroPreviewRequestCurrentWeightUnitEnum _currentWeightUnit(String value) {
+  return _normalized(value) == 'KG'
+      ? MacroPreviewRequestCurrentWeightUnitEnum.KG
+      : MacroPreviewRequestCurrentWeightUnitEnum.POUNDS;
+}
+
+MacroPreviewRequestDesiredWeightUnitEnum _desiredWeightUnit(String value) {
+  return _normalized(value) == 'KG'
+      ? MacroPreviewRequestDesiredWeightUnitEnum.KG
+      : MacroPreviewRequestDesiredWeightUnitEnum.POUNDS;
+}
+
+MacroPreviewRequestActivityLevelEnum _activityLevel(String value) {
+  switch (_normalized(value)) {
+    case 'LIGHTLY_ACTIVE':
+      return MacroPreviewRequestActivityLevelEnum.LIGHTLY_ACTIVE;
+    case 'MODERATELY_ACTIVE':
+      return MacroPreviewRequestActivityLevelEnum.MODERATELY_ACTIVE;
+    case 'VERY_ACTIVE':
+      return MacroPreviewRequestActivityLevelEnum.VERY_ACTIVE;
+    case 'EXTRA_ACTIVE':
+      return MacroPreviewRequestActivityLevelEnum.EXTRA_ACTIVE;
+    default:
+      return MacroPreviewRequestActivityLevelEnum.SEDENTARY;
+  }
+}
+
+MacroPreviewRequestDesiredGoalEnum _desiredGoal(String value) {
+  final normalized = _normalized(value);
+  if (normalized.contains('LOSE')) {
+    return MacroPreviewRequestDesiredGoalEnum.LOSE_WEIGHT;
+  }
+  if (normalized.contains('GAIN')) {
+    return MacroPreviewRequestDesiredGoalEnum.GAIN_WEIGHT;
+  }
+  if (normalized.contains('MAINTAIN')) {
+    return MacroPreviewRequestDesiredGoalEnum.MAINTAIN_WEIGHT;
+  }
+  return MacroPreviewRequestDesiredGoalEnum.NOTHING;
+}
+
+MacroPreviewRequestGoalPaceEnum _goalPace(String value) {
+  switch (_normalized(value)) {
+    case 'SLOW':
+      return MacroPreviewRequestGoalPaceEnum.SLOW;
+    case 'FAST':
+      return MacroPreviewRequestGoalPaceEnum.FAST;
+    default:
+      return MacroPreviewRequestGoalPaceEnum.OPTIMAL;
+  }
+}
+
+MacroPreviewRequestMacroTargetEnum _macroTarget(String? value) {
+  switch (_normalized(value)) {
+    case 'HIGH_PROTEIN':
+      return MacroPreviewRequestMacroTargetEnum.HIGH_PROTEIN;
+    case 'LOW_CARB':
+      return MacroPreviewRequestMacroTargetEnum.LOW_CARB;
+    case 'LOW_FAT':
+      return MacroPreviewRequestMacroTargetEnum.LOW_FAT;
+    case 'HIGH_FIBER':
+      return MacroPreviewRequestMacroTargetEnum.HIGH_FIBER;
+    default:
+      return MacroPreviewRequestMacroTargetEnum.BALANCED;
+  }
+}
+
+MacroPreviewRequestTargetEventEnum? _targetEvent(String? value) {
+  switch (_normalized(value)) {
+    case 'VACATION':
+      return MacroPreviewRequestTargetEventEnum.VACATION;
+    case 'WEDDING':
+      return MacroPreviewRequestTargetEventEnum.WEDDING;
+    case 'BIRTHDAY':
+      return MacroPreviewRequestTargetEventEnum.BIRTHDAY;
+    case 'PERSONAL_MILESTONE':
+      return MacroPreviewRequestTargetEventEnum.PERSONAL_MILESTONE;
+    case 'NONE':
+      return MacroPreviewRequestTargetEventEnum.NONE;
+    default:
+      return null;
+  }
+}
+
+String _normalized(String? value) {
+  return (value ?? '')
+      .trim()
+      .toUpperCase()
+      .replaceAll(RegExp(r'[^A-Z0-9]+'), '_')
+      .replaceAll(RegExp(r'_+'), '_')
+      .replaceAll(RegExp(r'^_|_$'), '');
 }
 
 _WeightProjection _projectionFrom(OnboardingProfileData profile) {
@@ -428,6 +679,13 @@ _WeightProjection _projectionFrom(OnboardingProfileData profile) {
   final midpointDate = now.add(Duration(days: (weeks * 7 / 2).round()));
   final midpointWeightKg =
       currentWeightKg + (targetWeightKg - currentWeightKg) / 2;
+  final points = List.generate(8, (index) {
+    final progress = index / 7;
+    final date = now.add(Duration(days: (weeks * 7 * progress).round()));
+    final weight =
+        currentWeightKg + ((targetWeightKg - currentWeightKg) * progress);
+    return _ProjectionPoint(date: date, weightKg: weight);
+  });
 
   return _WeightProjection(
     currentWeightKg: currentWeightKg,
@@ -436,7 +694,28 @@ _WeightProjection _projectionFrom(OnboardingProfileData profile) {
     midpointDate: midpointDate,
     midpointWeightKg: midpointWeightKg,
     monthLabels: _monthLabels(now, targetDate),
+    points: points,
+    headline: '',
+    unitLabel: 'kg',
   );
+}
+
+String _unitLabel(String? value) {
+  return _normalized(value) == 'POUNDS' ? 'lbs' : 'kg';
+}
+
+List<String> _monthLabelsFromPoints(List<_ProjectionPoint> points) {
+  if (points.isEmpty) return _monthLabels(DateTime.now(), DateTime.now());
+
+  final labels = <String>[];
+  final step = math.max(1, (points.length / 5).ceil());
+  for (var i = 0; i < points.length && labels.length < 6; i += step) {
+    labels.add(_monthShortName(points[i].date.month));
+  }
+  if (labels.last != _monthShortName(points.last.date.month)) {
+    labels.add(_monthShortName(points.last.date.month));
+  }
+  return labels.take(6).toList();
 }
 
 double? _toKg(double? value, String? unit) {

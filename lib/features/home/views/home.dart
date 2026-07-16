@@ -42,9 +42,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return DateTime(now.year, now.month, now.day);
   }
 
-  DateTime get _progressStartDate =>
-      _today.subtract(const Duration(days: _progressHistoryDays - 1));
-
   List<DayProgress> _generateWeekDays() {
     final foodLoggingState = ref.watch(foodLoggingViewModelProvider);
     final weeklyTrend = foodLoggingState.weeklyTrend;
@@ -119,9 +116,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     setState(() {
       _selectedDate = date;
     });
-    // Refresh recipes and dashboard for the selected date
+    // Refresh all date-scoped data, including the seven-day trend window.
     ref.read(foodLoggingViewModelProvider.notifier).getUserRecipes(date: date);
     ref.read(foodLoggingViewModelProvider.notifier).getDashboard(date: date);
+    ref
+        .read(foodLoggingViewModelProvider.notifier)
+        .getWeeklyTrend(startDate: date);
   }
 
   @override
@@ -135,7 +135,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           .getDashboard(date: _selectedDate);
       ref
           .read(foodLoggingViewModelProvider.notifier)
-          .getWeeklyTrend(startDate: _progressStartDate);
+          .getWeeklyTrend(startDate: _selectedDate);
       ref
           .read(foodLoggingViewModelProvider.notifier)
           .getUserRecipes(date: _selectedDate);
@@ -151,7 +151,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           .getDashboard(date: _selectedDate),
       ref
           .read(foodLoggingViewModelProvider.notifier)
-          .getWeeklyTrend(startDate: _progressStartDate),
+          .getWeeklyTrend(startDate: _selectedDate),
       ref
           .read(foodLoggingViewModelProvider.notifier)
           .getUserRecipes(date: _selectedDate),

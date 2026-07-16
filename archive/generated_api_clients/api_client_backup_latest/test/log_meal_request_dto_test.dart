@@ -36,6 +36,11 @@ void main() {
       // TODO
     });
 
+    // DateTime loggedDate
+    test('to test the property `loggedDate`', () async {
+      // TODO
+    });
+
     // String notes
     test('to test the property `notes`', () async {
       // TODO

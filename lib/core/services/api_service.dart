@@ -32,9 +32,9 @@ class LoggingHttpClient extends http.BaseClient {
       print('🔵 API Request: ${request.method} ${request.url}');
       log('Headers: ${request.headers}');
       if (request is http.Request && request.body.isNotEmpty) {
-        log('''Body: 
-        ${request.body}
-        ''');
+        // log('''Body: 
+        // ${request.body}
+        // ''');
       }
     }
 
@@ -212,6 +212,7 @@ class ApiService {
   late final FoodLoggingControllerApi foodLoggingApi;
   late final RecipeControllersApi recipeApi;
   late final SubscriptionControllerApi subscriptionApi;
+  late final OnboardingCalculatorControllerApi onboardingCalculatorApi;
 
   // Track if we're currently refreshing to prevent multiple refresh attempts
   bool _isRefreshing = false;
@@ -249,6 +250,7 @@ class ApiService {
     foodLoggingApi = FoodLoggingControllerApi(_apiClient);
     recipeApi = RecipeControllersApi(_apiClient);
     subscriptionApi = SubscriptionControllerApi(_apiClient);
+    onboardingCalculatorApi = OnboardingCalculatorControllerApi(_apiClient);
   }
 
   /// Set the authentication token for authenticated requests

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:openapi/api.dart';
 import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/services/api_service.dart';
@@ -80,6 +82,8 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
     try {
       final response = await _apiService.recipeApi.analyzeRecipe(image);
 
+      log("response is $response");
+
       if (response != null) {
         state = state.copyWith(
           isLoading: false,
@@ -118,7 +122,7 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
 
     try {
       final response = await _apiService.recipeApi.analyzeNutritionLabel(image);
-
+      log("response is $response");
       if (response != null) {
         state = state.copyWith(
           isLoading: false,
@@ -160,7 +164,7 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
 
     try {
       final response = await _apiService.recipeApi.suggestAndAnalyze(image);
-
+      log("response is $response");
       if (response != null && response.isNotEmpty) {
         state = state.copyWith(
           isLoading: false,
@@ -199,7 +203,7 @@ class RecipeViewModel extends StateNotifier<RecipeState> {
 
     try {
       final response = await _apiService.recipeApi.analyzeByBarcode(barcode);
-
+      log("response is $response");
       if (response != null) {
         state = state.copyWith(
           isLoading: false,

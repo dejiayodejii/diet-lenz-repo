@@ -17,6 +17,16 @@ void main() {
   // final instance = FoodLoggingControllerApi();
 
   group('tests for FoodLoggingControllerApi', () {
+    //Future deleteMealLog(String id) async
+    test('test deleteMealLog', () async {
+      // TODO
+    });
+
+    //Future<MealLogResponseDto> editMealLog(String id, LogMealRequestDto logMealRequestDto) async
+    test('test editMealLog', () async {
+      // TODO
+    });
+
     //Future<StreakInfoDto> getCurrentStreak() async
     test('test getCurrentStreak', () async {
       // TODO
@@ -64,11 +74,6 @@ void main() {
 
     //Future<List<RecipeResponseDto>> searchByIngredient(String ingredient) async
     test('test searchByIngredient', () async {
-      // TODO
-    });
-
-    //Future<List<RecipeResponseDto>> searchRecipes(String query) async
-    test('test searchRecipes', () async {
       // TODO
     });
 

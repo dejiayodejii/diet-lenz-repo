@@ -83,30 +83,31 @@ class _LoginScreenState extends ConsumerState<QuizScreen> {
                   Image.asset(
                     AppImages.quiz,
                     scale: 2,
-                    height: 150,
+                    height: 200,
                   ),
                   const SizedBox(height: 20),
                   Expanded(
-                      child: Column(
-                    children: [
-                      ...List.generate(options.length, (index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0),
-                          child: SelectableOptionTile(
-                            label: capitalizeFirstLetter(
-                              removeUnderscores(options[index]),
+                    child: Column(
+                      children: [
+                        ...List.generate(options.length, (index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: SelectableOptionTile(
+                              label: capitalizeFirstLetter(
+                                removeUnderscores(options[index]),
+                              ),
+                              isSelected: selectedIndex == index,
+                              onTap: () {
+                                setState(() {
+                                  selectedIndex = index;
+                                });
+                              },
                             ),
-                            isSelected: selectedIndex == index,
-                            onTap: () {
-                              setState(() {
-                                selectedIndex = index;
-                              });
-                            },
-                          ),
-                        );
-                      }),
-                    ],
-                  ))
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

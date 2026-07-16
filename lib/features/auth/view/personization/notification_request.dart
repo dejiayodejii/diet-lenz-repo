@@ -6,7 +6,7 @@ import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/push_notification_service.dart';
 import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
-import 'package:diet_lenz/features/auth/view/register.dart';
+import 'package:diet_lenz/features/auth/view/personization/plan_loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -28,7 +28,7 @@ class _NotificationRequestScreenState
           notificationsEnabled: notificationsEnabled,
           mealRemindersEnabled: notificationsEnabled,
         );
-    NavigationService.push(child: const SignUpScreen());
+    NavigationService.push(child: const PlanLoadingScreen());
   }
 
   Future<void> _enableNotifications() async {
@@ -66,7 +66,7 @@ class _NotificationRequestScreenState
             const SizedBox(height: 24),
             const Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.only(top: 46, bottom: 30),
+                padding: EdgeInsets.only(top: 26, bottom: 30),
                 child: Column(
                   children: [
                     Text(
@@ -92,7 +92,7 @@ class _NotificationRequestScreenState
                         letterSpacing: 0,
                       ),
                     ),
-                    SizedBox(height: 96),
+                    SizedBox(height: 56),
                     _NotificationPreviewCard(),
                     SizedBox(height: 78),
                     _ReminderInfoCard(

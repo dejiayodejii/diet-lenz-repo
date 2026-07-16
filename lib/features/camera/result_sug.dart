@@ -85,7 +85,10 @@ class SuggestResultScreen extends StatelessWidget {
           ),
           // Bottom Navigation Card
           Positioned(
-            bottom: 30 + MediaQuery.of(context).padding.bottom, // Add padding for safe area
+            bottom: 30 +
+                MediaQuery.of(context)
+                    .padding
+                    .bottom, // Add padding for safe area
             left: 20,
             right: 20,
             child: GestureDetector(
@@ -164,7 +167,7 @@ class MealOptionsScreen extends StatelessWidget {
     // If no suggestions, use placeholder image
     final headerImage = Image.file(
       imageFile!,
-      fit: BoxFit.cover,
+      fit: BoxFit.contain,
       height: 250,
       width: double.infinity,
     );

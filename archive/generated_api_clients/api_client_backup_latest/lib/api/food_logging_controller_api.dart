@@ -16,6 +16,112 @@ class FoodLoggingControllerApi {
 
   final ApiClient apiClient;
 
+  /// Performs an HTTP 'DELETE /api/v1/food/log-meal/{id}' operation and returns the [Response].
+  /// Parameters:
+  ///
+  /// * [String] id (required):
+  Future<Response> deleteMealLogWithHttpInfo(
+    String id,
+  ) async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/food/log-meal/{id}'.replaceAll('{id}', id);
+
+    // ignore: prefer_final_locals
+    Object? postBody;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    const contentTypes = <String>[];
+
+    return apiClient.invokeAPI(
+      path,
+      'DELETE',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Parameters:
+  ///
+  /// * [String] id (required):
+  Future<void> deleteMealLog(
+    String id,
+  ) async {
+    final response = await deleteMealLogWithHttpInfo(
+      id,
+    );
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+  }
+
+  /// Performs an HTTP 'PUT /api/v1/food/log-meal/{id}' operation and returns the [Response].
+  /// Parameters:
+  ///
+  /// * [String] id (required):
+  ///
+  /// * [LogMealRequestDto] logMealRequestDto (required):
+  Future<Response> editMealLogWithHttpInfo(
+    String id,
+    LogMealRequestDto logMealRequestDto,
+  ) async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/food/log-meal/{id}'.replaceAll('{id}', id);
+
+    // ignore: prefer_final_locals
+    Object? postBody = logMealRequestDto;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    const contentTypes = <String>['application/json'];
+
+    return apiClient.invokeAPI(
+      path,
+      'PUT',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Parameters:
+  ///
+  /// * [String] id (required):
+  ///
+  /// * [LogMealRequestDto] logMealRequestDto (required):
+  Future<MealLogResponseDto?> editMealLog(
+    String id,
+    LogMealRequestDto logMealRequestDto,
+  ) async {
+    final response = await editMealLogWithHttpInfo(
+      id,
+      logMealRequestDto,
+    );
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+    // When a remote server returns no body with a status of 204, we shall not decode it.
+    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
+    // FormatException when trying to decode an empty string.
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'MealLogResponseDto',
+      ) as MealLogResponseDto;
+    }
+    return null;
+  }
+
   /// Performs an HTTP 'GET /api/v1/food/streaks' operation and returns the [Response].
   Future<Response> getCurrentStreakWithHttpInfo() async {
     // ignore: prefer_const_declarations
@@ -80,7 +186,8 @@ class FoodLoggingControllerApi {
       final dateStr = '${date.year.toString().padLeft(4, '0')}-'
           '${date.month.toString().padLeft(2, '0')}-'
           '${date.day.toString().padLeft(2, '0')}';
-      queryParams.addAll(_queryParams('', 'date', dateStr));
+      queryParams.addAll(
+          _queryParams('', 'date', dateStr)); // PATCHED: date-only query
     }
 
     const contentTypes = <String>[];
@@ -355,7 +462,8 @@ class FoodLoggingControllerApi {
       final dateStr = '${date.year.toString().padLeft(4, '0')}-'
           '${date.month.toString().padLeft(2, '0')}-'
           '${date.day.toString().padLeft(2, '0')}';
-      queryParams.addAll(_queryParams('', 'date', dateStr));
+      queryParams.addAll(
+          _queryParams('', 'date', dateStr)); // PATCHED: date-only query
     }
 
     const contentTypes = <String>[];
@@ -397,6 +505,98 @@ class FoodLoggingControllerApi {
     return null;
   }
 
+  /// Performs an HTTP 'GET /api/v1/food/meal-logs' operation and returns the [Response].
+  /// Parameters:
+  ///
+  /// * [DateTime] date:
+  ///
+  /// * [String] search:
+  ///
+  /// * [int] page:
+  ///
+  /// * [int] size:
+  Future<Response> getMealLogsWithHttpInfo({
+    DateTime? date,
+    String? search,
+    int? page,
+    int? size,
+  }) async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/food/meal-logs';
+
+    // ignore: prefer_final_locals
+    Object? postBody;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    if (date != null) {
+      final dateStr = '${date.year.toString().padLeft(4, '0')}-'
+          '${date.month.toString().padLeft(2, '0')}-'
+          '${date.day.toString().padLeft(2, '0')}';
+      queryParams.addAll(_queryParams('', 'date', dateStr));
+    }
+    if (search != null) {
+      queryParams.addAll(_queryParams('', 'search', search));
+    }
+    if (page != null) {
+      queryParams.addAll(_queryParams('', 'page', page));
+    }
+    if (size != null) {
+      queryParams.addAll(_queryParams('', 'size', size));
+    }
+
+    const contentTypes = <String>[];
+
+    return apiClient.invokeAPI(
+      path,
+      'GET',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Parameters:
+  ///
+  /// * [DateTime] date:
+  ///
+  /// * [String] search:
+  ///
+  /// * [int] page:
+  ///
+  /// * [int] size:
+  Future<PagedModelMealLogResponseDto?> getMealLogs({
+    DateTime? date,
+    String? search,
+    int? page,
+    int? size,
+  }) async {
+    final response = await getMealLogsWithHttpInfo(
+      date: date,
+      search: search,
+      page: page,
+      size: size,
+    );
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+    // When a remote server returns no body with a status of 204, we shall not decode it.
+    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
+    // FormatException when trying to decode an empty string.
+    if (response.body.isNotEmpty &&
+        response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(
+        await _decodeBodyBytes(response),
+        'PagedModelMealLogResponseDto',
+      ) as PagedModelMealLogResponseDto;
+    }
+    return null;
+  }
+
   /// Performs an HTTP 'GET /api/v1/food/trends/weekly' operation and returns the [Response].
   /// Parameters:
   ///
@@ -415,7 +615,11 @@ class FoodLoggingControllerApi {
     final formParams = <String, String>{};
 
     if (startDate != null) {
-      queryParams.addAll(_queryParams('', 'startDate', startDate));
+      final startDateStr = '${startDate.year.toString().padLeft(4, '0')}-'
+          '${startDate.month.toString().padLeft(2, '0')}-'
+          '${startDate.day.toString().padLeft(2, '0')}';
+      queryParams.addAll(_queryParams(
+          '', 'startDate', startDateStr)); // PATCHED: date-only query
     }
 
     const contentTypes = <String>[];
@@ -551,64 +755,6 @@ class FoodLoggingControllerApi {
   ) async {
     final response = await searchByIngredientWithHttpInfo(
       ingredient,
-    );
-    if (response.statusCode >= HttpStatus.badRequest) {
-      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
-    }
-    // When a remote server returns no body with a status of 204, we shall not decode it.
-    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
-    // FormatException when trying to decode an empty string.
-    if (response.body.isNotEmpty &&
-        response.statusCode != HttpStatus.noContent) {
-      final responseBody = await _decodeBodyBytes(response);
-      return (await apiClient.deserializeAsync(
-              responseBody, 'List<RecipeResponseDto>') as List)
-          .cast<RecipeResponseDto>()
-          .toList(growable: false);
-    }
-    return null;
-  }
-
-  /// Performs an HTTP 'GET /api/v1/food/recipes/search' operation and returns the [Response].
-  /// Parameters:
-  ///
-  /// * [String] query (required):
-  Future<Response> searchRecipesWithHttpInfo(
-    String query,
-  ) async {
-    // ignore: prefer_const_declarations
-    final path = r'/api/v1/food/recipes/search';
-
-    // ignore: prefer_final_locals
-    Object? postBody;
-
-    final queryParams = <QueryParam>[];
-    final headerParams = <String, String>{};
-    final formParams = <String, String>{};
-
-    queryParams.addAll(_queryParams('', 'query', query));
-
-    const contentTypes = <String>[];
-
-    return apiClient.invokeAPI(
-      path,
-      'GET',
-      queryParams,
-      postBody,
-      headerParams,
-      formParams,
-      contentTypes.isEmpty ? null : contentTypes.first,
-    );
-  }
-
-  /// Parameters:
-  ///
-  /// * [String] query (required):
-  Future<List<RecipeResponseDto>?> searchRecipes(
-    String query,
-  ) async {
-    final response = await searchRecipesWithHttpInfo(
-      query,
     );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));

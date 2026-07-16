@@ -32,7 +32,7 @@ class OnboardingSurveyRequest {
     this.biggestChallenge,
     this.notificationsEnabled,
     this.mealRemindersEnabled,
-    this.healthSyncSettings,
+    required this.healthSyncSettings,
     this.timeZone,
     this.countryCode,
   });
@@ -99,13 +99,7 @@ class OnboardingSurveyRequest {
   ///
   bool? mealRemindersEnabled;
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  HealthSyncSettingsDto? healthSyncSettings;
+  HealthSyncSettingsDto healthSyncSettings;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -170,7 +164,7 @@ class OnboardingSurveyRequest {
     (biggestChallenge == null ? 0 : biggestChallenge!.hashCode) +
     (notificationsEnabled == null ? 0 : notificationsEnabled!.hashCode) +
     (mealRemindersEnabled == null ? 0 : mealRemindersEnabled!.hashCode) +
-    (healthSyncSettings == null ? 0 : healthSyncSettings!.hashCode) +
+    (healthSyncSettings.hashCode) +
     (timeZone == null ? 0 : timeZone!.hashCode) +
     (countryCode == null ? 0 : countryCode!.hashCode);
 
@@ -226,11 +220,7 @@ class OnboardingSurveyRequest {
     } else {
       json[r'mealRemindersEnabled'] = null;
     }
-    if (this.healthSyncSettings != null) {
       json[r'healthSyncSettings'] = this.healthSyncSettings;
-    } else {
-      json[r'healthSyncSettings'] = null;
-    }
     if (this.timeZone != null) {
       json[r'timeZone'] = this.timeZone;
     } else {
@@ -284,7 +274,7 @@ class OnboardingSurveyRequest {
         biggestChallenge: OnboardingSurveyRequestBiggestChallengeEnum.fromJson(json[r'biggestChallenge']),
         notificationsEnabled: mapValueOfType<bool>(json, r'notificationsEnabled'),
         mealRemindersEnabled: mapValueOfType<bool>(json, r'mealRemindersEnabled'),
-        healthSyncSettings: HealthSyncSettingsDto.fromJson(json[r'healthSyncSettings']),
+        healthSyncSettings: HealthSyncSettingsDto.fromJson(json[r'healthSyncSettings'])!,
         timeZone: mapValueOfType<String>(json, r'timeZone'),
         countryCode: mapValueOfType<String>(json, r'countryCode'),
       );
@@ -345,6 +335,7 @@ class OnboardingSurveyRequest {
     'desiredWeight',
     'desiredWeightUnit',
     'goalPace',
+    'healthSyncSettings',
   };
 }
 

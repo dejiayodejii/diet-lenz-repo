@@ -1,5 +1,8 @@
 import 'dart:convert';
+import 'dart:math' as math;
+
 import 'package:diet_lenz/constants/app_colors.dart';
+import 'package:diet_lenz/features/camera/database_result.dart';
 import 'package:openapi/api.dart';
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/component/custom_textfield.dart';
@@ -11,10 +14,9 @@ import 'package:diet_lenz/features/bottom_nav/bottom.dart';
 import 'package:diet_lenz/features/database/controller/database_history_provider.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
 import 'package:diet_lenz/features/recipe/controller/recipe_viewmodel.dart';
-import 'package:diet_lenz/widgets/calorie_badge.dart';
-import 'package:diet_lenz/widgets/macro_progress_item.dart';
 import 'package:diet_lenz/widgets/pulsating_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AnalyseResultDetail extends ConsumerStatefulWidget {
@@ -45,11 +47,27 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
   late TextEditingController _carbsController;
   late TextEditingController _fatController;
   late TextEditingController _fiberController;
+  late final TextEditingController _amountController;
+  late final Uint8List? _imageBytes;
+  late final Widget? _imageViewer;
+  late final List<MeasureDto> _measures;
+  MeasureDto? _selectedMeasure;
 
   @override
   void initState() {
     super.initState();
     final analysis = widget.analysis;
+    final imageBase64 = analysis.imageBase64;
+    _imageBytes = imageBase64 == null ? null : base64Decode(imageBase64);
+    _imageViewer =
+        _imageBytes == null ? null : ImageViewer(imageBytes: _imageBytes);
+    _measures = _prepareMeasures(analysis.measures);
+    if (_measures.isNotEmpty) {
+      _selectedMeasure = _measures.firstWhere(
+        (measure) => _normalizedMeasureLabel(measure) == 'gram',
+        orElse: () => _measures.first,
+      );
+    }
     _foodNameController =
         TextEditingController(text: analysis.foodName ?? 'Unknown Food');
     _descriptionController =
@@ -64,6 +82,8 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
         text: (analysis.totalMacros?.fat?.value ?? 0.0).toStringAsFixed(1));
     _fiberController = TextEditingController(
         text: (analysis.totalMacros?.fiber?.value ?? 0.0).toStringAsFixed(1));
+    _amountController = TextEditingController(text: '1')
+      ..addListener(_onAmountChanged);
   }
 
   @override
@@ -76,6 +96,9 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
     _fatController.dispose();
     _reanalyseController.dispose();
     _fiberController.dispose();
+    _amountController
+      ..removeListener(_onAmountChanged)
+      ..dispose();
     mealTypeController.dispose();
     noteController.dispose();
     super.dispose();
@@ -149,27 +172,40 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
   double get fiber => double.tryParse(_fiberController.text) ?? 0.0;
   double get calories => double.tryParse(_caloriesController.text) ?? 0.0;
 
-  // Calculate the maximum macro value for relative comparison
-  double get maxMacroValue {
-    final values = [protein, carbs, fat, fiber];
-    return values.reduce((a, b) => a > b ? a : b);
+  String _formatNutritionValue(double value) {
+    if ((value - value.round()).abs() < 0.05) {
+      return value.round().toString();
+    }
+    return value.toStringAsFixed(1);
   }
 
-  // Calculate relative progress for each macro (0.0 to 1.0)
-  double getRelativeProgress(double value) {
-    if (maxMacroValue == 0) return 0.0;
-    return (value / maxMacroValue).clamp(0.0, 1.0);
+  double get _amount =>
+      math.max(0, double.tryParse(_amountController.text.trim()) ?? 0);
+
+  double get _servingMultiplier {
+    final selectedMeasure = _selectedMeasure;
+    if (selectedMeasure == null) return _amount;
+    final totalWeightGrams = _amount * (selectedMeasure.weightGrams ?? 0);
+    return math.max(0, totalWeightGrams / 100);
   }
+
+  double _scaled(double value) => value * _servingMultiplier;
+
+  double get _scaledCalories => _scaled(calories);
+  double get _scaledCarbs => _scaled(carbs);
+  double get _scaledProtein => _scaled(protein);
+  double get _scaledFat => _scaled(fat);
+  double get _scaledFiber => _scaled(fiber);
 
   LogMealRequestDtoMealTypeEnum? _selectedMealType;
 
-  String _calculateTotalMacros() {
-    final total = protein + carbs + fat + fiber;
-    return total.toStringAsFixed(1);
-  }
-
   Future<void> _handleAddToLog() async {
     final foodLoggingVM = ref.read(foodLoggingViewModelProvider.notifier);
+
+    if (_amount <= 0) {
+      ref.read(toastProvider).showError('Enter an amount greater than zero');
+      return;
+    }
 
     // Validate meal type
     if (_selectedMealType == null) {
@@ -185,22 +221,23 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
       foodName: _foodNameController.text.trim(),
       description: _descriptionController.text.trim(),
       imageBase64: widget.analysis.imageBase64,
+      measures: widget.analysis.measures,
       totalMacros: MacroNutrientsDto(
-        calories: double.tryParse(_caloriesController.text) ?? 0.0,
+        calories: _scaledCalories,
         protein: QuantityDto(
-          value: double.tryParse(_proteinController.text) ?? 0.0,
+          value: _scaledProtein,
           unit: widget.analysis.totalMacros?.protein?.unit ?? 'g',
         ),
         carbs: QuantityDto(
-          value: double.tryParse(_carbsController.text) ?? 0.0,
+          value: _scaledCarbs,
           unit: widget.analysis.totalMacros?.carbs?.unit ?? 'g',
         ),
         fat: QuantityDto(
-          value: double.tryParse(_fatController.text) ?? 0.0,
+          value: _scaledFat,
           unit: widget.analysis.totalMacros?.fat?.unit ?? 'g',
         ),
         fiber: QuantityDto(
-          value: double.tryParse(_fiberController.text) ?? 0.0,
+          value: _scaledFiber,
           unit: widget.analysis.totalMacros?.fiber?.unit ?? 'g',
         ),
       ),
@@ -213,7 +250,9 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
       notes: noteController.text.trim().isEmpty
           ? null
           : noteController.text.trim(),
-      servingMultiplier: 1.0, // Default serving size
+      // The analysis already contains the totals displayed in the UI.
+      // Keep this at one so the backend does not scale them a second time.
+      servingMultiplier: 1.0,
     );
 
     // Log the meal
@@ -249,7 +288,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
         ref
             .read(foodLoggingViewModelProvider.notifier)
             .getDashboard(date: date, refresh: true);
-        NavigationService.pushAndRemoveUntil(child: BottomNavScreen());
+        NavigationService.pushAndRemoveUntil(child: const BottomNavScreen());
       }
     }
   }
@@ -371,7 +410,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                                 onTap: () => Navigator.pop(context),
                                 child: Container(
                                   padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: AppColors.surfaceGrey,
                                     shape: BoxShape.circle,
                                   ),
@@ -665,7 +704,8 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.primaryColor, width: 1.5),
+          borderSide:
+              const BorderSide(color: AppColors.primaryColor, width: 1.5),
         ),
         labelText: label,
         labelStyle:
@@ -744,30 +784,23 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
       inAsyncCall: state.isLoading || recipeState.isLoading,
       child: Scaffold(
         extendBody: false,
-        backgroundColor: Colors.black,
-        body: Column(
+        // backgroundColor: Colors.red,
+        body: Stack(
+          fit: StackFit.expand,
           children: [
             Stack(
               children: [
-                widget.analysis.imageBase64 != null
+                _imageViewer != null
                     ? SizedBox(
-                        height: 350,
+                        height: 300,
                         width: double.infinity,
-                        child: widget.analysis.imageBase64 != null
-                            ? Image.memory(
-                                base64Decode(widget.analysis.imageBase64!),
-                                fit: BoxFit.cover,
-                              )
-                            : Icon(
-                                Icons.restaurant_rounded,
-                                color: AppColors.primaryColor,
-                                size: 58,
-                              ))
+                        child: _imageViewer,
+                      )
                     : Container(
                         width: double.infinity,
                         height: 200,
                         color: AppColors.surfaceGrey,
-                        child: Icon(
+                        child: const Icon(
                           Icons.restaurant_rounded,
                           color: AppColors.primaryColor,
                           size: 58,
@@ -793,7 +826,11 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                 ),
               ],
             ),
-            Expanded(
+            Positioned(
+              top: 250,
+              bottom: 0,
+              right: 0,
+              left: 0,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 decoration: const BoxDecoration(
@@ -822,58 +859,52 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          GestureDetector(
-                            onTap: _showEditBottomSheet,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryColor.withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color:
-                                      AppColors.primaryColor.withOpacity(0.3),
-                                ),
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.edit_outlined,
-                                      color: AppColors.primaryColor, size: 15),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    'Edit',
-                                    style: TextStyle(
-                                      color: AppColors.primaryColor,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                          // const SizedBox(width: 8),
+                          // GestureDetector(
+                          //   onTap: _showEditBottomSheet,
+                          //   child: Container(
+                          //     padding: const EdgeInsets.symmetric(
+                          //         horizontal: 12, vertical: 6),
+                          //     decoration: BoxDecoration(
+                          //       color: AppColors.primaryColor.withOpacity(0.12),
+                          //       borderRadius: BorderRadius.circular(20),
+                          //       border: Border.all(
+                          //         color:
+                          //             AppColors.primaryColor.withOpacity(0.3),
+                          //       ),
+                          //     ),
+                          //     child: const Row(
+                          //       mainAxisSize: MainAxisSize.min,
+                          //       children: [
+                          //         Icon(Icons.edit_outlined,
+                          //             color: AppColors.primaryColor, size: 15),
+                          //         SizedBox(width: 4),
+                          //         Text(
+                          //           'Edit',
+                          //           style: TextStyle(
+                          //             color: AppColors.primaryColor,
+                          //             fontSize: 13,
+                          //             fontWeight: FontWeight.w600,
+                          //           ),
+                          //         ),
+                          //       ],
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
                       const SizedBox(height: 8),
                       // Calorie + total macros badges
-                      Row(
-                        children: [
-                          CalorieBadge(
-                            text: '${calories.toStringAsFixed(0)} cal',
-                            width: 85,
-                          ),
-                          const SizedBox(width: 10),
-                          CalorieBadge(
-                            text: '${_calculateTotalMacros()}g',
-                            backgroundColor: AppColors.surfaceGrey,
-                            textColor: Colors.white,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      // Description
+                      // Row(
+                      //   children: [
+                      //     CalorieBadge(
+                      //       text: '${_scaledCalories.toStringAsFixed(0)} kcal',
+                      //       width: 85,
+                      //     ),
+                      //   ],
+                      // ),
+                      // const SizedBox(height: 16),
+                      // // Description
                       Text(
                         _descriptionController.text.isEmpty
                             ? 'No description available'
@@ -904,37 +935,38 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                           ),
                         ),
                       const SizedBox(height: 20),
-                      MacroProgressItem(
-                        label: 'Protein',
-                        currentValue:
-                            '${protein.toStringAsFixed(1)}${widget.analysis.totalMacros?.protein?.unit ?? "g"}',
-                        targetValue: '',
-                        progress: getRelativeProgress(protein),
+                      NutritionReadout(
+                        value: _formatNutritionValue(_scaledCalories),
+                        unit: 'Kcal',
                       ),
                       const SizedBox(height: 20),
-                      MacroProgressItem(
-                        label: 'Carbs',
-                        currentValue:
-                            '${carbs.toStringAsFixed(1)}${widget.analysis.totalMacros?.carbs?.unit ?? "g"}',
-                        targetValue: '',
-                        progress: getRelativeProgress(carbs),
+                      if (_measures.isNotEmpty) ...[
+                        const Text(
+                          'Measurement',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: AppFonts.spaceGrotesk,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildMeasureSelector(),
+                        const SizedBox(height: 20),
+                      ],
+                      const Text(
+                        'Portion',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: AppFonts.spaceGrotesk,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                      const SizedBox(height: 20),
-                      MacroProgressItem(
-                        label: 'Fat',
-                        currentValue:
-                            '${fat.toStringAsFixed(1)}${widget.analysis.totalMacros?.fat?.unit ?? "g"}',
-                        targetValue: '',
-                        progress: getRelativeProgress(fat),
-                      ),
-                      const SizedBox(height: 20),
-                      MacroProgressItem(
-                        label: 'Fiber',
-                        currentValue:
-                            '${fiber.toStringAsFixed(1)}${widget.analysis.totalMacros?.fiber?.unit ?? "g"}',
-                        targetValue: '',
-                        progress: getRelativeProgress(fiber),
-                      ),
+                      const SizedBox(height: 12),
+                      _buildAmountField(),
+                      const SizedBox(height: 24),
+                      _buildMacroCards(),
                       const SizedBox(height: 20),
                       _buildMealTypeSelector(),
                       const SizedBox(height: 20),
@@ -957,6 +989,198 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
           ],
         ),
       ),
+    );
+  }
+
+  void _onAmountChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Widget _buildAmountField() {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.6,
+      child: LabelTextFormField(
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
+        ],
+        controller: _amountController,
+        suffixIcon: _selectedMeasure == null
+            ? const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: SizedBox(height: 20, width: 20, child: Icon(Icons.edit)),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(12),
+                child: Text(
+                  _amountUnit(_selectedMeasure!),
+                  style: const TextStyle(color: Colors.white70, fontSize: 16),
+                ),
+              ),
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      ),
+    );
+  }
+
+  Widget _buildMeasureSelector() {
+    return SizedBox(
+      height: 42,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: _measures.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final measure = _measures[index];
+          final isSelected = identical(measure, _selectedMeasure);
+          return GestureDetector(
+            onTap: () => setState(() => _selectedMeasure = measure),
+            child: Container(
+              width: 124,
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: isSelected
+                      ? AppColors.primaryColor
+                      : const Color(0xFF5A5A5A),
+                  width: isSelected ? 1.4 : 1.2,
+                ),
+              ),
+              child: Text(
+                _displayMeasureLabel(measure),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  List<MeasureDto> _prepareMeasures(List<MeasureDto> measures) {
+    final usableMeasures = measures
+        .where(
+          (measure) =>
+              measure.label?.trim().isNotEmpty == true &&
+              (measure.weightGrams ?? 0) > 0,
+        )
+        .toList();
+    const preferredOrder = {
+      'cup': 0,
+      'ounce': 1,
+      'gram': 2,
+      'serving': 3,
+      'pound': 4,
+      'kilogram': 5,
+    };
+    usableMeasures.sort((first, second) {
+      final firstOrder = preferredOrder[_normalizedMeasureLabel(first)] ?? 100;
+      final secondOrder =
+          preferredOrder[_normalizedMeasureLabel(second)] ?? 100;
+      return firstOrder.compareTo(secondOrder);
+    });
+    return usableMeasures;
+  }
+
+  String _normalizedMeasureLabel(MeasureDto measure) =>
+      measure.label?.trim().toLowerCase() ?? '';
+
+  String _displayMeasureLabel(MeasureDto measure) {
+    switch (_normalizedMeasureLabel(measure)) {
+      case 'ounce':
+        return 'Oz';
+      case 'pound':
+        return 'Lb';
+      case 'kilogram':
+        return 'Kg';
+      default:
+        return measure.label?.trim() ?? 'Measure';
+    }
+  }
+
+  String _amountUnit(MeasureDto measure) {
+    switch (_normalizedMeasureLabel(measure)) {
+      case 'gram':
+        return 'g';
+      case 'ounce':
+        return 'oz';
+      case 'pound':
+        return 'lb';
+      case 'kilogram':
+        return 'kg';
+      default:
+        return measure.label?.trim().toLowerCase() ?? '';
+    }
+  }
+
+  Widget _buildMacroCards() {
+    final maxValue = math.max(
+      _scaledCarbs,
+      math.max(_scaledProtein, math.max(_scaledFat, _scaledFiber)),
+    );
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: MacroCard(
+                label: 'Carb',
+                value: _scaledCarbs,
+                progress: maxValue == 0 ? 0 : _scaledCarbs / maxValue,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: MacroCard(
+                label: 'Protein',
+                value: _scaledProtein,
+                progress: maxValue == 0 ? 0 : _scaledProtein / maxValue,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            Expanded(
+              child: MacroCard(
+                label: 'Fat',
+                value: _scaledFat,
+                progress: maxValue == 0 ? 0 : _scaledFat / maxValue,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: MacroCard(
+                label: 'Fiber',
+                value: _scaledFiber,
+                progress: maxValue == 0 ? 0 : _scaledFiber / maxValue,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class ImageViewer extends StatelessWidget {
+  const ImageViewer({
+    super.key,
+    required this.imageBytes,
+  });
+
+  final Uint8List imageBytes;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.memory(
+      imageBytes,
+      fit: BoxFit.contain,
+      gaplessPlayback: true,
     );
   }
 }

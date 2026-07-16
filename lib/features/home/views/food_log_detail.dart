@@ -420,16 +420,18 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
                           );
                         },
                       )
-                    : Container(
-                        width: double.infinity,
-                        height: 200,
-                        color: AppColors.surfaceGrey,
-                        child: const Icon(
-                          Icons.restaurant_rounded,
-                          color: AppColors.primaryColor,
-                          size: 58,
-                        ),
-                      ),
+                    : SizedBox.shrink(),
+
+                // Container(
+                //     width: double.infinity,
+                //     height: 200,
+                //     color: AppColors.surfaceGrey,
+                //     child: const Icon(
+                //       Icons.restaurant_rounded,
+                //       color: AppColors.primaryColor,
+                //       size: 58,
+                //     ),
+                //   ),
 
                 const SizedBox(height: 20),
                 Text(
@@ -446,10 +448,10 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
                     CalorieBadge(
                       text: '${calories.toStringAsFixed(0)} cal',
                     ),
-                    const SizedBox(width: 15),
-                    CalorieBadge(
-                      text: '${totalWeight.toStringAsFixed(0)}g',
-                    ),
+                    // const SizedBox(width: 15),
+                    // CalorieBadge(
+                    //   text: '${totalWeight.toStringAsFixed(0)}g',
+                    // ),
                   ],
                 ),
                 const SizedBox(height: 20),

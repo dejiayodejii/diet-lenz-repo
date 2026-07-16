@@ -15,9 +15,13 @@ class MealLogResultTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (mealLog.imageUrl?.trim().isNotEmpty == true) {
-      return FoodLoggedPreview(loggedMeal: mealLog);
-    }
+    // if (mealLog.imageUrl?.trim().isNotEmpty == true) {
+    //   return FoodLoggedPreview(loggedMeal: mealLog);
+    // }
+
+    return FoodLoggedPreview(loggedMeal: mealLog);
+
+
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),

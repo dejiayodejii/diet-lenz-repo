@@ -17,6 +17,7 @@ class LogMealRequestDto {
     this.foodAnalysis,
     this.mealType,
     this.servingMultiplier,
+    this.loggedDate,
     this.notes,
   });
 
@@ -52,6 +53,14 @@ class LogMealRequestDto {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
+  DateTime? loggedDate;
+
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
   String? notes;
 
   @override
@@ -60,6 +69,7 @@ class LogMealRequestDto {
     other.foodAnalysis == foodAnalysis &&
     other.mealType == mealType &&
     other.servingMultiplier == servingMultiplier &&
+    other.loggedDate == loggedDate &&
     other.notes == notes;
 
   @override
@@ -69,10 +79,11 @@ class LogMealRequestDto {
     (foodAnalysis == null ? 0 : foodAnalysis!.hashCode) +
     (mealType == null ? 0 : mealType!.hashCode) +
     (servingMultiplier == null ? 0 : servingMultiplier!.hashCode) +
+    (loggedDate == null ? 0 : loggedDate!.hashCode) +
     (notes == null ? 0 : notes!.hashCode);
 
   @override
-  String toString() => 'LogMealRequestDto[existingRecipeId=$existingRecipeId, foodAnalysis=$foodAnalysis, mealType=$mealType, servingMultiplier=$servingMultiplier, notes=$notes]';
+  String toString() => 'LogMealRequestDto[existingRecipeId=$existingRecipeId, foodAnalysis=$foodAnalysis, mealType=$mealType, servingMultiplier=$servingMultiplier, loggedDate=$loggedDate, notes=$notes]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -95,6 +106,11 @@ class LogMealRequestDto {
       json[r'servingMultiplier'] = this.servingMultiplier;
     } else {
       json[r'servingMultiplier'] = null;
+    }
+    if (this.loggedDate != null) {
+      json[r'loggedDate'] = _dateFormatter.format(this.loggedDate!.toUtc());
+    } else {
+      json[r'loggedDate'] = null;
     }
     if (this.notes != null) {
       json[r'notes'] = this.notes;
@@ -127,6 +143,7 @@ class LogMealRequestDto {
         foodAnalysis: FoodAnalysisDto.fromJson(json[r'foodAnalysis']),
         mealType: LogMealRequestDtoMealTypeEnum.fromJson(json[r'mealType']),
         servingMultiplier: mapValueOfType<double>(json, r'servingMultiplier'),
+        loggedDate: mapDateTime(json, r'loggedDate', r''),
         notes: mapValueOfType<String>(json, r'notes'),
       );
     }

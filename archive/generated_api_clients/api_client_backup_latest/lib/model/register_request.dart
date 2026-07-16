@@ -13,36 +13,18 @@ part of openapi.api;
 class RegisterRequest {
   /// Returns a new [RegisterRequest] instance.
   RegisterRequest({
-    this.email,
-    this.password,
-    this.firstName,
+    required this.email,
+    required this.password,
+    required this.firstName,
     this.lastName,
     this.referralCode,
   });
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  String? email;
+  String email;
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  String? password;
+  String password;
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  String? firstName;
+  String firstName;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -71,9 +53,9 @@ class RegisterRequest {
   @override
   int get hashCode =>
     // ignore: unnecessary_parenthesis
-    (email == null ? 0 : email!.hashCode) +
-    (password == null ? 0 : password!.hashCode) +
-    (firstName == null ? 0 : firstName!.hashCode) +
+    (email.hashCode) +
+    (password.hashCode) +
+    (firstName.hashCode) +
     (lastName == null ? 0 : lastName!.hashCode) +
     (referralCode == null ? 0 : referralCode!.hashCode);
 
@@ -82,21 +64,9 @@ class RegisterRequest {
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-    if (this.email != null) {
       json[r'email'] = this.email;
-    } else {
-      json[r'email'] = null;
-    }
-    if (this.password != null) {
       json[r'password'] = this.password;
-    } else {
-      json[r'password'] = null;
-    }
-    if (this.firstName != null) {
       json[r'firstName'] = this.firstName;
-    } else {
-      json[r'firstName'] = null;
-    }
     if (this.lastName != null) {
       json[r'lastName'] = this.lastName;
     } else {
@@ -129,9 +99,9 @@ class RegisterRequest {
       }());
 
       return RegisterRequest(
-        email: mapValueOfType<String>(json, r'email'),
-        password: mapValueOfType<String>(json, r'password'),
-        firstName: mapValueOfType<String>(json, r'firstName'),
+        email: mapValueOfType<String>(json, r'email')!,
+        password: mapValueOfType<String>(json, r'password')!,
+        firstName: mapValueOfType<String>(json, r'firstName')!,
         lastName: mapValueOfType<String>(json, r'lastName'),
         referralCode: mapValueOfType<String>(json, r'referralCode'),
       );
@@ -181,6 +151,9 @@ class RegisterRequest {
 
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
+    'email',
+    'password',
+    'firstName',
   };
 }
 

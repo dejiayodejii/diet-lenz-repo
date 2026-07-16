@@ -13,25 +13,13 @@ part of openapi.api;
 class LoginWithDeviceRequest {
   /// Returns a new [LoginWithDeviceRequest] instance.
   LoginWithDeviceRequest({
-    this.login,
-    this.device,
+    required this.login,
+    required this.device,
   });
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  LoginRequest? login;
+  LoginRequest login;
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  RegisterDeviceRequest? device;
+  RegisterDeviceRequest device;
 
   @override
   bool operator ==(Object other) => identical(this, other) || other is LoginWithDeviceRequest &&
@@ -41,24 +29,16 @@ class LoginWithDeviceRequest {
   @override
   int get hashCode =>
     // ignore: unnecessary_parenthesis
-    (login == null ? 0 : login!.hashCode) +
-    (device == null ? 0 : device!.hashCode);
+    (login.hashCode) +
+    (device.hashCode);
 
   @override
   String toString() => 'LoginWithDeviceRequest[login=$login, device=$device]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-    if (this.login != null) {
       json[r'login'] = this.login;
-    } else {
-      json[r'login'] = null;
-    }
-    if (this.device != null) {
       json[r'device'] = this.device;
-    } else {
-      json[r'device'] = null;
-    }
     return json;
   }
 
@@ -81,8 +61,8 @@ class LoginWithDeviceRequest {
       }());
 
       return LoginWithDeviceRequest(
-        login: LoginRequest.fromJson(json[r'login']),
-        device: RegisterDeviceRequest.fromJson(json[r'device']),
+        login: LoginRequest.fromJson(json[r'login'])!,
+        device: RegisterDeviceRequest.fromJson(json[r'device'])!,
       );
     }
     return null;
@@ -130,6 +110,8 @@ class LoginWithDeviceRequest {
 
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
+    'login',
+    'device',
   };
 }
 

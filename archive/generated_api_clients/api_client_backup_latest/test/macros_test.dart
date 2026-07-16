@@ -11,23 +11,23 @@
 import 'package:openapi/api.dart';
 import 'package:test/test.dart';
 
-// tests for SortObject
+// tests for Macros
 void main() {
-  // final instance = SortObject();
+  // final instance = Macros();
 
-  group('test SortObject', () {
-    // bool empty
-    test('to test the property `empty`', () async {
+  group('test Macros', () {
+    // double proteinGrams
+    test('to test the property `proteinGrams`', () async {
       // TODO
     });
 
-    // bool unsorted
-    test('to test the property `unsorted`', () async {
+    // double carbsGrams
+    test('to test the property `carbsGrams`', () async {
       // TODO
     });
 
-    // bool sorted
-    test('to test the property `sorted`', () async {
+    // double fatGrams
+    test('to test the property `fatGrams`', () async {
       // TODO
     });
 

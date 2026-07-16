@@ -14,7 +14,7 @@ class SocialLoginRequest {
   /// Returns a new [SocialLoginRequest] instance.
   SocialLoginRequest({
     this.idToken,
-    this.device,
+    required this.device,
   });
 
   ///
@@ -25,13 +25,7 @@ class SocialLoginRequest {
   ///
   String? idToken;
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  RegisterDeviceRequest? device;
+  RegisterDeviceRequest device;
 
   @override
   bool operator ==(Object other) => identical(this, other) || other is SocialLoginRequest &&
@@ -42,7 +36,7 @@ class SocialLoginRequest {
   int get hashCode =>
     // ignore: unnecessary_parenthesis
     (idToken == null ? 0 : idToken!.hashCode) +
-    (device == null ? 0 : device!.hashCode);
+    (device.hashCode);
 
   @override
   String toString() => 'SocialLoginRequest[idToken=$idToken, device=$device]';
@@ -54,11 +48,7 @@ class SocialLoginRequest {
     } else {
       json[r'idToken'] = null;
     }
-    if (this.device != null) {
       json[r'device'] = this.device;
-    } else {
-      json[r'device'] = null;
-    }
     return json;
   }
 
@@ -82,7 +72,7 @@ class SocialLoginRequest {
 
       return SocialLoginRequest(
         idToken: mapValueOfType<String>(json, r'idToken'),
-        device: RegisterDeviceRequest.fromJson(json[r'device']),
+        device: RegisterDeviceRequest.fromJson(json[r'device'])!,
       );
     }
     return null;
@@ -130,6 +120,7 @@ class SocialLoginRequest {
 
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
+    'device',
   };
 }
 

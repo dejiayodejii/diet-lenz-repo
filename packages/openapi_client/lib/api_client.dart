@@ -257,6 +257,8 @@ class ApiClient {
           return FoodAnalysisDto.fromJson(value);
         case 'ForgotPasswordRequest':
           return ForgotPasswordRequest.fromJson(value);
+        case 'Goals':
+          return Goals.fromJson(value);
         case 'GoogleSubscriptionVerifyRequest':
           return GoogleSubscriptionVerifyRequest.fromJson(value);
         case 'HealthSyncSettings':
@@ -283,6 +285,10 @@ class ApiClient {
           return MacroNutrientsDto.fromJson(value);
         case 'MacroPerformanceDto':
           return MacroPerformanceDto.fromJson(value);
+        case 'MacroPreviewRequest':
+          return MacroPreviewRequest.fromJson(value);
+        case 'MacroPreviewResponse':
+          return MacroPreviewResponse.fromJson(value);
         case 'MacroResult':
           return MacroResult.fromJson(value);
         case 'MacroSummary':
@@ -291,6 +297,8 @@ class ApiClient {
           return MacroTargetDto.fromJson(value);
         case 'Macros':
           return Macros.fromJson(value);
+        case 'MeasureDto':
+          return MeasureDto.fromJson(value);
         case 'MealLogResponseDto':
           return MealLogResponseDto.fromJson(value);
         case 'MessageResponse':
@@ -313,6 +321,10 @@ class ApiClient {
           return PricingResponse.fromJson(value);
         case 'ProfileRequestDto':
           return ProfileRequestDto.fromJson(value);
+        case 'ProjectionPoint':
+          return ProjectionPoint.fromJson(value);
+        case 'ProjectionResponse':
+          return ProjectionResponse.fromJson(value);
         case 'QuantityDto':
           return QuantityDto.fromJson(value);
         case 'RecipeResponseDto':

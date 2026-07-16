@@ -31,11 +31,6 @@ void main() {
       // TODO
     });
 
-    // User user
-    test('to test the property `user`', () async {
-      // TODO
-    });
-
     // String type
     test('to test the property `type`', () async {
       // TODO

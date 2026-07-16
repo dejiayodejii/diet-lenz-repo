@@ -61,27 +61,29 @@ class _LoginScreenState extends ConsumerState<BiggestChallengeScreen> {
                     color: AppColors.white,
                     fontWeight: FontWeight.w600)),
             Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 80),
-                  ...List.generate(goals.length, (index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: SelectableOptionTile(
-                        label: capitalizeFirstLetter(
-                          removeUnderscores(goals[index]),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 80),
+                    ...List.generate(goals.length, (index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: SelectableOptionTile(
+                          label: capitalizeFirstLetter(
+                            removeUnderscores(goals[index]),
+                          ),
+                          isSelected: selectedIndex == index,
+                          onTap: () {
+                            setState(() {
+                              selectedIndex = index;
+                            });
+                          },
                         ),
-                        isSelected: selectedIndex == index,
-                        onTap: () {
-                          setState(() {
-                            selectedIndex = index;
-                          });
-                        },
-                      ),
-                    );
-                  }),
-                ],
+                      );
+                    }),
+                  ],
+                ),
               ),
             ),
             CustomYafButton(

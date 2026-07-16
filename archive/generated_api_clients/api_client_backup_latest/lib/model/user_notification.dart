@@ -16,7 +16,6 @@ class UserNotification {
     this.id,
     this.createdAt,
     this.updatedAt,
-    this.user,
     this.type,
     this.title,
     this.message,
@@ -48,14 +47,6 @@ class UserNotification {
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
   DateTime? updatedAt;
-
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  User? user;
 
   UserNotificationTypeEnum? type;
 
@@ -104,7 +95,6 @@ class UserNotification {
     other.id == id &&
     other.createdAt == createdAt &&
     other.updatedAt == updatedAt &&
-    other.user == user &&
     other.type == type &&
     other.title == title &&
     other.message == message &&
@@ -118,7 +108,6 @@ class UserNotification {
     (id == null ? 0 : id!.hashCode) +
     (createdAt == null ? 0 : createdAt!.hashCode) +
     (updatedAt == null ? 0 : updatedAt!.hashCode) +
-    (user == null ? 0 : user!.hashCode) +
     (type == null ? 0 : type!.hashCode) +
     (title == null ? 0 : title!.hashCode) +
     (message == null ? 0 : message!.hashCode) +
@@ -127,7 +116,7 @@ class UserNotification {
     (read == null ? 0 : read!.hashCode);
 
   @override
-  String toString() => 'UserNotification[id=$id, createdAt=$createdAt, updatedAt=$updatedAt, user=$user, type=$type, title=$title, message=$message, readAt=$readAt, actionUrl=$actionUrl, read=$read]';
+  String toString() => 'UserNotification[id=$id, createdAt=$createdAt, updatedAt=$updatedAt, type=$type, title=$title, message=$message, readAt=$readAt, actionUrl=$actionUrl, read=$read]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -145,11 +134,6 @@ class UserNotification {
       json[r'updatedAt'] = this.updatedAt!.toUtc().toIso8601String();
     } else {
       json[r'updatedAt'] = null;
-    }
-    if (this.user != null) {
-      json[r'user'] = this.user;
-    } else {
-      json[r'user'] = null;
     }
     if (this.type != null) {
       json[r'type'] = this.type;
@@ -206,7 +190,6 @@ class UserNotification {
         id: mapValueOfType<String>(json, r'id'),
         createdAt: mapDateTime(json, r'createdAt', r''),
         updatedAt: mapDateTime(json, r'updatedAt', r''),
-        user: User.fromJson(json[r'user']),
         type: UserNotificationTypeEnum.fromJson(json[r'type']),
         title: mapValueOfType<String>(json, r'title'),
         message: mapValueOfType<String>(json, r'message'),

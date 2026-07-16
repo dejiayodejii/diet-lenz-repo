@@ -24,7 +24,7 @@ class SocialSignUp extends ConsumerStatefulWidget {
     super.key,
     this.isLogin = false,
   });
-  final bool isLogin;
+final bool isLogin;
 
   @override
   ConsumerState<SocialSignUp> createState() => _SocialSignUpState();
@@ -34,6 +34,7 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
   bool _isLoading = false;
 
   Future<void> _handleGoogleSignIn() async {
+    return;
     if (_isLoading) return;
     setState(() => _isLoading = true);
 
@@ -69,6 +70,7 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
   }
 
   Future<void> _handleAppleSignIn() async {
+    return;
     if (_isLoading) return;
     setState(() => _isLoading = true);
 

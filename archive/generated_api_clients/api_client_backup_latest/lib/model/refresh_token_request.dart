@@ -14,7 +14,7 @@ class RefreshTokenRequest {
   /// Returns a new [RefreshTokenRequest] instance.
   RefreshTokenRequest({
     this.refreshToken,
-    this.device,
+    required this.device,
   });
 
   ///
@@ -25,13 +25,7 @@ class RefreshTokenRequest {
   ///
   String? refreshToken;
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  RegisterDeviceRequest? device;
+  RegisterDeviceRequest device;
 
   @override
   bool operator ==(Object other) => identical(this, other) || other is RefreshTokenRequest &&
@@ -42,7 +36,7 @@ class RefreshTokenRequest {
   int get hashCode =>
     // ignore: unnecessary_parenthesis
     (refreshToken == null ? 0 : refreshToken!.hashCode) +
-    (device == null ? 0 : device!.hashCode);
+    (device.hashCode);
 
   @override
   String toString() => 'RefreshTokenRequest[refreshToken=$refreshToken, device=$device]';
@@ -54,11 +48,7 @@ class RefreshTokenRequest {
     } else {
       json[r'refreshToken'] = null;
     }
-    if (this.device != null) {
       json[r'device'] = this.device;
-    } else {
-      json[r'device'] = null;
-    }
     return json;
   }
 
@@ -82,7 +72,7 @@ class RefreshTokenRequest {
 
       return RefreshTokenRequest(
         refreshToken: mapValueOfType<String>(json, r'refreshToken'),
-        device: RegisterDeviceRequest.fromJson(json[r'device']),
+        device: RegisterDeviceRequest.fromJson(json[r'device'])!,
       );
     }
     return null;
@@ -130,6 +120,7 @@ class RefreshTokenRequest {
 
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
+    'device',
   };
 }
 

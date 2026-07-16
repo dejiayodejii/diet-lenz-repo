@@ -26,12 +26,18 @@ class AppImages {
   static const String tiktok = '$_onboardingPath/tiktok.png';
   static const String youtube = '$_onboardingPath/youtube.png';
 
-  static const String quiz = '$_onboardingPath/quiz.jpeg';
+  static const String quiz = '$_onboardingPath/quizz.png';
+
+    static const String siho = '$_onboardingPath/siho.png';
   static const String slow = '$_onboardingPath/slow.png';
   static const String optimal = '$_onboardingPath/optimal.png';
   static const String fast = '$_onboardingPath/fast.png';
   static const String body = '$_onboardingPath/body.png';
   static const String confetti = '$_onboardingPath/confetti.png';
+  static const String foodScanGuide = '$_onboardingPath/foodscan.png';
+  static const String recipeGuide = '$_onboardingPath/recipe.png';
+  static const String barcodeGuide = '$_onboardingPath/barcode.png';
+  static const String labelGuide = '$_onboardingPath/label.png';
 
   static const String graph = '$_onboardingPath/graph.png';
   static const String add = '$_onboardingPath/add.png';
