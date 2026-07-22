@@ -104,7 +104,7 @@ class FoodLoggedPreview extends ConsumerWidget {
                                   ),
                                 ),
                                 Text(
-                                  '${loggedMeal.foodAnalysis?.totalMacros?.calories?.toStringAsFixed(2) ?? "0"} kcal',
+                                  '${loggedMeal.foodAnalysis?.totalMacros?.calories?.toStringAsFixed(1) ?? "0"} cal',
                                   style: const TextStyle(
                                     fontFamily: AppFonts.lato,
                                     fontSize: 18,

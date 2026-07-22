@@ -201,7 +201,7 @@ class _EnergyBalanceLineChart extends StatelessWidget {
               return spots.map((spot) {
                 final isIntake = spot.barIndex == 0;
                 return LineTooltipItem(
-                  '${isIntake ? 'Eaten' : 'Burnt'}: ${spot.y.round()} kcal',
+                  '${isIntake ? 'Eaten' : 'Burnt'}: ${spot.y.round()} cal',
                   TextStyle(
                     color: isIntake ? AppColors.primaryColor : AppColors.white,
                     fontFamily: AppFonts.lato,

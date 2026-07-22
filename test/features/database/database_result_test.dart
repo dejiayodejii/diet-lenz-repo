@@ -54,4 +54,39 @@ void main() {
     expect(find.widgetWithText(TextField, '2'), findsOneWidget);
     expect(find.text('410.8'), findsOneWidget);
   });
+
+  testWidgets('editing scales from the already-saved amount', (tester) async {
+    final food = FoodAnalysisDto(
+      foodName: 'Rice Cooked',
+      totalMacros: MacroNutrientsDto(
+        calories: 410.8,
+        protein: QuantityDto(value: 8.5, unit: 'g'),
+        carbs: QuantityDto(value: 89.1, unit: 'g'),
+        fat: QuantityDto(value: 0.9, unit: 'g'),
+        fiber: QuantityDto(value: 1.3, unit: 'g'),
+      ),
+      measures: [MeasureDto(label: 'Cup', weightGrams: 158)],
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: DatabaseResultDetail(
+            food,
+            loggedMeal: MealLogResponseDto(
+              id: 'meal-1',
+              servingMultiplier: 2,
+              mealType: MealLogResponseDtoMealTypeEnum.DINNER,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('410.8'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextField, '2'), '4');
+    await tester.pump();
+
+    expect(find.text('821.6'), findsOneWidget);
+  });
 }

@@ -12,4 +12,6 @@ class StorageKeys {
   static const String userProfileData = 'user_profile_data';
   static const String biometricEnabled = 'biometric_enabled';
   static const String databaseLoggedHistory = 'database_logged_history';
+  static const String cameraGuideAutomaticallyShown =
+      'camera_guide_automatically_shown_v1';
 }

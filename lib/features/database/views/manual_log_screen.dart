@@ -2,7 +2,6 @@ import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/component/custom_textfield.dart';
 import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
-import 'package:diet_lenz/features/database/controller/database_history_provider.dart';
 import 'package:diet_lenz/features/database/views/database_search_screen.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +21,9 @@ String? _numberValidator(String? value) {
 }
 
 class ManualLogScreen extends ConsumerStatefulWidget {
-  const ManualLogScreen({super.key});
+  const ManualLogScreen({super.key, this.loggedMeal});
+
+  final MealLogResponseDto? loggedMeal;
 
   @override
   ConsumerState<ManualLogScreen> createState() => _ManualLogScreenState();
@@ -39,9 +40,32 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
   final _fiberController = TextEditingController(text: '');
   bool _isSubmitting = false;
   final List<FoodAnalysisDto> _ingredients = [];
+  MacroNutrientsDto? _savedEditMacros;
+  double _savedEditAmount = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    final meal = widget.loggedMeal;
+    final analysis = meal?.foodAnalysis;
+    final macros = analysis?.totalMacros;
+    _savedEditMacros = macros;
+    _savedEditAmount = meal?.servingMultiplier ?? 1;
+    _nameController.text = analysis?.foodName ?? meal?.foodName ?? '';
+    _caloriesController.text = _formatInitial(macros?.calories);
+    _servingMultiplierController.text = _formatInitial(meal?.servingMultiplier);
+    _proteinController.text = _formatInitial(macros?.protein?.value);
+    _carbsController.text = _formatInitial(macros?.carbs?.value);
+    _fatController.text = _formatInitial(macros?.fat?.value);
+    _fiberController.text = _formatInitial(macros?.fiber?.value);
+    if (meal != null) {
+      _servingMultiplierController.addListener(_onEditAmountChanged);
+    }
+  }
 
   @override
   void dispose() {
+    _servingMultiplierController.removeListener(_onEditAmountChanged);
     _nameController.dispose();
     _caloriesController.dispose();
     _servingMultiplierController.dispose();
@@ -54,6 +78,12 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
 
   Future<void> _addToFoodLog() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (widget.loggedMeal != null &&
+        _parseNumber(_servingMultiplierController.text) <= 0) {
+      ref.read(toastProvider).showError('Enter an amount greater than zero');
+      return;
+    }
 
     FocusScope.of(context).unfocus();
     setState(() => _isSubmitting = true);
@@ -84,13 +114,25 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
 
     final request = LogMealRequestDto(
       foodAnalysis: foodAnalysis,
-      mealType: LogMealRequestDtoMealTypeEnum.DINNER,
-      servingMultiplier: 1.0,
-      source_: LogMealRequestDtoSource_Enum.MANUAL
+      mealType: LogMealRequestDtoMealTypeEnum.fromJson(
+            widget.loggedMeal?.mealType?.value,
+          ) ??
+          LogMealRequestDtoMealTypeEnum.DINNER,
+      servingMultiplier: widget.loggedMeal == null
+          ? _parseNumber(_servingMultiplierController.text)
+          : _parseNumber(_servingMultiplierController.text)
+              .clamp(0.01, double.infinity),
+      source_: LogMealRequestDtoSource_Enum.MANUAL,
+      loggedDate: widget.loggedMeal?.loggedDate,
     );
 
-    final success =
-        await ref.read(foodLoggingViewModelProvider.notifier).logMeal(request);
+    final notifier = ref.read(foodLoggingViewModelProvider.notifier);
+    final success = widget.loggedMeal == null
+        ? await notifier.logMeal(request)
+        : await notifier.editMealLog(
+            id: widget.loggedMeal!.id!,
+            mealRequest: request,
+          );
 
     if (!mounted) return;
 
@@ -102,17 +144,46 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
       return;
     }
 
-    await ref
-        .read(databaseLoggedHistoryProvider.notifier)
-        .saveLoggedFood(foodAnalysis);
-
     if (!mounted) return;
-    ref.read(toastProvider).showSuccess('Meal logged successfully!');
-    Navigator.of(context).pop();
+    // final loggedDate = widget.loggedMeal?.loggedDate;
+    // if (loggedDate != null) {
+    notifier
+      ..getUserRecipes(date: DateTime.now(), refresh: true)
+      ..getDashboard(date: DateTime.now(), refresh: true);
+    // }
+    ref.read(toastProvider).showSuccess(
+          widget.loggedMeal == null
+              ? 'Meal logged successfully!'
+              : 'Meal updated successfully!',
+        );
+    Navigator.of(context).pop(true);
   }
 
   double _parseNumber(String value) {
     return double.tryParse(value.trim()) ?? 0;
+  }
+
+  String _formatInitial(double? value) {
+    if (value == null) return '';
+    return value == value.roundToDouble()
+        ? value.toInt().toString()
+        : value.toString();
+  }
+
+  void _onEditAmountChanged() {
+    final macros = _savedEditMacros;
+    if (macros == null || _savedEditAmount <= 0) return;
+
+    final amount = _parseNumber(_servingMultiplierController.text);
+    if (amount <= 0) return;
+    final factor = amount / _savedEditAmount;
+
+    _caloriesController.text = _formatNumber((macros.calories ?? 0) * factor);
+    _proteinController.text =
+        _formatNumber((macros.protein?.value ?? 0) * factor);
+    _carbsController.text = _formatNumber((macros.carbs?.value ?? 0) * factor);
+    _fatController.text = _formatNumber((macros.fat?.value ?? 0) * factor);
+    _fiberController.text = _formatNumber((macros.fiber?.value ?? 0) * factor);
   }
 
   Future<void> _openIngredientSearch() async {
@@ -244,7 +315,7 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
                       focusedBorderColor: AppColors.primaryColor,
                       focusedBorderWidth: 1.5,
                       textAlignVertical: TextAlignVertical.center,
-                      suffixIcon: const _ManualUnitSuffix('kcal'),
+                      suffixIcon: const _ManualUnitSuffix('cal'),
                     ),
                     const SizedBox(height: 24),
                     LabelTextFormField(
@@ -254,15 +325,15 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      // inputFormatters: [_decimalFormatter],
-                      // validator: _numberValidator,
+                      inputFormatters: [_decimalFormatter],
+                      validator: _numberValidator,
                       useSpace: false,
                       fillColor: const Color(0xFF262422),
                       borderColor: const Color(0xFF9A9A9A),
                       focusedBorderColor: AppColors.primaryColor,
                       focusedBorderWidth: 1.5,
                       textAlignVertical: TextAlignVertical.center,
-                      suffixIcon: const _ManualUnitSuffix('kcal'),
+                      // suffixIcon: const _ManualUnitSuffix('cal'),
                     ),
                     const SizedBox(height: 24),
                     Row(
@@ -350,7 +421,9 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
                     width: double.infinity,
                     isLoading: _isSubmitting,
                     onPressed: _isSubmitting ? null : _addToFoodLog,
-                    text: "Add to food log")),
+                    text: widget.loggedMeal == null
+                        ? "Add to food log"
+                        : "Save changes")),
           ],
         ),
       ),
@@ -401,8 +474,8 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
               children: [
                 _buildMacroInfo(
                   _ingredients.isEmpty
-                      ? '__ kcal'
-                      : '${_caloriesController.text} kcal',
+                      ? '__ cal'
+                      : '${_caloriesController.text} cal',
                 ),
                 _buildMacroInfo(
                   _ingredients.isEmpty

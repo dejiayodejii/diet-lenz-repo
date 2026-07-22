@@ -36,11 +36,10 @@ class _FoodSearchResultTileState extends ConsumerState<FoodSearchResultTile> {
     setState(() => _isSubmitting = true);
 
     final request = LogMealRequestDto(
-      foodAnalysis: widget.food,
-      mealType: LogMealRequestDtoMealTypeEnum.DINNER,
-      servingMultiplier: 100,
-       source_: LogMealRequestDtoSource_Enum.SEARCH
-    );
+        foodAnalysis: widget.food,
+        mealType: LogMealRequestDtoMealTypeEnum.DINNER,
+        servingMultiplier: 100,
+        source_: LogMealRequestDtoSource_Enum.SEARCH);
     final foodLoggingViewModel =
         ref.read(foodLoggingViewModelProvider.notifier);
     final success = await foodLoggingViewModel.logMeal(request);
@@ -114,7 +113,7 @@ class _FoodSearchResultTileState extends ConsumerState<FoodSearchResultTile> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    '${widget.food.totalMacros?.calories ?? 0} kcal',
+                    '${widget.food.totalMacros?.calories ?? 0} cal per 100g',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(

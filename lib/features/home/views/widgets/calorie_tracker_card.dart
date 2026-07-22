@@ -109,7 +109,7 @@ class CalorieTrackerCard extends StatelessWidget {
                             ),
                           ),
                           const TextSpan(
-                            text: ' kcal',
+                            text: ' cal',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,

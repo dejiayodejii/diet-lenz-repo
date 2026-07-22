@@ -183,7 +183,7 @@ class _CalorieBurnLineChart extends StatelessWidget {
                 getTooltipItems: (spots) {
                   return spots.map((spot) {
                     return LineTooltipItem(
-                      '${spot.y.round()} kcal',
+                      '${spot.y.round()} cal',
                       const TextStyle(
                         color: Colors.black,
                         fontFamily: AppFonts.lato,
@@ -294,7 +294,7 @@ class _HealthMetricTileRow extends StatelessWidget {
         Expanded(
           child: _HealthMetricTile(
             icon: Image.asset(AppImages.burn, height: 26, width: 26),
-            value: '${_formatNumber(healthData.activeCalories)} KCAL',
+            value: '${_formatNumber(healthData.activeCalories)} CAL',
             label: 'CAL BURN',
           ),
         ),

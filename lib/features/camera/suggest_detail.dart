@@ -30,7 +30,10 @@ class SuggestMealDetailScreen extends ConsumerStatefulWidget {
     super.key,
     required this.suggestion,
     this.headerImage,
+    this.loggedMeal,
   });
+
+  final MealLogResponseDto? loggedMeal;
 
   @override
   ConsumerState<SuggestMealDetailScreen> createState() =>
@@ -54,8 +57,12 @@ class _SuggestMealDetailScreenState
     ingredients = List.from(widget.suggestion.ingredients);
     // Create a mutable copy of the recipe steps list
     recipeSteps = List.from(widget.suggestion.recipeSteps);
-    _amountController = TextEditingController(text: '1')
-      ..addListener(_onAmountChanged);
+    _amountController = TextEditingController(
+      text: _formatAmount(widget.loggedMeal?.servingMultiplier ?? 1),
+    )..addListener(_onAmountChanged);
+    _selectedMealType = LogMealRequestDtoMealTypeEnum.fromJson(
+      widget.loggedMeal?.mealType?.value,
+    );
   }
 
   @override
@@ -98,7 +105,16 @@ class _SuggestMealDetailScreenState
     return math.max(0, totalWeightGrams / 100);
   }
 
-  double _scaled(double value) => value * _servingMultiplier;
+  double get _nutritionScaleFactor {
+    final loggedMeal = widget.loggedMeal;
+    if (loggedMeal == null) return _servingMultiplier;
+
+    final savedAmount = loggedMeal.servingMultiplier ?? 1;
+    if (savedAmount <= 0) return 1;
+    return _amount / savedAmount;
+  }
+
+  double _scaled(double value) => value * _nutritionScaleFactor;
 
   double get _scaledCalories => _scaled(calories);
   double get _scaledProtein => _scaled(protein);
@@ -131,7 +147,7 @@ class _SuggestMealDetailScreenState
       description:
           _reAnalyzedResult?.description ?? widget.suggestion.description,
       imageBase64: _reAnalyzedResult?.imageBase64,
-       measures: _selectedMeasure != null ? [_selectedMeasure!] : [],
+      measures: _selectedMeasure != null ? [_selectedMeasure!] : [],
       totalMacros: MacroNutrientsDto(
         calories: _scaledCalories,
         protein: QuantityDto(
@@ -155,16 +171,27 @@ class _SuggestMealDetailScreenState
 
     // Create log meal request
     final request = LogMealRequestDto(
-      foodAnalysis: foodAnalysis,
-      mealType: _selectedMealType!,
-      // The analysis already contains the totals displayed in the UI.
-      // Keep this at one so the backend does not scale them a second time.
-      servingMultiplier: _amount,
-       source_: LogMealRequestDtoSource_Enum.AI_IMAGE
-    );
+        foodAnalysis: foodAnalysis,
+        mealType: _selectedMealType!,
+        // The analysis already contains the totals displayed in the UI.
+        // Keep this at one so the backend does not scale them a second time.
+        servingMultiplier: _amount,
+        source_: LogMealRequestDtoSource_Enum.AI_IMAGE);
 
     // Log the meal
-    final result = await foodLoggingVM.logMeal(request);
+    final loggedMeal = widget.loggedMeal;
+    final result = loggedMeal == null
+        ? await foodLoggingVM.logMeal(request)
+        : await foodLoggingVM.editMealLog(
+            id: loggedMeal.id!,
+            mealRequest: LogMealRequestDto(
+              foodAnalysis: request.foodAnalysis,
+              mealType: request.mealType,
+              source_: request.source_,
+              servingMultiplier: request.servingMultiplier,
+              loggedDate: loggedMeal.loggedDate,
+            ),
+          );
 
     // Check for errors
     final state = ref.read(foodLoggingViewModelProvider);
@@ -177,17 +204,21 @@ class _SuggestMealDetailScreenState
     } else {
       // Success
       if (mounted) {
-        ref.read(toastProvider).showSuccess(
-              'Meal logged successfully!',
-            );
-        final date = DateTime.now();
+        ref.read(toastProvider).showSuccess(loggedMeal == null
+            ? 'Meal logged successfully!'
+            : 'Meal updated successfully!');
+        final date = loggedMeal?.loggedDate ?? DateTime.now();
         ref
             .read(foodLoggingViewModelProvider.notifier)
             .getUserRecipes(date: date, refresh: true);
         ref
             .read(foodLoggingViewModelProvider.notifier)
             .getDashboard(date: date, refresh: true);
-        NavigationService.pushAndRemoveUntil(child: const BottomNavScreen());
+        if (loggedMeal == null) {
+          NavigationService.pushAndRemoveUntil(child: const BottomNavScreen());
+        } else {
+          Navigator.of(context).pop(true);
+        }
       }
     }
   }
@@ -250,43 +281,46 @@ class _SuggestMealDetailScreenState
     return BlurryModalProgressHUD(
         inAsyncCall: state.isLoading || recipeState.isLoading,
         child: Scaffold(
+          appBar: widget.headerImage == null ? AppBar() : null,
           // backgroundColor: Colors.black,
           extendBody: true,
           body: Stack(
             fit: StackFit.expand,
             children: [
-              Stack(
-                children: [
-                  widget.headerImage ??
-                      Image.asset(
-                        AppImages.salad,
-                        scale: 2,
-                        height: 300,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                  Positioned(
-                    top: 40.0,
-                    left: 15,
-                    child: GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
-                          shape: BoxShape.circle,
+              widget.headerImage == null
+                  ? SizedBox.shrink()
+                  : Stack(
+                      children: [
+                        widget.headerImage ??
+                            Image.asset(
+                              AppImages.salad,
+                              scale: 2,
+                              height: 300,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                        Positioned(
+                          top: 40.0,
+                          left: 15,
+                          child: GestureDetector(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.5),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.arrow_back,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                        ),
-                      ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
               Positioned(
-                top: 250,
+                top: widget.headerImage == null ? 0 : 250,
                 bottom: 0,
                 right: 0,
                 left: 0,
@@ -342,7 +376,7 @@ class _SuggestMealDetailScreenState
                               const SizedBox(height: 20),
                               NutritionReadout(
                                 value: _formatNutritionValue(_scaledCalories),
-                                unit: 'Kcal',
+                                unit: 'cal',
                               ),
                               const SizedBox(height: 20),
                               if (_measures.isNotEmpty) ...[
@@ -532,7 +566,9 @@ class _SuggestMealDetailScreenState
                               _buildMealTypeSelector(),
                               const SizedBox(height: 20),
                               CustomYafButton(
-                                text: "Add to Log",
+                                text: widget.loggedMeal == null
+                                    ? "Add to Log"
+                                    : "Save Changes",
                                 onPressed: _handleAddToLog,
                               ),
                               const SizedBox(height: 40), // Space for button
@@ -547,6 +583,12 @@ class _SuggestMealDetailScreenState
             ],
           ),
         ));
+  }
+
+  String _formatAmount(double value) {
+    return value == value.roundToDouble()
+        ? value.toInt().toString()
+        : value.toString();
   }
 
   void _onAmountChanged() {
@@ -820,7 +862,7 @@ class _SuggestMealDetailScreenState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildMacroInfo(
-                  "${ingredient.macros?.calories?.toStringAsFixed(0) ?? "0"} kcal"),
+                  "${ingredient.macros?.calories?.toStringAsFixed(0) ?? "0"} cal"),
               _buildMacroInfo(
                   "Protein: ${ingredient.macros?.protein?.value?.toStringAsFixed(0) ?? "0"}g"),
               _buildMacroInfo(

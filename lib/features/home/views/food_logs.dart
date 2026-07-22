@@ -264,7 +264,7 @@ class FavouriteFood extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${favorite.macros?.calories?.toStringAsFixed(0) ?? "0"} kcal',
+                      '${favorite.macros?.calories?.toStringAsFixed(0) ?? "0"} cal',
                       style: const TextStyle(
                         fontSize: 13,
                         color: Colors.grey,

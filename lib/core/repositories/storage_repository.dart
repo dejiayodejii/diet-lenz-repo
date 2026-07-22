@@ -158,7 +158,16 @@ class StorageRepository {
 
   // Clear all stored data
   Future<void> clearStorage() async {
+    final hasShownCameraGuide =
+        _storageService.getBool(StorageKeys.cameraGuideAutomaticallyShown) ??
+            false;
     await _storageService.clear();
+    if (hasShownCameraGuide) {
+      await _storageService.setBool(
+        StorageKeys.cameraGuideAutomaticallyShown,
+        true,
+      );
+    }
     // setOnboarding(true);
   }
 }

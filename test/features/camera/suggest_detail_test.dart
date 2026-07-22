@@ -51,4 +51,42 @@ void main() {
     expect(find.text('20g'), findsOneWidget);
     expect(find.text('10g'), findsOneWidget);
   });
+
+  testWidgets('editing adjusts saved totals only by the amount ratio',
+      (tester) async {
+    final suggestion = SuggestedFoodAnalysis(
+      foodName: 'Chicken Salad',
+      description: 'Saved chicken salad',
+      totalMacros: MacroNutrientsDto(
+        calories: 500,
+        protein: QuantityDto(value: 40, unit: 'g'),
+        carbs: QuantityDto(value: 60, unit: 'g'),
+        fat: QuantityDto(value: 20, unit: 'g'),
+        fiber: QuantityDto(value: 10, unit: 'g'),
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [apiServiceProvider.overrideWithValue(ApiService())],
+        child: MaterialApp(
+          home: SuggestMealDetailScreen(
+            suggestion: suggestion,
+            loggedMeal: MealLogResponseDto(
+              id: 'meal-1',
+              servingMultiplier: 2,
+              mealType: MealLogResponseDtoMealTypeEnum.DINNER,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('500'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextField, '2'), '4');
+    await tester.pump();
+
+    expect(find.text('1000'), findsOneWidget);
+    expect(find.text('120g'), findsOneWidget);
+  });
 }

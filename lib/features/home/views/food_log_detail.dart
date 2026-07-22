@@ -9,6 +9,10 @@ import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/core/utils/loader.dart';
 import 'package:diet_lenz/features/bottom_nav/bottom.dart';
+import 'package:diet_lenz/features/camera/analyse_result.dart';
+import 'package:diet_lenz/features/camera/database_result.dart';
+import 'package:diet_lenz/features/camera/suggest_detail.dart';
+import 'package:diet_lenz/features/database/views/manual_log_screen.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
 import 'package:diet_lenz/widgets/calorie_badge.dart';
 import 'package:diet_lenz/widgets/macro_progress_item.dart';
@@ -38,9 +42,7 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
   LogMealRequestDtoMealTypeEnum? _selectedMealType =
       LogMealRequestDtoMealTypeEnum.DINNER;
   MealLogResponseDto? _editedLoggedMeal;
-  FoodAnalysisDto? _editedFoodAnalysis;
   String? _editedNotes;
-  double _servingMultiplier = 1.0;
 
   MealLogResponseDto? get _loggedMeal => _editedLoggedMeal ?? widget.loggedMeal;
 
@@ -55,20 +57,17 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
     log("meal logged is ${widget.recipe}");
     _selectedMealType = _requestMealTypeFromLoggedMeal(_loggedMeal?.mealType) ??
         LogMealRequestDtoMealTypeEnum.DINNER;
-    _servingMultiplier = _loggedMeal?.servingMultiplier ?? 1.0;
     _editedNotes = _loggedMeal?.notes;
   }
 
   // Helper getters to extract data from either recipe or favorite
   String get foodName =>
-      _editedFoodAnalysis?.foodName ??
       _loggedMeal?.foodName ??
       widget.recipe?.foodName ??
       widget.favorite?.foodName ??
       "Unknown Food";
 
   String get description =>
-      _editedFoodAnalysis?.description ??
       _editedNotes ??
       _loggedMeal?.notes ??
       widget.recipe?.description ??
@@ -83,27 +82,22 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
   MacroInfoDto? get macros => widget.recipe?.macros ?? widget.favorite?.macros;
 
   double get calories =>
-      _editedFoodAnalysis?.totalMacros?.calories ??
       _loggedMeal?.foodAnalysis?.totalMacros?.calories ??
       macros?.calories ??
       0.0;
   double get protein =>
-      _editedFoodAnalysis?.totalMacros?.protein?.value ??
       _loggedMeal?.foodAnalysis?.totalMacros?.protein?.value ??
       macros?.proteinGrams ??
       0.0;
   double get carbs =>
-      _editedFoodAnalysis?.totalMacros?.carbs?.value ??
-    _loggedMeal?.foodAnalysis?.totalMacros?.carbs?.value ??
+      _loggedMeal?.foodAnalysis?.totalMacros?.carbs?.value ??
       macros?.carbsGrams ??
       0.0;
   double get fat =>
-      _editedFoodAnalysis?.totalMacros?.fat?.value ??
-    _loggedMeal?.foodAnalysis?.totalMacros?.fat?.value ??
+      _loggedMeal?.foodAnalysis?.totalMacros?.fat?.value ??
       macros?.fatGrams ??
       0.0;
   double get fiber =>
-      _editedFoodAnalysis?.totalMacros?.fiber?.value ??
       _loggedMeal?.foodAnalysis?.totalMacros?.fiber?.value ??
       macros?.fiberGrams ??
       0.0;
@@ -189,55 +183,6 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
         NavigationService.pushAndRemoveUntil(child: const BottomNavScreen());
       }
     }
-  }
-
-  Future<void> _handleEditMeal({
-    required FoodAnalysisDto foodAnalysis,
-    required LogMealRequestDtoMealTypeEnum mealType,
-    required double servingMultiplier,
-    String? notes,
-  }) async {
-    final mealLogId = _mealLogId;
-    if (mealLogId == null || mealLogId.isEmpty) {
-      ref.read(toastProvider).showError('Unable to edit this meal log');
-      return;
-    }
-
-    final loggedDate = _loggedMeal?.loggedDate ?? DateTime.now();
-    final request = LogMealRequestDto(
-      // existingRecipeId: mealLogId,
-      foodAnalysis: foodAnalysis,
-      mealType: mealType,
-      servingMultiplier: servingMultiplier,
-      loggedDate: loggedDate,
-      notes: notes,
-    );
-
-    final result = await ref
-        .read(foodLoggingViewModelProvider.notifier)
-        .editMealLog(id: mealLogId, mealRequest: request);
-
-    if (!mounted) return;
-
-    if (!result) {
-      final errorMsg = ref.read(foodLoggingViewModelProvider).errorMessage;
-      ref.read(toastProvider).showError('Failed to edit meal: $errorMsg');
-      return;
-    }
-
-    final updatedMeal = ref.read(foodLoggingViewModelProvider).loggedMeal;
-    setState(() {
-      _editedLoggedMeal = updatedMeal;
-      _editedFoodAnalysis = updatedMeal == null ? foodAnalysis : null;
-      _editedNotes = notes;
-      _selectedMealType = mealType;
-      _servingMultiplier = servingMultiplier;
-    });
-
-    ref.read(foodLoggingViewModelProvider.notifier)
-      ..getUserRecipes(date: loggedDate, refresh: true)
-      ..getDashboard(date: loggedDate, refresh: true);
-    ref.read(toastProvider).showSuccess('Meal updated successfully');
   }
 
   Future<void> _confirmDeleteMeal() async {
@@ -356,25 +301,58 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
     );
   }
 
-  void _showEditBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _EditMealBottomSheet(
-        foodName: foodName,
-        description: description,
-        calories: calories,
-        protein: protein,
-        carbs: carbs,
-        fat: fat,
-        fiber: fiber,
-        servingMultiplier: _servingMultiplier,
-        selectedMealType:
-            _selectedMealType ?? LogMealRequestDtoMealTypeEnum.DINNER,
-        onSubmit: _handleEditMeal,
-      ),
+  Future<void> _openEditScreen() async {
+    final loggedMeal = _loggedMeal;
+    if (loggedMeal == null) return;
+
+    final analysis = loggedMeal.foodAnalysis ?? _buildFoodAnalysis();
+    final source = loggedMeal.foodSource;
+    final hasImage = loggedMeal.imageUrl?.trim().isNotEmpty == true ||
+        analysis.imageBase64?.trim().isNotEmpty == true;
+
+    late final Widget editScreen;
+    if (source == MealLogResponseDtoFoodSourceEnum.MANUAL) {
+      editScreen = ManualLogScreen(loggedMeal: loggedMeal);
+    } else if (source == MealLogResponseDtoFoodSourceEnum.SEARCH) {
+      editScreen = DatabaseResultDetail(
+        analysis,
+        loggedMeal: loggedMeal,
+      );
+    } else if (source == MealLogResponseDtoFoodSourceEnum.AI_IMAGE &&
+        !hasImage) {
+      editScreen = SuggestMealDetailScreen(
+        suggestion: SuggestedFoodAnalysis(
+          foodName: analysis.foodName,
+          description: analysis.description,
+          totalMacros: analysis.totalMacros,
+        ),
+        loggedMeal: loggedMeal,
+      );
+    } else if (source == MealLogResponseDtoFoodSourceEnum.AI_IMAGE) {
+      editScreen = AnalyseResultDetail(
+        analysis,
+        loggedMeal: loggedMeal,
+        headerImageUrl: loggedMeal.imageUrl,
+      );
+    } else {
+      ref.read(toastProvider).showError('Edit not available for this meal');
+      return;
+    }
+
+    final updated = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => editScreen),
     );
+    if (!mounted || updated != true) return;
+
+    final updatedMeal = ref.read(foodLoggingViewModelProvider).loggedMeal;
+    if (updatedMeal != null) {
+      setState(() {
+        _editedLoggedMeal = updatedMeal;
+        _editedNotes = updatedMeal.notes;
+        _selectedMealType =
+            _requestMealTypeFromLoggedMeal(updatedMeal.mealType);
+      });
+    }
   }
 
   @override
@@ -389,7 +367,7 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
           actions: [
             if (_canManageLoggedMeal) ...[
               IconButton(
-                onPressed: _showEditBottomSheet,
+                onPressed: _openEditScreen,
                 icon: const Icon(Icons.edit_outlined),
                 tooltip: 'Edit meal',
               ),
@@ -512,6 +490,8 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
   }
 }
 
+// Kept temporarily for compatibility with the previous inline editor.
+// ignore: unused_element
 class _EditMealBottomSheet extends StatefulWidget {
   const _EditMealBottomSheet({
     required this.foodName,
@@ -777,7 +757,7 @@ class _EditMealBottomSheetState extends State<_EditMealBottomSheet> {
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
-                        suffixText: 'kcal',
+                        suffixText: 'cal',
                       ),
                       const SizedBox(height: 14),
                       Row(

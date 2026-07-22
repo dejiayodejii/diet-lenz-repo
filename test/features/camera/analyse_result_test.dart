@@ -98,4 +98,43 @@ void main() {
     expect(find.text('8g'), findsOneWidget);
     expect(find.text('4g'), findsOneWidget);
   });
+
+  testWidgets('editing starts with scaled totals and adjusts by amount ratio',
+      (tester) async {
+    final food = FoodAnalysisDto(
+      foodName: 'Jollof Rice',
+      totalMacros: MacroNutrientsDto(
+        calories: 500,
+        protein: QuantityDto(value: 16, unit: 'g'),
+        carbs: QuantityDto(value: 80, unit: 'g'),
+        fat: QuantityDto(value: 12, unit: 'g'),
+        fiber: QuantityDto(value: 6, unit: 'g'),
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [apiServiceProvider.overrideWithValue(ApiService())],
+        child: MaterialApp(
+          home: AnalyseResultDetail(
+            food,
+            loggedMeal: MealLogResponseDto(
+              id: 'meal-1',
+              servingMultiplier: 2,
+              mealType: MealLogResponseDtoMealTypeEnum.DINNER,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('500'), findsOneWidget);
+    expect(find.text('80g'), findsOneWidget);
+
+    await tester.enterText(find.widgetWithText(TextField, '2'), '4');
+    await tester.pump();
+
+    expect(find.text('1000'), findsOneWidget);
+    expect(find.text('160g'), findsOneWidget);
+  });
 }

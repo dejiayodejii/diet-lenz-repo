@@ -323,7 +323,7 @@ class _EditIngredientScreenState extends State<EditIngredientScreen> {
                   runSpacing: 4,
                   children: [
                     _buildMacroInfo(
-                        "${ingredient.macros?.calories?.toStringAsFixed(0) ?? "0"} kcal"),
+                        "${ingredient.macros?.calories?.toStringAsFixed(0) ?? "0"} cal"),
                     _buildMacroInfo(
                         "P: ${ingredient.macros?.protein?.value?.toStringAsFixed(0) ?? "0"}g"),
                     _buildMacroInfo(
@@ -383,7 +383,7 @@ class _EditIngredientScreenState extends State<EditIngredientScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildMacroInfo("__ kcal"),
+                _buildMacroInfo("__ cal"),
                 _buildMacroInfo("Protein: __g"),
                 _buildMacroInfo("Carbs: __g"),
                 _buildMacroInfo("Fat: __g"),

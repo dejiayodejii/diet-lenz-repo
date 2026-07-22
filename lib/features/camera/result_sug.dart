@@ -308,7 +308,7 @@ class MealPlanCard extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                _buildMacroLabel("$kcal kcal"),
+                _buildMacroLabel("$kcal cal"),
                 _buildDivider(),
                 _buildMacroLabel("Protein: $protein"),
                 _buildDivider(),

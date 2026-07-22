@@ -24,10 +24,14 @@ class AnalyseResultDetail extends ConsumerStatefulWidget {
     this.analysis, {
     super.key,
     this.trackInDatabaseHistory = false,
+    this.loggedMeal,
+    this.headerImageUrl,
   });
 
   final FoodAnalysisDto analysis;
   final bool trackInDatabaseHistory;
+  final MealLogResponseDto? loggedMeal;
+  final String? headerImageUrl;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _FoodLogDetailState();
@@ -59,8 +63,11 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
     final analysis = widget.analysis;
     final imageBase64 = analysis.imageBase64;
     _imageBytes = imageBase64 == null ? null : base64Decode(imageBase64);
-    _imageViewer =
-        _imageBytes == null ? null : ImageViewer(imageBytes: _imageBytes);
+    _imageViewer = _imageBytes != null
+        ? ImageViewer(imageBytes: _imageBytes)
+        : widget.headerImageUrl?.trim().isNotEmpty == true
+            ? Image.network(widget.headerImageUrl!, fit: BoxFit.cover)
+            : null;
     _measures = _prepareMeasures(analysis.measures);
     if (_measures.isNotEmpty) {
       _selectedMeasure = _measures.firstWhere(
@@ -82,8 +89,14 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
         text: (analysis.totalMacros?.fat?.value ?? 0.0).toStringAsFixed(1));
     _fiberController = TextEditingController(
         text: (analysis.totalMacros?.fiber?.value ?? 0.0).toStringAsFixed(1));
-    _amountController = TextEditingController(text: '1')
-      ..addListener(_onAmountChanged);
+    _amountController = TextEditingController(
+      text: _formatAmount(widget.loggedMeal?.servingMultiplier ?? 1),
+    )..addListener(_onAmountChanged);
+    _selectedMealType = LogMealRequestDtoMealTypeEnum.fromJson(
+          widget.loggedMeal?.mealType?.value,
+        ) ??
+        _selectedMealType;
+    noteController.text = widget.loggedMeal?.notes ?? '';
   }
 
   @override
@@ -189,7 +202,16 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
     return math.max(0, totalWeightGrams / 100);
   }
 
-  double _scaled(double value) => value * _servingMultiplier;
+  double get _nutritionScaleFactor {
+    final loggedMeal = widget.loggedMeal;
+    if (loggedMeal == null) return _servingMultiplier;
+
+    final savedAmount = loggedMeal.servingMultiplier ?? 1;
+    if (savedAmount <= 0) return 1;
+    return _amount / savedAmount;
+  }
+
+  double _scaled(double value) => value * _nutritionScaleFactor;
 
   double get _scaledCalories => _scaled(calories);
   double get _scaledCarbs => _scaled(carbs);
@@ -247,7 +269,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
     final request = LogMealRequestDto(
       foodAnalysis: editedAnalysis,
       mealType: _selectedMealType!,
-       source_: LogMealRequestDtoSource_Enum.AI_IMAGE,
+      source_: LogMealRequestDtoSource_Enum.AI_IMAGE,
       notes: noteController.text.trim().isEmpty
           ? null
           : noteController.text.trim(),
@@ -257,7 +279,20 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
     );
 
     // Log the meal
-    final result = await foodLoggingVM.logMeal(request);
+    final loggedMeal = widget.loggedMeal;
+    final result = loggedMeal == null
+        ? await foodLoggingVM.logMeal(request)
+        : await foodLoggingVM.editMealLog(
+            id: loggedMeal.id!,
+            mealRequest: LogMealRequestDto(
+              foodAnalysis: request.foodAnalysis,
+              mealType: request.mealType,
+              source_: request.source_,
+              notes: request.notes,
+              servingMultiplier: request.servingMultiplier,
+              loggedDate: loggedMeal.loggedDate,
+            ),
+          );
 
     // Check for errors
     final state = ref.read(foodLoggingViewModelProvider);
@@ -276,9 +311,16 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
               .saveLoggedFood(editedAnalysis);
         }
 
-        ref.read(toastProvider).showSuccess(
-              'Meal logged successfully!',
-            );
+        ref.read(toastProvider).showSuccess(loggedMeal == null
+            ? 'Meal logged successfully!'
+            : 'Meal updated successfully!');
+        if (loggedMeal != null) {
+          foodLoggingVM
+            ..getUserRecipes(date: loggedMeal.loggedDate, refresh: true)
+            ..getDashboard(date: loggedMeal.loggedDate, refresh: true);
+          Navigator.of(context).pop(true);
+          return;
+        }
         final foodLoggingVm = ref.read(foodLoggingViewModelProvider.notifier);
         foodLoggingVm.clearAllRecipes();
         foodLoggingVm.invalidateCache();
@@ -352,6 +394,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
     );
   }
 
+  // ignore: unused_element
   void _showEditBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -519,7 +562,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                                                 isDense: true,
                                                 contentPadding: EdgeInsets.zero,
                                                 border: InputBorder.none,
-                                                suffixText: 'kcal',
+                                                suffixText: 'cal',
                                                 suffixStyle: TextStyle(
                                                   color:
                                                       AppColors.textLightGrey,
@@ -938,7 +981,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                       const SizedBox(height: 20),
                       NutritionReadout(
                         value: _formatNutritionValue(_scaledCalories),
-                        unit: 'Kcal',
+                        unit: 'cal',
                       ),
                       const SizedBox(height: 20),
                       if (_measures.isNotEmpty) ...[
@@ -977,7 +1020,9 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                       ),
                       const SizedBox(height: 20),
                       CustomYafButton(
-                        text: "Add to Log",
+                        text: widget.loggedMeal == null
+                            ? "Add to Log"
+                            : "Save Changes",
                         onPressed: _handleAddToLog,
                       ),
                       SizedBox(
@@ -995,6 +1040,12 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
 
   void _onAmountChanged() {
     if (mounted) setState(() {});
+  }
+
+  String _formatAmount(double value) {
+    return value == value.roundToDouble()
+        ? value.toInt().toString()
+        : value.toString();
   }
 
   Widget _buildAmountField() {

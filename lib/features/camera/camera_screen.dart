@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/core/constants/app_colors.dart';
+import 'package:diet_lenz/core/constants/storage_keys.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/core/services/storage_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/core/utils/loader.dart';
-import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
 import 'package:diet_lenz/features/camera/analyse_result.dart';
+import 'package:diet_lenz/features/camera/camerawesome_test_screen.dart';
 import 'package:diet_lenz/features/camera/result_sug.dart'; // Import SuggestResultScreen
 import 'package:diet_lenz/features/recipe/controller/recipe_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +19,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart' as http_parser;
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:mobile_scanner/mobile_scanner.dart' hide CameraLensType;
 import 'package:path_provider/path_provider.dart'; // Add path_provider
 
 /// Bakes EXIF orientation into the pixels before an image is uploaded.
@@ -54,6 +56,55 @@ Offset normalizedCameraPoint(Offset localPosition, Size viewSize) {
   return Offset(
     (localPosition.dx / viewSize.width).clamp(0.0, 1.0),
     (localPosition.dy / viewSize.height).clamp(0.0, 1.0),
+  );
+}
+
+Offset normalizedCameraPointForCover(
+  Offset localPosition,
+  Size viewSize,
+  Size cameraPreviewSize,
+) {
+  if (viewSize.width <= 0 ||
+      viewSize.height <= 0 ||
+      cameraPreviewSize.width <= 0 ||
+      cameraPreviewSize.height <= 0) {
+    return const Offset(0.5, 0.5);
+  }
+
+  // CameraPreview reports landscape sensor dimensions while this screen is
+  // locked to portrait. Match the same rotated size used by _buildCameraView.
+  final portraitPreviewSize = Size(
+    cameraPreviewSize.height,
+    cameraPreviewSize.width,
+  );
+  final fitted = applyBoxFit(BoxFit.cover, portraitPreviewSize, viewSize);
+  final visibleSourceSize = fitted.source;
+  final cropX = (portraitPreviewSize.width - visibleSourceSize.width) / 2;
+  final cropY = (portraitPreviewSize.height - visibleSourceSize.height) / 2;
+
+  return Offset(
+    ((cropX + (localPosition.dx / viewSize.width) * visibleSourceSize.width) /
+            portraitPreviewSize.width)
+        .clamp(0.0, 1.0),
+    ((cropY + (localPosition.dy / viewSize.height) * visibleSourceSize.height) /
+            portraitPreviewSize.height)
+        .clamp(0.0, 1.0),
+  );
+}
+
+CameraDescription preferredCamera(List<CameraDescription> cameras) {
+  if (cameras.isEmpty) {
+    throw CameraException('no-camera', 'No cameras are available');
+  }
+
+  return cameras.firstWhere(
+    (camera) =>
+        camera.lensDirection == CameraLensDirection.back &&
+        camera.lensType == CameraLensType.wide,
+    orElse: () => cameras.firstWhere(
+      (camera) => camera.lensDirection == CameraLensDirection.back,
+      orElse: () => cameras.first,
+    ),
   );
 }
 
@@ -96,24 +147,12 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
   bool get _isBarcodeMode => selectedModeIndex == 2;
   bool get _isLabelMode => selectedModeIndex == 3;
 
-  // Kept in memory and keyed by the active authentication token, so reopening
-  // this screen does not repeat a guide, while a new login session starts over.
-  static final Map<int, Set<int>> _dismissedGuideModesBySession = {};
-
-  int get _guideSessionKey {
-    final authResponse = ref.read(authViewModelProvider).authResponse;
-    return Object.hash(authResponse?.userId, authResponse?.accessToken);
-  }
-
-  Set<int> get _dismissedGuideModesThisSession =>
-      _dismissedGuideModesBySession.putIfAbsent(
-        _guideSessionKey,
-        () => <int>{},
-      );
+  bool _isAutomaticGuideVisible = false;
+  bool _isManualGuideVisible = false;
 
   bool get _shouldShowCurrentGuide =>
       selectedModeIndex < 4 &&
-      !_dismissedGuideModesThisSession.contains(selectedModeIndex);
+      (_isAutomaticGuideVisible || _isManualGuideVisible);
 
   // Selected image for preview (used in Upload mode)
   File? _selectedImageFile;
@@ -124,7 +163,21 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _showCameraGuideOnce();
     _initializeCamera();
+  }
+
+  Future<void> _showCameraGuideOnce() async {
+    final storage = await StorageService.getInstance();
+    final hasAlreadyShown =
+        storage.getBool(StorageKeys.cameraGuideAutomaticallyShown) ?? false;
+
+    if (hasAlreadyShown || !mounted || _isDisposed) return;
+
+    setState(() {
+      _isAutomaticGuideVisible = true;
+    });
+    await storage.setBool(StorageKeys.cameraGuideAutomaticallyShown, true);
   }
 
   Future<void> _initializeCamera() async {
@@ -133,7 +186,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
     try {
       final cameras = await availableCameras();
       if (_isDisposed || !mounted) return;
-      final camera = widget.camera ?? cameras.first;
+      final camera = widget.camera ?? preferredCamera(cameras);
       final controller = CameraController(
         camera,
         ResolutionPreset.max,
@@ -145,6 +198,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
       await _setFocusAndExposure(
         controller,
         const Offset(0.5, 0.5),
+        configureAutoModes: true,
       );
       if (_isDisposed || !mounted) {
         controller.dispose();
@@ -161,42 +215,63 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
 
   Future<void> _setFocusAndExposure(
     CameraController controller,
-    Offset point,
-  ) async {
-    try {
-      await controller.setFocusMode(FocusMode.auto);
-      await controller.setFocusPoint(point);
-    } on CameraException catch (error) {
-      debugPrint('Camera focus is unavailable: ${error.code}');
+    Offset point, {
+    bool configureAutoModes = false,
+  }) async {
+    if (configureAutoModes) {
+      try {
+        await controller.setFocusMode(FocusMode.auto);
+      } on CameraException catch (error) {
+        debugPrint('Camera autofocus is unavailable: ${error.code}');
+      }
+
+      try {
+        await controller.setExposureMode(ExposureMode.auto);
+      } on CameraException catch (error) {
+        debugPrint('Camera auto exposure is unavailable: ${error.code}');
+      }
     }
 
     try {
-      await controller.setExposureMode(ExposureMode.auto);
       await controller.setExposurePoint(point);
     } on CameraException catch (error) {
       debugPrint('Camera exposure point is unavailable: ${error.code}');
+    }
+
+    // Set focus last so the autofocus request uses the final exposure region.
+    try {
+      await controller.setFocusPoint(point);
+    } on CameraException catch (error) {
+      debugPrint('Camera focus point is unavailable: ${error.code}');
     }
   }
 
   Future<void> _focusBeforeCapture(CameraController controller) async {
     await _setFocusAndExposure(controller, _lastFocusPoint);
-    await Future<void>.delayed(const Duration(milliseconds: 350));
+    // The camera plugin does not expose autofocus completion. Give CameraX
+    // enough time to settle before takePicture starts its capture sequence.
+    await Future<void>.delayed(const Duration(milliseconds: 100));
   }
 
   Future<void> _handleTapToFocus(
     TapDownDetails details,
     Size viewSize,
+    Size cameraPreviewSize,
   ) async {
     final controller = _controller;
     if (controller == null || !controller.value.isInitialized) return;
 
     final requestId = ++_focusRequestId;
-    final point = normalizedCameraPoint(details.localPosition, viewSize);
+    final point = normalizedCameraPointForCover(
+      details.localPosition,
+      viewSize,
+      cameraPreviewSize,
+    );
     _lastFocusPoint = point;
     setState(() => _focusIndicatorPosition = details.localPosition);
 
     await _setFocusAndExposure(controller, point);
-    await Future<void>.delayed(const Duration(milliseconds: 800));
+    await Future<void>.delayed(const Duration(milliseconds: 100));
     if (mounted && requestId == _focusRequestId) {
       setState(() => _focusIndicatorPosition = null);
     }
@@ -372,19 +447,19 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
       } else if (_controller != null && _controller!.value.isInitialized) {
         // Capture from camera
         final cameraCtrl = _controller!;
-        await _focusBeforeCapture(cameraCtrl);
-        final XFile image = await cameraCtrl.takePicture();
-
+        // await _focusBeforeCapture(cameraCtrl);
         setState(() {
           isLoading = true;
         });
 
+        final XFile image = await cameraCtrl.takePicture();
+
         // Pause camera preview after capture.
-        if (!_isDisposed && _controller == cameraCtrl) {
-          try {
-            await cameraCtrl.pausePreview();
-          } catch (_) {}
-        }
+        // if (!_isDisposed && _controller == cameraCtrl) {
+        //   try {
+        //     await cameraCtrl.pausePreview();
+        //   } catch (_) {}
+        // }
         final File file = File(image.path);
         _capturedFile = file; // Store for later use
         imageBytes = await file.readAsBytes();
@@ -690,7 +765,18 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const SizedBox(width: 40),
+          SizedBox(width: 10),
+          // IconButton(
+          //   onPressed: () => NavigationService.push(
+          //     child: const CamerAwesomeTestScreen(),
+          //   ),
+          //   tooltip: 'Test CamerAwesome',
+          //   icon: const Icon(
+          //     Icons.science_outlined,
+          //     color: Colors.white,
+          //     size: 25,
+          //   ),
+          // ),
           Text(
             title,
             style: const TextStyle(
@@ -699,7 +785,18 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(width: 40),
+          if (selectedModeIndex < 4)
+            IconButton(
+              onPressed: _showCurrentGuide,
+              tooltip: 'Show camera guide',
+              icon: const Icon(
+                Icons.info_outline_rounded,
+                color: Colors.white,
+                size: 26,
+              ),
+            )
+          else
+            const SizedBox(width: 48),
         ],
       ),
     );
@@ -785,7 +882,16 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
 
   void _dismissCurrentGuide() {
     setState(() {
-      _dismissedGuideModesThisSession.add(selectedModeIndex);
+      _isAutomaticGuideVisible = false;
+      _isManualGuideVisible = false;
+    });
+  }
+
+  void _showCurrentGuide() {
+    if (selectedModeIndex >= 4) return;
+    setState(() {
+      _isAutomaticGuideVisible = false;
+      _isManualGuideVisible = true;
     });
   }
 
@@ -808,10 +914,12 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
       return LayoutBuilder(
         builder: (context, constraints) {
           final viewSize = Size(constraints.maxWidth, constraints.maxHeight);
+          final previewSize = _controller!.value.previewSize!;
           final focusPosition = _focusIndicatorPosition;
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTapDown: (details) => _handleTapToFocus(details, viewSize),
+            onTapDown: (details) =>
+                _handleTapToFocus(details, viewSize, previewSize),
             child: Stack(
               children: [
                 Positioned.fill(
@@ -839,7 +947,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
                             color: Colors.black.withValues(alpha: 0.08),
                             border: Border.all(
                               color: AppColors.primary,
-                              width: 3,
+                              width: 1,
                             ),
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: const [
@@ -950,6 +1058,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
           // SHUTTER BUTTON
           GestureDetector(
             onTap: () {
+              HapticFeedback.mediumImpact();
               if (selectedModeIndex == 2) {
                 // Barcode Mode
                 _captureAndAnalyzeBarcode();
@@ -992,6 +1101,8 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
                     return GestureDetector(
                       onTap: () => setState(() {
                         selectedModeIndex = index;
+                        _isAutomaticGuideVisible = false;
+                        _isManualGuideVisible = false;
                       }),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
