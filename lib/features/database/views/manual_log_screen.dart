@@ -4,6 +4,7 @@ import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/features/database/views/database_search_screen.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
+import 'package:diet_lenz/features/home/views/widgets/logged_meal_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -261,6 +262,10 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         automaticallyImplyLeading: true,
+        actions: [
+          if (widget.loggedMeal != null)
+            LoggedMealActions(loggedMeal: widget.loggedMeal!),
+        ],
       ),
       body: Form(
         key: _formKey,

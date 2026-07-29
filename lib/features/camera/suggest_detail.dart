@@ -14,6 +14,7 @@ import 'package:diet_lenz/features/camera/edit_suggest.dart';
 import 'package:diet_lenz/features/camera/edit_recipe_steps.dart';
 import 'package:diet_lenz/component/custom_textfield.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
+import 'package:diet_lenz/features/home/views/widgets/logged_meal_actions.dart';
 import 'package:diet_lenz/features/recipe/controller/recipe_viewmodel.dart';
 import 'package:diet_lenz/widgets/pulsating_border.dart';
 import 'package:flutter/material.dart';
@@ -281,7 +282,14 @@ class _SuggestMealDetailScreenState
     return BlurryModalProgressHUD(
         inAsyncCall: state.isLoading || recipeState.isLoading,
         child: Scaffold(
-          appBar: widget.headerImage == null ? AppBar() : null,
+          appBar: widget.headerImage == null
+              ? AppBar(
+                  actions: [
+                    if (widget.loggedMeal != null)
+                      LoggedMealActions(loggedMeal: widget.loggedMeal!),
+                  ],
+                )
+              : null,
           // backgroundColor: Colors.black,
           extendBody: true,
           body: Stack(
@@ -317,6 +325,14 @@ class _SuggestMealDetailScreenState
                             ),
                           ),
                         ),
+                        if (widget.loggedMeal != null)
+                          Positioned(
+                            top: 32,
+                            right: 8,
+                            child: LoggedMealActions(
+                              loggedMeal: widget.loggedMeal!,
+                            ),
+                          ),
                       ],
                     ),
               Positioned(

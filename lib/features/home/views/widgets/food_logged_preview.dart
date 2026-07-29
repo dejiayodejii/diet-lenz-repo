@@ -1,9 +1,8 @@
 import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/constants/app_colors.dart';
-import 'package:diet_lenz/core/services/navigation_service.dart';
-import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
-import 'package:diet_lenz/features/home/views/food_log_detail.dart';
+import 'package:diet_lenz/core/services/toast_service.dart';
+import 'package:diet_lenz/features/home/views/logged_meal_edit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:openapi/api.dart';
@@ -18,14 +17,15 @@ class FoodLoggedPreview extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isFavorite = loggedMeal.isFavorite ?? false;
-
     return GestureDetector(
       onTap: () {
-        NavigationService.push(
-          child: FoodLogDetail(
-            loggedMeal: loggedMeal,
-          ),
+        final editScreen = buildLoggedMealEditScreen(loggedMeal);
+        if (editScreen == null) {
+          ref.read(toastProvider).showError('Edit not available for this meal');
+          return;
+        }
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => editScreen),
         );
       },
       child: Column(

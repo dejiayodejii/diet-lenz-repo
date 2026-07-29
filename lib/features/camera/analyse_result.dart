@@ -13,6 +13,7 @@ import 'package:diet_lenz/core/utils/loader.dart';
 import 'package:diet_lenz/features/bottom_nav/bottom.dart';
 import 'package:diet_lenz/features/database/controller/database_history_provider.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
+import 'package:diet_lenz/features/home/views/widgets/logged_meal_actions.dart';
 import 'package:diet_lenz/features/recipe/controller/recipe_viewmodel.dart';
 import 'package:diet_lenz/widgets/pulsating_border.dart';
 import 'package:flutter/material.dart';
@@ -868,6 +869,14 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                     ),
                   ),
                 ),
+                if (widget.loggedMeal != null)
+                  Positioned(
+                    top: 32,
+                    right: 8,
+                    child: LoggedMealActions(
+                      loggedMeal: widget.loggedMeal!,
+                    ),
+                  ),
               ],
             ),
             Positioned(

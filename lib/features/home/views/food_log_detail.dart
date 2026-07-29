@@ -9,10 +9,6 @@ import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/core/utils/loader.dart';
 import 'package:diet_lenz/features/bottom_nav/bottom.dart';
-import 'package:diet_lenz/features/camera/analyse_result.dart';
-import 'package:diet_lenz/features/camera/database_result.dart';
-import 'package:diet_lenz/features/camera/suggest_detail.dart';
-import 'package:diet_lenz/features/database/views/manual_log_screen.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
 import 'package:diet_lenz/widgets/calorie_badge.dart';
 import 'package:diet_lenz/widgets/macro_progress_item.dart';
@@ -41,15 +37,7 @@ class FoodLogDetail extends ConsumerStatefulWidget {
 class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
   LogMealRequestDtoMealTypeEnum? _selectedMealType =
       LogMealRequestDtoMealTypeEnum.DINNER;
-  MealLogResponseDto? _editedLoggedMeal;
-  String? _editedNotes;
-
-  MealLogResponseDto? get _loggedMeal => _editedLoggedMeal ?? widget.loggedMeal;
-
-  bool get _canManageLoggedMeal =>
-      _mealLogId != null && _mealLogId!.isNotEmpty && !widget.fromFavorite;
-
-  String? get _mealLogId => _loggedMeal?.id ?? widget.recipe?.id;
+  MealLogResponseDto? get _loggedMeal => widget.loggedMeal;
 
   @override
   void initState() {
@@ -57,7 +45,6 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
     log("meal logged is ${widget.recipe}");
     _selectedMealType = _requestMealTypeFromLoggedMeal(_loggedMeal?.mealType) ??
         LogMealRequestDtoMealTypeEnum.DINNER;
-    _editedNotes = _loggedMeal?.notes;
   }
 
   // Helper getters to extract data from either recipe or favorite
@@ -68,7 +55,6 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
       "Unknown Food";
 
   String get description =>
-      _editedNotes ??
       _loggedMeal?.notes ??
       widget.recipe?.description ??
       widget.favorite?.description ??
@@ -185,65 +171,6 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
     }
   }
 
-  Future<void> _confirmDeleteMeal() async {
-    final mealLogId = _mealLogId;
-    if (mealLogId == null || mealLogId.isEmpty) {
-      ref.read(toastProvider).showError('Unable to delete this meal log');
-      return;
-    }
-
-    final shouldDelete = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: AppColors.backgroundColor,
-          title: const Text(
-            'Delete meal?',
-            style: TextStyle(color: Colors.white),
-          ),
-          content: const Text(
-            'This will remove the meal from your food log.',
-            style: TextStyle(color: AppColors.textLightGrey),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text(
-                'Delete',
-                style: TextStyle(color: Colors.redAccent),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (shouldDelete != true) return;
-
-    final loggedDate = _loggedMeal?.loggedDate ?? DateTime.now();
-    final result = await ref
-        .read(foodLoggingViewModelProvider.notifier)
-        .deleteMealLog(id: mealLogId, loggedDate: loggedDate);
-
-    if (!mounted) return;
-
-    if (!result) {
-      final errorMsg = ref.read(foodLoggingViewModelProvider).errorMessage;
-      ref.read(toastProvider).showError('Failed to delete meal: $errorMsg');
-      return;
-    }
-
-    ref.read(foodLoggingViewModelProvider.notifier)
-      ..getUserRecipes(date: loggedDate, refresh: true)
-      ..getDashboard(date: loggedDate, refresh: true);
-    ref.read(toastProvider).showSuccess('Meal deleted successfully');
-    Navigator.of(context).pop(true);
-  }
-
   Widget _buildMealTypeSelector() {
     const mealTypes = LogMealRequestDtoMealTypeEnum.values;
     return Column(
@@ -301,60 +228,6 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
     );
   }
 
-  Future<void> _openEditScreen() async {
-    final loggedMeal = _loggedMeal;
-    if (loggedMeal == null) return;
-
-    final analysis = loggedMeal.foodAnalysis ?? _buildFoodAnalysis();
-    final source = loggedMeal.foodSource;
-    final hasImage = loggedMeal.imageUrl?.trim().isNotEmpty == true ||
-        analysis.imageBase64?.trim().isNotEmpty == true;
-
-    late final Widget editScreen;
-    if (source == MealLogResponseDtoFoodSourceEnum.MANUAL) {
-      editScreen = ManualLogScreen(loggedMeal: loggedMeal);
-    } else if (source == MealLogResponseDtoFoodSourceEnum.SEARCH) {
-      editScreen = DatabaseResultDetail(
-        analysis,
-        loggedMeal: loggedMeal,
-      );
-    } else if (source == MealLogResponseDtoFoodSourceEnum.AI_IMAGE &&
-        !hasImage) {
-      editScreen = SuggestMealDetailScreen(
-        suggestion: SuggestedFoodAnalysis(
-          foodName: analysis.foodName,
-          description: analysis.description,
-          totalMacros: analysis.totalMacros,
-        ),
-        loggedMeal: loggedMeal,
-      );
-    } else if (source == MealLogResponseDtoFoodSourceEnum.AI_IMAGE) {
-      editScreen = AnalyseResultDetail(
-        analysis,
-        loggedMeal: loggedMeal,
-        headerImageUrl: loggedMeal.imageUrl,
-      );
-    } else {
-      ref.read(toastProvider).showError('Edit not available for this meal');
-      return;
-    }
-
-    final updated = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => editScreen),
-    );
-    if (!mounted || updated != true) return;
-
-    final updatedMeal = ref.read(foodLoggingViewModelProvider).loggedMeal;
-    if (updatedMeal != null) {
-      setState(() {
-        _editedLoggedMeal = updatedMeal;
-        _editedNotes = updatedMeal.notes;
-        _selectedMealType =
-            _requestMealTypeFromLoggedMeal(updatedMeal.mealType);
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final foodLoggingState = ref.watch(foodLoggingViewModelProvider);
@@ -364,20 +237,6 @@ class _FoodLogDetailState extends ConsumerState<FoodLogDetail> {
         appBar: AppBar(
           centerTitle: false,
           title: const Text(''),
-          actions: [
-            if (_canManageLoggedMeal) ...[
-              IconButton(
-                onPressed: _openEditScreen,
-                icon: const Icon(Icons.edit_outlined),
-                tooltip: 'Edit meal',
-              ),
-              IconButton(
-                onPressed: _confirmDeleteMeal,
-                icon: const Icon(Icons.delete_outline),
-                tooltip: 'Delete meal',
-              ),
-            ],
-          ],
         ),
         body: Padding(
           padding: const EdgeInsets.all(15.0),

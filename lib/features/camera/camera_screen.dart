@@ -455,11 +455,11 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         final XFile image = await cameraCtrl.takePicture();
 
         // Pause camera preview after capture.
-        // if (!_isDisposed && _controller == cameraCtrl) {
-        //   try {
-        //     await cameraCtrl.pausePreview();
-        //   } catch (_) {}
-        // }
+        if (!_isDisposed && _controller == cameraCtrl) {
+          try {
+            await cameraCtrl.pausePreview();
+          } catch (_) {}
+        }
         final File file = File(image.path);
         _capturedFile = file; // Store for later use
         imageBytes = await file.readAsBytes();

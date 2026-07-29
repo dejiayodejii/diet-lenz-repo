@@ -674,7 +674,10 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
   }
 
   /// Toggle favorite status locally for a recipe in userRecipes, allRecipes and favorites
-  Future<bool> toggleFavoriteLocally(String recipeId) async {
+  Future<bool> toggleFavoriteLocally(
+    String recipeId, {
+    MealLogResponseDto? fallbackRecipe,
+  }) async {
     MealLogResponseDto? targetRecipe;
 
     // Find the recipe in userRecipes first, then fall back to allRecipes
@@ -692,6 +695,7 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
       );
       if (found.recipeId != null) targetRecipe = found;
     }
+    targetRecipe ??= fallbackRecipe;
     log("Found recipe $recipeId: ${targetRecipe?.foodName}");
 
     MealLogResponseDto toggled(MealLogResponseDto recipe) => MealLogResponseDto(
@@ -699,6 +703,8 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
           recipeId: recipe.recipeId,
           foodName: recipe.foodName,
           imageUrl: recipe.imageUrl,
+          foodSource: recipe.foodSource,
+          foodAnalysis: recipe.foodAnalysis,
           mealType: recipe.mealType,
           loggedDate: recipe.loggedDate,
           loggedTime: recipe.loggedTime,

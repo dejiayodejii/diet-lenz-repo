@@ -8,6 +8,7 @@ import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/features/database/controller/database_history_provider.dart';
 import 'package:diet_lenz/features/food_logging/controller/food_logging_viewmodel.dart';
+import 'package:diet_lenz/features/home/views/widgets/logged_meal_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -240,6 +241,10 @@ class _DatabaseResultDetailState extends ConsumerState<DatabaseResultDetail> {
             onPressed: () => Navigator.of(context).pop(),
           ),
         ),
+        actions: [
+          if (widget.loggedMeal != null)
+            LoggedMealActions(loggedMeal: widget.loggedMeal!),
+        ],
       ),
       body: Column(
         children: [

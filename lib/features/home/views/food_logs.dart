@@ -242,12 +242,7 @@ class FavouriteFood extends StatelessWidget {
                         },
                       ),
                     )
-                  : Image.asset(
-                      AppImages.salad,
-                      scale: 2,
-                      height: 80,
-                      width: 80,
-                    ),
+                  : SizedBox.shrink(),
               const SizedBox(width: 15),
               Expanded(
                 child: Column(

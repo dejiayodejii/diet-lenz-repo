@@ -5,6 +5,7 @@ import 'package:diet_lenz/features/camera/database_result.dart';
 import 'package:diet_lenz/features/camera/suggest_detail.dart';
 import 'package:diet_lenz/features/database/views/manual_log_screen.dart';
 import 'package:diet_lenz/features/home/views/food_log_detail.dart';
+import 'package:diet_lenz/features/home/views/widgets/food_logged_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,6 +19,8 @@ void main() {
     );
 
     expect(find.byType(ManualLogScreen), findsOneWidget);
+    expect(find.byTooltip('Delete meal'), findsOneWidget);
+    expect(find.byTooltip('Add to favorites'), findsOneWidget);
     expect(find.widgetWithText(TextField, '420'), findsOneWidget);
 
     await tester.enterText(find.widgetWithText(TextField, '2'), '4');
@@ -58,6 +61,23 @@ void main() {
 
     expect(find.byType(AnalyseResultDetail), findsOneWidget);
   });
+
+  testWidgets('FoodLogDetail no longer owns edit or delete actions',
+      (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [apiServiceProvider.overrideWithValue(ApiService())],
+        child: MaterialApp(
+          home: FoodLogDetail(
+            loggedMeal: _meal(source: MealLogResponseDtoFoodSourceEnum.MANUAL),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byTooltip('Edit meal'), findsNothing);
+    expect(find.byTooltip('Delete meal'), findsNothing);
+  });
 }
 
 Future<void> _openEditor(
@@ -67,10 +87,10 @@ Future<void> _openEditor(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [apiServiceProvider.overrideWithValue(ApiService())],
-      child: MaterialApp(home: FoodLogDetail(loggedMeal: meal)),
+      child: MaterialApp(home: FoodLoggedPreview(loggedMeal: meal)),
     ),
   );
-  await tester.tap(find.byTooltip('Edit meal'));
+  await tester.tap(find.text('Rice bowl').first);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
 }
@@ -82,6 +102,7 @@ MealLogResponseDto _meal({
 }) {
   return MealLogResponseDto(
     id: 'meal-1',
+    recipeId: 'recipe-1',
     foodName: 'Rice bowl',
     foodSource: source,
     imageUrl: imageUrl,

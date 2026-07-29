@@ -21,8 +21,6 @@ class MealLogResultTile extends StatelessWidget {
     //   return FoodLoggedPreview(loggedMeal: mealLog);
     // }
 
-    log("meal is $mealLog");
-
     return FoodLoggedPreview(loggedMeal: mealLog);
 
     return Padding(
