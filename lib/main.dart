@@ -114,3 +114,181 @@ class _MyAppState extends ConsumerState<MyApp> {
     );
   }
 }
+
+// List<int>? twoSum(List<int> numbs, int target) {
+//   var checkMap = {};
+
+//   for (var i = 0; i < numbs.length; i++) {
+//     final currentNumber = numbs[i];
+//     final compliment = target - currentNumber;
+//     if (checkMap[compliment] != null) {
+//       return [checkMap[compliment], i];
+//     } else {
+//       checkMap[currentNumber] = i;
+//     }
+//   }
+//   return null;
+// }
+
+// List<int>? twoSumSorted(List<int> numbs, int target) {
+//   int left = 0;
+//   int right = numbs.length - 1;
+
+//   while (left < right) {
+//     final sum = numbs[left] + numbs[right];
+//     if (sum == target) {
+//       return [left, right];
+//     }
+//     if (sum < target) {
+//       left++;
+//     } else {
+//       right--;
+//     }
+//   }
+//   return null;
+// }
+
+// best time to buy and sell stock
+// int maximumProfit(List<int> prices) {
+//   int minimumBuyPrice = prices[0];
+//   int maximumProfit = 0;
+
+//   for (var i = 1; i < prices.length; i++) {
+//     int todaySellingPrice = prices[i];
+//     int profit = todaySellingPrice - minimumBuyPrice;
+//     if (maximumProfit < profit) {
+//       maximumProfit = profit;
+//     }
+
+//     if (todaySellingPrice < minimumBuyPrice) {
+//       minimumBuyPrice = todaySellingPrice;
+//     }
+//   }
+
+//   return maximumProfit;
+// }
+
+//contain duplicate
+
+// bool containsDuplicate(List<int> numbers) {
+//   Set<int> storage = {};
+
+//   for (var i = 0; i < numbers.length; i++) {
+//     if (storage.contains(numbers[i])) {
+//       return true;
+//     }
+//     storage.add(numbers[i]) ;
+//   }
+//   return false;
+// }
+
+//validAnagram
+
+// bool validAnagram(String firstWord, String secondWord) {
+
+//   if (firstWord.split("").length != secondWord.split("").length) {
+//     return false;
+//   }
+
+//   Map<String, int> storage = {};
+
+//   for (var element in firstWord.split("")) {
+//     if (storage.containsKey(element)) {
+//       storage[element] = storage[element]! + 1;
+//     } else {
+//       storage[element] = 1;
+//     }
+//   }
+
+//   for (var element in secondWord.split("")) {
+//     if (!storage.containsKey(element)) {
+//       return false;
+//     }
+//     storage[element] = storage[element]! - 1;
+
+//     if (storage[element]! < 0) {
+//       return false;
+//     }
+//   }
+
+//   return true;
+// }
+
+//
+int firstUniqueCharacter(String words) {
+  Map<String, int> storage = {};
+
+  List<String> word = words.split("");
+
+  for (var i = 0; i < word.length; i++) {
+    if (storage.containsKey(words[i])) {
+      storage[words[i]] = storage[words[i]]! + 1;
+    } else {
+      storage[words[i]] = 1;
+    }
+  }
+
+  for (var i = 0; i < word.length; i++) {
+    if (storage[word[i]] == 1) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+int majorityElement(List<int> numbers) {
+  final threshold = numbers.length ~/ 2;
+
+  Map<int, int> storage = {};
+
+  for (var i = 0; i < numbers.length; i++) {
+    if (storage.containsKey(numbers[i])) {
+      storage[numbers[i]] = storage[numbers[i]]! + 1;
+    } else {
+      storage[numbers[i]] = 1;
+    }
+  }
+
+  late int element;
+
+  for (var i = 0; i < numbers.length; i++) {
+    if (storage[numbers[i]]! > threshold) {
+      element = numbers[i];
+      break;
+    }
+  }
+  return element;
+}
+
+//remive duplicate and return new length
+// int removeDuplicatedSortedArray(List<int> numbers) {
+//   if (numbers.isEmpty) {
+//     return 0;
+//   }
+//   int left = 0;
+
+//   for (var i = 1; i < numbers.length; i++) {
+//     final fast = numbers[i];
+
+//     if (numbers[left] != fast) {
+//       left++;
+//       numbers[left] = fast;
+//     }
+//   }
+//   return left + 1;
+// }
+
+//move zeroes to end of array
+void moveZeroes(List<int> numbers) {
+  int left = 0;
+
+  for (var i = 0; i < numbers.length; i++) {
+    if (numbers[i] != 0) {
+      int newLeft = numbers[left];
+      int newRight = numbers[i];
+      numbers[left] = newRight;
+      numbers[i] = newLeft;
+      left++;
+    }
+  }
+}

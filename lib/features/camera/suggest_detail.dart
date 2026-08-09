@@ -327,7 +327,7 @@ class _SuggestMealDetailScreenState
                         ),
                         if (widget.loggedMeal != null)
                           Positioned(
-                            top: 32,
+                            top: 40,
                             right: 8,
                             child: LoggedMealActions(
                               loggedMeal: widget.loggedMeal!,

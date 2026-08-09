@@ -429,7 +429,7 @@ class FoodLoggingViewModel extends StateNotifier<FoodLoggingState> {
 
     try {
       final response =
-          await _apiService.foodLoggingApi.getMealLogs(size: 20, page: 0);
+          await _apiService.foodLoggingApi.getMealLogs(size: 30, page: 0);
 
       if (response != null) {
         state = state.copyWith(

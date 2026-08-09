@@ -142,30 +142,43 @@ class _LoggedMealActionsState extends ConsumerState<LoggedMealActions> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(
-          onPressed: _isDeleting ? null : _confirmDelete,
-          tooltip: 'Delete meal',
-          icon: _isDeleting
-              ? const SizedBox.square(
-                  dimension: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.delete_outline),
+        GestureDetector(
+          onTap: _isDeleting ? null : _confirmDelete,
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.5),
+              shape: BoxShape.circle,
+            ),
+            child: _isDeleting
+                ? const SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.delete_outline),
+          ),
         ),
-        IconButton(
-          onPressed: _isTogglingFavorite ? null : _toggleFavorite,
-          tooltip: canFavorite
-              ? (_isFavorite ? 'Remove from favorites' : 'Add to favorites')
-              : 'Favorite unavailable',
-          icon: _isTogglingFavorite
-              ? const SizedBox.square(
-                  dimension: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Icon(
-                  _isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: _isFavorite ? Colors.redAccent : null,
-                ),
+        SizedBox(
+          width: 10,
+        ),
+        GestureDetector(
+          onTap: _isTogglingFavorite ? null : _toggleFavorite,
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.5),
+              shape: BoxShape.circle,
+            ),
+            child: _isTogglingFavorite
+                ? const SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Icon(
+                    _isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: _isFavorite ? Colors.redAccent : null,
+                  ),
+          ),
         ),
       ],
     );

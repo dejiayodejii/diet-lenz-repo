@@ -10,6 +10,7 @@ import 'package:diet_lenz/features/camera/analyse_result.dart';
 import 'package:diet_lenz/features/camera/camerawesome_test_screen.dart';
 import 'package:diet_lenz/features/camera/result_sug.dart'; // Import SuggestResultScreen
 import 'package:diet_lenz/features/recipe/controller/recipe_viewmodel.dart';
+import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'dart:async';
@@ -47,6 +48,14 @@ Uint8List prepareImageForUpload(Uint8List imageBytes) {
     '${preparedBytes.length} bytes (${image.width}x${image.height})',
   );
   return preparedBytes;
+}
+
+Future<Uint8List> prepareImageForUploadAsync(Uint8List imageBytes) {
+  return compute(
+    prepareImageForUpload,
+    imageBytes,
+    debugLabel: 'prepare-image-for-upload',
+  );
 }
 
 Offset normalizedCameraPoint(Offset localPosition, Size viewSize) {
@@ -331,7 +340,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
       final cameraCtrl = _controller;
       if (cameraCtrl != null && cameraCtrl.value.isInitialized) {
         // Capture from camera
-        await _focusBeforeCapture(cameraCtrl);
+        // await _focusBeforeCapture(cameraCtrl);
         final XFile image = await cameraCtrl.takePicture();
         imagePath = image.path;
 
@@ -423,7 +432,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
 
         imageBytes = await file.readAsBytes();
 
-        final preparedBytes = prepareImageForUpload(imageBytes);
+        final preparedBytes = await prepareImageForUploadAsync(imageBytes);
 
         imageFile = http.MultipartFile.fromBytes(
           'image',
@@ -436,7 +445,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         final ByteData data = await rootBundle.load(testImagePath);
         imageBytes = data.buffer.asUint8List();
 
-        final preparedBytes = prepareImageForUpload(imageBytes);
+        final preparedBytes = await prepareImageForUploadAsync(imageBytes);
 
         imageFile = http.MultipartFile.fromBytes(
           'image',
@@ -448,11 +457,12 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         // Capture from camera
         final cameraCtrl = _controller!;
         // await _focusBeforeCapture(cameraCtrl);
+         final XFile image = await cameraCtrl.takePicture();
         setState(() {
           isLoading = true;
         });
 
-        final XFile image = await cameraCtrl.takePicture();
+       
 
         // Pause camera preview after capture.
         if (!_isDisposed && _controller == cameraCtrl) {
@@ -464,7 +474,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         _capturedFile = file; // Store for later use
         imageBytes = await file.readAsBytes();
 
-        final preparedBytes = prepareImageForUpload(imageBytes);
+        final preparedBytes = await prepareImageForUploadAsync(imageBytes);
 
         imageFile = http.MultipartFile.fromBytes(
           'image',
