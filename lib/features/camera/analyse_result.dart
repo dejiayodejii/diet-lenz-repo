@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:math' as math;
 
 import 'package:diet_lenz/constants/app_colors.dart';
@@ -24,12 +25,14 @@ class AnalyseResultDetail extends ConsumerStatefulWidget {
   const AnalyseResultDetail(
     this.analysis, {
     super.key,
+    this.source = LogMealRequestDtoSource_Enum.AI_IMAGE,
     this.trackInDatabaseHistory = false,
     this.loggedMeal,
     this.headerImageUrl,
   });
 
   final FoodAnalysisDto analysis;
+  final LogMealRequestDtoSource_Enum source;
   final bool trackInDatabaseHistory;
   final MealLogResponseDto? loggedMeal;
   final String? headerImageUrl;
@@ -270,17 +273,24 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
     final request = LogMealRequestDto(
       foodAnalysis: editedAnalysis,
       mealType: _selectedMealType!,
-      source_: LogMealRequestDtoSource_Enum.AI_IMAGE,
+      source_: resolveAnalyseResultSource(
+        source: widget.source,
+        loggedMeal: widget.loggedMeal,
+      ),
       notes: noteController.text.trim().isEmpty
           ? null
           : noteController.text.trim(),
       // The analysis already contains the totals displayed in the UI.
       // Keep this at one so the backend does not scale them a second time.
-      servingMultiplier: _amount,
+      // servingMultiplier: _amount,
+      servingMultiplier: 1,
     );
 
     // Log the meal
     final loggedMeal = widget.loggedMeal;
+
+    // log("Logging meal with request: ${request.toJson()}");
+    // return;
     final result = loggedMeal == null
         ? await foodLoggingVM.logMeal(request)
         : await foodLoggingVM.editMealLog(
@@ -903,12 +913,32 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: Text(
-                              _foodNameController.text,
+                            child: TextField(
+                              key: const ValueKey('food_name_field'),
+                              controller: _foodNameController,
+                              textCapitalization: TextCapitalization.words,
+                              maxLines: null,
                               style: const TextStyle(
                                 fontFamily: AppFonts.lato,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w700,
+                              ),
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                fillColor: Colors.transparent,
+                                contentPadding: EdgeInsets.zero,
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                suffixIcon: Icon(
+                                  Icons.edit_outlined,
+                                  color: AppColors.primaryColor,
+                                  size: 18,
+                                ),
+                                suffixIconConstraints: BoxConstraints(
+                                  minWidth: 36,
+                                  minHeight: 24,
+                                ),
                               ),
                             ),
                           ),
@@ -969,8 +999,13 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
                           color: AppColors.textLightGrey,
                         ),
                       ),
-                      const SizedBox(height: 20),
-                      if (!widget.trackInDatabaseHistory)
+                      const SizedBox(height: 10),
+                      if (!widget.trackInDatabaseHistory &&
+                          resolveAnalyseResultSource(
+                                source: widget.source,
+                                loggedMeal: widget.loggedMeal,
+                              ) !=
+                              LogMealRequestDtoSource_Enum.BARCODE)
                         PulsatingBorder(
                           borderWidth: 3,
                           color: AppColors.primaryColor,
@@ -1048,6 +1083,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
   }
 
   void _onAmountChanged() {
+    // if( )
     if (mounted) setState(() {});
   }
 
@@ -1065,18 +1101,18 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
           FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
         ],
         controller: _amountController,
-        suffixIcon: _selectedMeasure == null
-            ? const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: SizedBox(height: 20, width: 20, child: Icon(Icons.edit)),
-              )
-            : Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text(
-                  _amountUnit(_selectedMeasure!),
-                  style: const TextStyle(color: Colors.white70, fontSize: 16),
-                ),
-              ),
+        // suffixIcon: _selectedMeasure == null
+        //     ? const Padding(
+        //         padding: EdgeInsets.all(8.0),
+        //         child: SizedBox(height: 20, width: 20, child: Icon(Icons.edit)),
+        //       )
+        //     : Padding(
+        //         padding: const EdgeInsets.all(12),
+        //         child: Text(
+        //           _amountUnit(_selectedMeasure!),
+        //           style: const TextStyle(color: Colors.white70, fontSize: 16),
+        //         ),
+        //       ),
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
       ),
     );
@@ -1157,7 +1193,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
       case 'kilogram':
         return 'Kg';
       default:
-        return measure.label?.trim() ?? 'Measure';
+        return measureLabelWithoutBrackets(measure.label);
     }
   }
 
@@ -1172,7 +1208,7 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
       case 'kilogram':
         return 'kg';
       default:
-        return measure.label?.trim().toLowerCase() ?? '';
+        return measureLabelWithoutBrackets(measure.label);
     }
   }
 
@@ -1226,6 +1262,28 @@ class _FoodLogDetailState extends ConsumerState<AnalyseResultDetail> {
       ],
     );
   }
+}
+
+String measureLabelWithoutBrackets(String? label) {
+  final cleanedLabel = (label ?? '')
+      .replaceAll(
+        RegExp(r'\s*(?:\([^)]*\)|\[[^\]]*\]|\{[^}]*\})\s*'),
+        ' ',
+      )
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+
+  return cleanedLabel.isEmpty ? 'Measure' : cleanedLabel;
+}
+
+LogMealRequestDtoSource_Enum resolveAnalyseResultSource({
+  required LogMealRequestDtoSource_Enum source,
+  MealLogResponseDto? loggedMeal,
+}) {
+  return LogMealRequestDtoSource_Enum.fromJson(
+        loggedMeal?.foodSource?.value,
+      ) ??
+      source;
 }
 
 class ImageViewer extends StatelessWidget {

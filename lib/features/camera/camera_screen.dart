@@ -21,6 +21,7 @@ import 'package:http_parser/http_parser.dart' as http_parser;
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart' hide CameraLensType;
+import 'package:openapi/api.dart';
 import 'package:path_provider/path_provider.dart'; // Add path_provider
 
 /// Bakes EXIF orientation into the pixels before an image is uploaded.
@@ -366,8 +367,6 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         return;
       }
 
-      print('📊 Barcode detected: $barcode');
-
       // Call the API to analyze the barcode
       final success = await recipeController.analyzeByBarcode(barcode);
 
@@ -376,7 +375,10 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         if (state.analyzedRecipe != null) {
           // Navigate to result screen and wait for it to be popped
           await NavigationService.push(
-            child: AnalyseResultDetail(state.analyzedRecipe!),
+            child: AnalyseResultDetail(
+              state.analyzedRecipe!,
+              source: LogMealRequestDtoSource_Enum.BARCODE,
+            ),
           );
 
           // Resume camera and scanner when user comes back
@@ -391,7 +393,6 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         ref.read(toastProvider).showError('Failed to analyze barcode');
       }
     } catch (e) {
-      print(e.toString());
       if (mounted) {
         _resumeCameraAndScanner();
         ref.read(toastProvider).showError('Error: ${e.toString()}');
@@ -462,7 +463,7 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
           isLoading = true;
         });
 
-       
+
 
         // Pause camera preview after capture.
         if (!_isDisposed && _controller == cameraCtrl) {
@@ -542,7 +543,10 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
           final state = ref.read(recipeViewModelProvider);
           if (state.analyzedRecipe != null) {
             await NavigationService.push(
-              child: AnalyseResultDetail(state.analyzedRecipe!),
+              child: AnalyseResultDetail(
+                state.analyzedRecipe!,
+                source: LogMealRequestDtoSource_Enum.NUTRITION_LABEL,
+              ),
             );
             if (mounted) {
               _resumeCameraAndScanner();
@@ -554,14 +558,16 @@ class _AICameraScreenState extends ConsumerState<AICameraScreen>
         }
       } else {
         // Food Scan, Recipe, Upload
-        print("image file is $imageFile");
         success = await controller.analyzeRecipe(imageFile);
 
         if (success && mounted) {
           final state = ref.read(recipeViewModelProvider);
           if (state.analyzedRecipe != null) {
             await NavigationService.push(
-              child: AnalyseResultDetail(state.analyzedRecipe!),
+              child: AnalyseResultDetail(
+                state.analyzedRecipe!,
+                source: LogMealRequestDtoSource_Enum.AI_IMAGE,
+              ),
             );
             if (mounted) {
               _resumeCameraAndScanner();

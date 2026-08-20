@@ -1,7 +1,9 @@
 import 'package:diet_lenz/component/bmi_color_scheme.dart';
 import 'package:diet_lenz/component/measurement_selection_screen.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
+import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
+import 'package:diet_lenz/features/auth/utils/weight_goal_validator.dart';
 import 'package:diet_lenz/features/auth/view/personization/activity_level.dart';
 import 'package:diet_lenz/pace.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +33,19 @@ class DesiredWeightScreen extends ConsumerWidget {
         );
       },
       onContinue: (value, unit, isLeftUnit) {
+        final validationError = validateDesiredWeightForGoal(
+          goal: profile.goal,
+          currentWeight: profile.weight,
+          currentWeightUnit: profile.weightUnit,
+          desiredWeight: value,
+          desiredWeightUnit: unit,
+        );
+
+        if (validationError != null) {
+          ref.read(toastProvider).showError(validationError);
+          return;
+        }
+
         ref
             .read(onboardingProfileProvider.notifier)
             .updateDesiredWeight(value, unit);

@@ -8,6 +8,7 @@ import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/providers/api_providers.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/controller/onboarding_profile_provider.dart';
+import 'package:diet_lenz/features/auth/view/personization/setup_finished.dart';
 import 'package:diet_lenz/features/auth/view/register.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -159,9 +160,10 @@ class _PlanContent extends StatelessWidget {
                       CustomYafButton(
                         text: "Continue",
                         onPressed: () {
-                          NavigationService.push(
-                            child: const SignUpScreen(),
-                          );
+                           NavigationService.push(child: const PlanFinishedScreen());
+                          // NavigationService.push(
+                          //   child: const SignUpScreen(),
+                          // );
                         },
                       )
                     ],
@@ -233,7 +235,7 @@ class _CaloriesCard extends StatelessWidget {
             ),
           ),
           const Text(
-            'kcal/day',
+            'cal/day',
             style: TextStyle(
               color: AppColors.textGrey,
               fontFamily: AppFonts.lato,

@@ -38,7 +38,7 @@ class _FoodSearchResultTileState extends ConsumerState<FoodSearchResultTile> {
     final request = LogMealRequestDto(
         foodAnalysis: widget.food,
         mealType: LogMealRequestDtoMealTypeEnum.DINNER,
-        servingMultiplier: 100,
+        servingMultiplier: 1,
         source_: LogMealRequestDtoSource_Enum.SEARCH);
     final foodLoggingViewModel =
         ref.read(foodLoggingViewModelProvider.notifier);

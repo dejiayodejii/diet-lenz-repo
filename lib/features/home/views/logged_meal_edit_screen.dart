@@ -30,6 +30,23 @@ Widget? buildLoggedMealEditScreen(MealLogResponseDto loggedMeal) {
   if (source == MealLogResponseDtoFoodSourceEnum.AI_IMAGE) {
     return AnalyseResultDetail(
       analysis,
+      source: LogMealRequestDtoSource_Enum.AI_IMAGE,
+      loggedMeal: loggedMeal,
+      headerImageUrl: loggedMeal.imageUrl,
+    );
+  }
+  if (source == MealLogResponseDtoFoodSourceEnum.BARCODE) {
+    return AnalyseResultDetail(
+      analysis,
+      source: LogMealRequestDtoSource_Enum.BARCODE,
+      loggedMeal: loggedMeal,
+      headerImageUrl: loggedMeal.imageUrl,
+    );
+  }
+  if (source == MealLogResponseDtoFoodSourceEnum.NUTRITION_LABEL) {
+    return AnalyseResultDetail(
+      analysis,
+      source: LogMealRequestDtoSource_Enum.NUTRITION_LABEL,
       loggedMeal: loggedMeal,
       headerImageUrl: loggedMeal.imageUrl,
     );

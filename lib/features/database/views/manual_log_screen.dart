@@ -119,10 +119,11 @@ class _ManualLogScreenState extends ConsumerState<ManualLogScreen> {
             widget.loggedMeal?.mealType?.value,
           ) ??
           LogMealRequestDtoMealTypeEnum.DINNER,
-      servingMultiplier: widget.loggedMeal == null
-          ? _parseNumber(_servingMultiplierController.text)
-          : _parseNumber(_servingMultiplierController.text)
-              .clamp(0.01, double.infinity),
+      servingMultiplier: 1,
+      // widget.loggedMeal == null
+      //     ? _parseNumber(_servingMultiplierController.text)
+      //     : _parseNumber(_servingMultiplierController.text)
+      //         .clamp(0.01, double.infinity),
       source_: LogMealRequestDtoSource_Enum.MANUAL,
       loggedDate: widget.loggedMeal?.loggedDate,
     );

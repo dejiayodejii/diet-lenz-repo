@@ -172,7 +172,8 @@ class _DatabaseResultDetailState extends ConsumerState<DatabaseResultDetail> {
       mealType: _selectedMealType,
       // The analysis already contains the totals displayed in the UI.
       // Keep this at one so the backend does not scale them a second time.
-      servingMultiplier: _amount,
+      // servingMultiplier: _amount,
+      servingMultiplier: 1,
       source_: LogMealRequestDtoSource_Enum.SEARCH,
     );
 
@@ -268,7 +269,7 @@ class _DatabaseResultDetailState extends ConsumerState<DatabaseResultDetail> {
                   const SizedBox(height: 18),
                   _buildMeasureSelector(),
                   const SizedBox(height: 46),
-                  const _SectionTitle('Amount'),
+                   _SectionTitle(widget.loggedMeal == null ? 'Amount' : 'Portion'),
                   const SizedBox(height: 18),
                   _buildAmountField(),
                   const SizedBox(height: 46),
@@ -386,7 +387,7 @@ class _DatabaseResultDetailState extends ConsumerState<DatabaseResultDetail> {
           border: InputBorder.none,
           contentPadding: const EdgeInsets.fromLTRB(20, 15, 10, 13),
           suffixIconConstraints: const BoxConstraints(minWidth: 70),
-          suffixIcon: Padding(
+          suffixIcon: widget.loggedMeal != null ? null: Padding(
             padding: const EdgeInsets.only(right: 20),
             child: Align(
               alignment: Alignment.centerRight,

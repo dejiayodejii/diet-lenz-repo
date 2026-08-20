@@ -152,6 +152,14 @@ $responseBody''');
   /// (e.g. expired, invalid, or missing token) vs other auth failures
   bool _isTokenRelatedError(String responseBody) {
     final lower = responseBody.toLowerCase();
+
+    // OTP authorization failures are request errors, not access-token errors.
+    // Some OTP messages include "expired", so exclude them before checking the
+    // generic token-expiry keywords below.
+    if (lower.contains('otp')) {
+      return false;
+    }
+
     const tokenKeywords = [
       'token',
       'expired',

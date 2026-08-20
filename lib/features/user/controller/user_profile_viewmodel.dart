@@ -657,6 +657,22 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
   String _parseApiError(ApiException e) {
     final message = e.message;
 
+    if (message != null && message.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(message);
+        if (decoded is Map<String, dynamic>) {
+          final apiMessage = decoded['message'];
+          if (apiMessage is String && apiMessage.trim().isNotEmpty) {
+            return apiMessage;
+          }
+        }
+      } catch (_) {
+        return message;
+      }
+
+      return message;
+    }
+
     switch (e.code) {
       case 400:
         return 'Invalid profile data: $message';

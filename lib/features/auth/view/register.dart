@@ -123,7 +123,7 @@ class _LoginScreenState extends ConsumerState<SignUpScreen> {
       inAsyncCall: authState.isLoading,
       child: Scaffold(
         appBar: AppBar(
-          automaticallyImplyLeading: true,
+          automaticallyImplyLeading: false,
           title: const PersonalizationStepper(
             currentStep: 12,
             width: 13,

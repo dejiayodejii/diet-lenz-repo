@@ -4,6 +4,7 @@ import 'package:diet_lenz/constants/app_colors.dart';
 import 'package:diet_lenz/constants/app_fonts.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/features/auth/view/personization/plan_details.dart';
+import 'package:diet_lenz/features/auth/view/register.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -27,7 +28,10 @@ class _PlanLoadingScreenState extends State<PlanLoadingScreen>
     )
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed && mounted) {
-          NavigationService.pushReplacement(child: const PlanDetailsScreen());
+          // NavigationService.pushReplacement(child: const PlanDetailsScreen());
+          NavigationService.push(
+            child: const SignUpScreen(),
+          );
         }
       })
       ..forward();

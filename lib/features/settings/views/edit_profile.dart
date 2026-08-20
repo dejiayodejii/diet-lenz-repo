@@ -672,7 +672,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           child: _ProfileField(
                             label: 'Height',
                             value: _height != null
-                                ? '${_height!.toStringAsFixed(0)} $_heightUnit'
+                                ? '${_height!.toString()} $_heightUnit'
                                 : 'Not set',
                             onTap: _showHeightPicker,
                             suffixIcon: const Icon(
@@ -686,7 +686,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           child: _ProfileField(
                             label: 'Weight',
                             value: _weight != null
-                                ? '${_weight!.toStringAsFixed(0)} $_weightUnit'
+                                ? '${_weight!.toString()} $_weightUnit'
                                 : 'Not set',
                             onTap: _showWeightPicker,
                             suffixIcon: const Icon(
@@ -727,7 +727,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     _ProfileField(
                       label: 'Desired Weight',
                       value: _desiredWeight != null
-                          ? '${_desiredWeight!.toStringAsFixed(0)} $_desiredWeightUnit'
+                          ? '${_desiredWeight!.toString()} $_desiredWeightUnit'
                           : 'Not set',
                       onTap: _showDesiredWeightPicker,
                       suffixIcon: const Icon(

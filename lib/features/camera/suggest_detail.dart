@@ -176,7 +176,8 @@ class _SuggestMealDetailScreenState
         mealType: _selectedMealType!,
         // The analysis already contains the totals displayed in the UI.
         // Keep this at one so the backend does not scale them a second time.
-        servingMultiplier: _amount,
+        // servingMultiplier: _amount,
+        servingMultiplier:1,
         source_: LogMealRequestDtoSource_Enum.AI_IMAGE);
 
     // Log the meal

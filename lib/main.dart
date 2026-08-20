@@ -30,8 +30,7 @@ void main() async {
   } on FirebaseException catch (e) {
     final msg = e.message?.toLowerCase() ?? '';
     if (e.code.contains('duplicate') || msg.contains('already exists')) {
-      // Firebase was already initialized by a ContentProvider or another
-      // automatic initializer on some platforms — ignore.
+      
     } else {
       rethrow;
     }
