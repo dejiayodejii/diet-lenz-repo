@@ -7,6 +7,55 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:openapi/api.dart';
 
 void main() {
+  testWidgets('food name can be edited inline', (tester) async {
+    final food = FoodAnalysisDto(
+      foodName: 'Jollof Rice',
+      totalMacros: MacroNutrientsDto(calories: 250),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [apiServiceProvider.overrideWithValue(ApiService())],
+        child: MaterialApp(home: AnalyseResultDetail(food)),
+      ),
+    );
+
+    final foodNameField = find.byKey(const ValueKey('food_name_field'));
+    expect(foodNameField, findsOneWidget);
+
+    await tester.enterText(foodNameField, 'Chicken Jollof Rice');
+    await tester.pump();
+
+    final field = tester.widget<TextField>(foodNameField);
+    expect(field.controller?.text, 'Chicken Jollof Rice');
+  });
+
+  test('removes bracketed details from displayed measure labels', () {
+    expect(measureLabelWithoutBrackets('Cup (250 ml)'), 'Cup');
+    expect(
+        measureLabelWithoutBrackets('Serving [100 g] {prepared}'), 'Serving');
+    expect(measureLabelWithoutBrackets('(100 g)'), 'Measure');
+  });
+
+  test('uses the originating source for new logs', () {
+    final source = resolveAnalyseResultSource(
+      source: LogMealRequestDtoSource_Enum.BARCODE,
+    );
+
+    expect(source, LogMealRequestDtoSource_Enum.BARCODE);
+  });
+
+  test('preserves the saved source when editing a log', () {
+    final source = resolveAnalyseResultSource(
+      source: LogMealRequestDtoSource_Enum.AI_IMAGE,
+      loggedMeal: MealLogResponseDto(
+        foodSource: MealLogResponseDtoFoodSourceEnum.NUTRITION_LABEL,
+      ),
+    );
+
+    expect(source, LogMealRequestDtoSource_Enum.NUTRITION_LABEL);
+  });
+
   testWidgets('amount scales displayed calories and macros', (tester) async {
     final food = FoodAnalysisDto(
       foodName: 'Jollof Rice',

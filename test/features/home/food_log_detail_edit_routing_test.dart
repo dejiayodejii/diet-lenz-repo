@@ -62,6 +62,31 @@ void main() {
     expect(find.byType(AnalyseResultDetail), findsOneWidget);
   });
 
+  testWidgets('barcode meals edit with their source preserved', (tester) async {
+    await _openEditor(
+      tester,
+      _meal(source: MealLogResponseDtoFoodSourceEnum.BARCODE),
+    );
+
+    final editor = tester.widget<AnalyseResultDetail>(
+      find.byType(AnalyseResultDetail),
+    );
+    expect(editor.source, LogMealRequestDtoSource_Enum.BARCODE);
+  });
+
+  testWidgets('nutrition-label meals edit with their source preserved',
+      (tester) async {
+    await _openEditor(
+      tester,
+      _meal(source: MealLogResponseDtoFoodSourceEnum.NUTRITION_LABEL),
+    );
+
+    final editor = tester.widget<AnalyseResultDetail>(
+      find.byType(AnalyseResultDetail),
+    );
+    expect(editor.source, LogMealRequestDtoSource_Enum.NUTRITION_LABEL);
+  });
+
   testWidgets('FoodLogDetail no longer owns edit or delete actions',
       (tester) async {
     await tester.pumpWidget(
