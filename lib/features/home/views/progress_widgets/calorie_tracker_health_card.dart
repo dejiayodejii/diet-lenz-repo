@@ -389,7 +389,14 @@ class _HealthPermissionPanel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Connect $source to show your steps, calories burned, and heartbeat.',
+          Platform.isAndroid
+              ? 'Diet Lenz reads your steps, active calories burned, and heart '
+                  'rate from Health Connect to display daily, weekly, and monthly '
+                  'activity metrics alongside your nutrition and weight progress. '
+                  'Access is optional and read-only. This data is not used for '
+                  'advertising or shared with third parties.'
+              : 'Connect $source to show your steps, active calories burned, and '
+                  'heart rate alongside your nutrition and weight progress.',
           style: const TextStyle(
             color: AppColors.textLightGrey,
             fontFamily: AppFonts.lato,

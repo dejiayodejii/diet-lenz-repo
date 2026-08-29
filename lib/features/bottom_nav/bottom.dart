@@ -51,11 +51,11 @@ class _BottomNavState extends ConsumerState<BottomNavScreen> {
   }
 
   Future<void> _navigateToScan() async {
-    // final isPremium = ref.read(subscriptionViewModelProvider).isPremium;
-    // if (!isPremium ) {
-    //   await ref.read(subscriptionViewModelProvider.notifier).presentPaywall();
-    //   return;
-    // }
+    final isPremium = ref.read(subscriptionViewModelProvider).isPremium;
+    if (!isPremium ) {
+      await ref.read(subscriptionViewModelProvider.notifier).presentPaywall();
+      return;
+    }
     setState(() {
       _selectedIndex = 3;
       _isActionMenuOpen = false;

@@ -1,18 +1,15 @@
 import 'package:diet_lenz/component/custom_button.dart';
 import 'package:diet_lenz/component/custom_textfield.dart';
 import 'package:diet_lenz/component/personalization_stepper.dart';
-import 'package:diet_lenz/constants/app_assets.dart';
 import 'package:diet_lenz/core/constants/app_colors.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/core/utils/loader.dart';
 import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
-import 'package:diet_lenz/features/auth/view/use_referral.dart';
 import 'package:diet_lenz/features/auth/view/verify_otp.dart';
 import 'package:diet_lenz/features/auth/view/widgets/social_signup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -217,28 +214,28 @@ class _LoginScreenState extends ConsumerState<SignUpScreen> {
                         ),
                         const SizedBox(height: 20),
                         CustomYafButton(
-                            text: "Sign Up",
-                            onPressed: () async {
-                              if (_formKey.currentState!.validate()) {
-                                final response = await authController.register(
+                          text: "Sign Up",
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              final response = await authController.register(
+                                email: emailController.text.trim(),
+                                password: passwordController.text,
+                                firstName: firstNameController.text.trim(),
+                                lastName: lastNameController.text.trim(),
+                              );
+                              if (response) {
+                                NavigationService.push(
+                                    child: VerifyOTPScreen(
                                   email: emailController.text.trim(),
-                                  password: passwordController.text,
-                                  firstName: firstNameController.text.trim(),
-                                  lastName: lastNameController.text.trim(),
-                                );
-                                if (response) {
-                                  NavigationService.push(
-                                      child: VerifyOTPScreen(
-                                    email: emailController.text.trim(),
-                                  ));
-                                } else {
-                                  //show error
-                                  ref.read(toastProvider).showError(ref
-                                      .read(authViewModelProvider)
-                                      .errorMessage);
-                                }
+                                ));
+                              } else {
+                                ref.read(toastProvider).showError(ref
+                                    .read(authViewModelProvider)
+                                    .errorMessage);
                               }
-                            }),
+                            }
+                          },
+                        ),
                         const SizedBox(height: 40),
                         const SocialSignUp(),
                       ],

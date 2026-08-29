@@ -1,14 +1,12 @@
 import 'dart:io';
 
-import 'package:diet_lenz/core/services/message_service.dart';
 import 'package:diet_lenz/core/services/navigation_service.dart';
 import 'package:diet_lenz/core/services/social_auth_service.dart';
 import 'package:diet_lenz/core/services/toast_service.dart';
 import 'package:diet_lenz/features/auth/controller/auth_viewmodel.dart';
 import 'package:diet_lenz/features/auth/view/login.dart';
 import 'package:diet_lenz/features/auth/view/personization/from_where.dart';
-import 'package:diet_lenz/features/auth/view/use_referral.dart';
-import 'package:diet_lenz/features/auth/view/register.dart';
+import 'package:diet_lenz/features/auth/view/personization/plan_details.dart';
 import 'package:diet_lenz/features/bottom_nav/bottom.dart';
 import 'package:diet_lenz/features/user/controller/user_profile_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,7 +22,8 @@ class SocialSignUp extends ConsumerStatefulWidget {
     super.key,
     this.isLogin = false,
   });
-final bool isLogin;
+
+  final bool isLogin;
 
   @override
   ConsumerState<SocialSignUp> createState() => _SocialSignUpState();
@@ -34,7 +33,6 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
   bool _isLoading = false;
 
   Future<void> _handleGoogleSignIn() async {
-    return;
     if (_isLoading) return;
     setState(() => _isLoading = true);
 
@@ -42,6 +40,7 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
       final socialAuth = ref.read(socialAuthServiceProvider);
       final idToken = await socialAuth.signInWithGoogle();
 
+      if (!mounted) return;
       if (idToken == null) {
         setState(() => _isLoading = false);
         return; // User cancelled
@@ -52,12 +51,11 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
           idToken: idToken, deviceId: "xyz", deviceName: "");
 
       if (!mounted) return;
-      setState(() => _isLoading = false);
 
       if (success) {
-        if (!mounted) return;
-        await _navigateBasedOnProfile();
+        await _handleSuccessfulSocialAuth();
       } else {
+        setState(() => _isLoading = false);
         final error = ref.read(authViewModelProvider).errorMessage;
         ref.read(toastProvider).showError(error ?? 'Google sign-in failed');
       }
@@ -70,7 +68,6 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
   }
 
   Future<void> _handleAppleSignIn() async {
-    return;
     if (_isLoading) return;
     setState(() => _isLoading = true);
 
@@ -78,6 +75,7 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
       final socialAuth = ref.read(socialAuthServiceProvider);
       final idToken = await socialAuth.signInWithApple();
 
+      if (!mounted) return;
       if (idToken == null) {
         setState(() => _isLoading = false);
         return; // User cancelled
@@ -87,12 +85,11 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
       final success = await authController.appleLogin(idToken: idToken);
 
       if (!mounted) return;
-      setState(() => _isLoading = false);
 
       if (success) {
-        if (!mounted) return;
-        await _navigateBasedOnProfile();
+        await _handleSuccessfulSocialAuth();
       } else {
+        setState(() => _isLoading = false);
         final error = ref.read(authViewModelProvider).errorMessage;
         ref.read(toastProvider).showError(error ?? 'Apple sign-in failed');
       }
@@ -104,24 +101,32 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
     }
   }
 
-  /// Check if user has a profile. If not, they're new — send to referral.
-  Future<void> _navigateBasedOnProfile() async {
+  Future<void> _handleSuccessfulSocialAuth() async {
+    if (!widget.isLogin) {
+      setState(() => _isLoading = false);
+
+      // Social signup is already verified by the provider. Continue from the
+      // same screen reached after email verification in the regular flow.
+      NavigationService.push(child: const PlanDetailsScreen());
+      return;
+    }
+
     final hasProfile =
         await ref.read(userProfileViewModelProvider.notifier).getUserProfile();
 
     if (!mounted) return;
-    setState(() => _isLoading = false);
 
     if (hasProfile) {
+      setState(() => _isLoading = false);
       NavigationService.pushAndRemoveUntil(child: const BottomNavScreen());
     } else {
-      ref
-          .read(toastProvider)
-          .showSuccess('Sign-in successful! Please complete your profile.');
-      // First-time social login user — go to referral, then plan setup
-      NavigationService.pushAndRemoveUntil(
-        child: const ReferralScreen(email: '', isSocialLogin: true),
-      );
+      // Do not keep an authenticated session created through the login entry
+      // point when the account has no completed profile.
+      await ref.read(authViewModelProvider.notifier).logout();
+      if (!mounted) return;
+
+      setState(() => _isLoading = false);
+      ref.read(toastProvider).showError('Account not found. Please sign up');
     }
   }
 
@@ -172,7 +177,7 @@ class _SocialSignUpState extends ConsumerState<SocialSignUp> {
           onTap: () {
             if (widget.isLogin) {
               // Navigate to Sign Up
-              NavigationService.push(child: FromWhereScreen());
+              NavigationService.push(child: const FromWhereScreen());
             } else {
               // Navigate to Log In
               NavigationService.push(child: const LoginScreen());
